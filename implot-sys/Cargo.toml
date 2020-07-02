@@ -10,3 +10,4 @@ build = "build.rs"
 
 [build-dependencies]
 cc = "1.0"
+imgui = { git = "https://github.com/aloucks/imgui-rs/", branch = "export_include" }

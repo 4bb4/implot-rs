@@ -7,6 +7,7 @@ description = "Raw FFI bindings to implot"
 license = "MIT/Apache-2.0"
 categories = ["gui", "external-ffi-bindings"]
 build = "build.rs"
+links = "implot"
 
 [dependencies]
 imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }

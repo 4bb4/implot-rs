@@ -1,0 +1,12 @@
+[package]
+name = "implot-sys-bindgen"
+version = "0.1.0"
+authors = ["Sandro Merkli"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bindgen = "0.53.1"
+imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }
+imgui = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }

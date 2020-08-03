@@ -15,4 +15,3 @@ imgui = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }
 
 [build-dependencies]
 cc = "1.0"
-bindgen = "0.53.1"

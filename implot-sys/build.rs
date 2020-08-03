@@ -5,8 +5,6 @@
 // for now, but expected to diverge from that over time.
 use std::{env, fs, io, path::Path};
 
-use bindgen;
-
 const CPP_FILES: [&str; 2] = [
     "third-party/cimplot/cimplot.cpp",
     "third-party/cimplot/implot/implot.cpp",
@@ -54,24 +52,6 @@ fn main() -> io::Result<()> {
         assert_file_exists(path)?;
         build.file(path);
     }
-
     build.compile("cimplot");
-
-    // --- Create bindgen bindings
-    // TODO(4bb4) move this out to separate shell script (see #1) so users don't have
-    // to have clang installed to build this crate.
-    let bindings = bindgen::Builder::default()
-        .header(&(cimgui_include_path.into_string().unwrap() + "/cimgui.h"))
-        .header("third-party/cimplot/cimplot.h")
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
-        .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let out_path = std::path::PathBuf::from(env::var("OUT_DIR").unwrap());
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
-
     Ok(())
 }

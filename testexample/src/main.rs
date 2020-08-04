@@ -1,5 +1,5 @@
 use imgui::*;
-use implot_sys;
+use implot;
 
 mod support;
 
@@ -19,48 +19,15 @@ fn main() {
                     mouse_pos[0], mouse_pos[1]
                 ));
 
-                // TODO(4bb4) Replace this with safe bindings once those are written
-
-                let x_values: [f64; 4] = [1.0, 2.0, 4.0, 5.0];
-                let y_values: [f64; 4] = [1.0, 0.0, 0.0, 1.0];
-                unsafe {
-                    if implot_sys::ImPlot_BeginPlot(
-                        im_str!("My Plot").as_ptr() as *const i8,
-                        im_str!("x").as_ptr() as *const i8,
-                        im_str!("y").as_ptr() as *const i8,
-                        implot_sys::ImVec2 { x: 600.0, y: 600.0 },
-                        0xFF,
-                        7,
-                        7,
-                        0,
-                        0,
-                    ) {
-                        implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
-                            im_str!("Mouth").as_ptr() as *const i8,
-                            x_values.as_ptr(),
-                            y_values.as_ptr(),
-                            x_values.len() as i32,
-                            0,
-                            8,
-                        );
-                        implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
-                            im_str!("Left eye").as_ptr() as *const i8,
-                            [2.0, 2.0].as_ptr(),
-                            [2.0, 1.0].as_ptr(),
-                            2i32,
-                            0,
-                            8,
-                        );
-                        implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
-                            im_str!("Right eye").as_ptr() as *const i8,
-                            [4.0, 4.0].as_ptr(),
-                            [2.0, 1.0].as_ptr(),
-                            2i32,
-                            0,
-                            8,
-                        );
-                        implot_sys::ImPlot_EndPlot();
-                    }
+                // Demo some implot stuff :D
+                let x_values = vec![1.0, 2.0, 4.0, 5.0];
+                let y_values = vec![1.0, 0.0, 0.0, 1.0];
+                let plot = implot::Plot::new();
+                if plot.begin() {
+                    implot::plot_line(&vec![2.0, 2.0], &vec![2.0, 1.0], "Left eye");
+                    implot::plot_line(&vec![4.0, 4.0], &vec![2.0, 1.0], "Right eye");
+                    implot::plot_line(&x_values, &y_values, "Mouth");
+                    plot.end();
                 }
             });
     });

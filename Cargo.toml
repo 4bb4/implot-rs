@@ -1,0 +1,23 @@
+[package]
+name = "implot"
+version = "0.1.0"
+edition = "2018"
+authors = ["Sandro Merkli", "implot-rs contributors"]
+description = "High-level Rust bindings to implot"
+homepage = "https://github.com/4bb4/implot-rs"
+repository = "https://github.com/4bb4/implot-rs"
+license = "MIT/Apache-2.0"
+categories = ["gui", "api-bindings"]
+
+[dependencies]
+implot-sys = { version = "0.1.0", path = "implot-sys" }
+
+
+[workspace]
+members = [
+    "implot-sys",
+]
+exclude = [
+    "implot-sys-bindgen",
+    "testexample",
+]

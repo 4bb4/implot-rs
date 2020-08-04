@@ -19,3 +19,4 @@ imgui-glium-renderer = { git = "https://github.com/Gekkio/imgui-rs/", branch = "
 imgui-winit-support = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }
 
 implot-sys = { path = "../implot-sys" }
+implot = { path = "../" }

@@ -1,11 +1,11 @@
 [package]
-name = "imgui-examples"
+name = "implot-examples"
 version = "0.0.0"
 edition = "2018"
-authors = ["Joonas Javanainen <joonas.javanainen@gmail.com>", "imgui-rs contributors"]
-description = "imgui crate examples using Glium backend"
-homepage = "https://github.com/Gekkio/imgui-rs"
-repository = "https://github.com/Gekkio/imgui-rs"
+authors = ["Sandro Merkli", "implot-rs contributors"]
+description = "implot examples, with backend code from the imgui examples in imgui-examples"
+homepage = "https://github.com/4bb4/implot-rs"
+repository = "https://github.com/4bb4/implot-rs"
 license = "MIT/Apache-2.0"
 publish = false
 

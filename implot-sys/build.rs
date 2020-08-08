@@ -5,9 +5,10 @@
 // for now, but expected to diverge from that over time.
 use std::{env, fs, io, path::Path};
 
-const CPP_FILES: [&str; 2] = [
+const CPP_FILES: [&str; 3] = [
     "third-party/cimplot/cimplot.cpp",
     "third-party/cimplot/implot/implot.cpp",
+    "third-party/cimplot/implot/implot_demo.cpp", // Could remove this if demo not used
 ];
 
 fn assert_file_exists(path: &str) -> io::Result<()> {

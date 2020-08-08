@@ -1,5 +1,5 @@
 use imgui::*;
-use implot;
+use implot::{Plot, PlotLine};
 
 mod support;
 
@@ -21,17 +21,17 @@ fn main() {
                 ui.checkbox(im_str!("Show demo"), &mut showing_demo);
 
                 // Draw a plot
-                implot::Plot::new("Demo plot")
+                Plot::new("Demo plot")
                     .size(400.0, 300.0)
                     .x_label("awesome x label")
                     .y_label("awesome y label")
                     .build(|| {
-                        implot::plot_line(&vec![2.0, 2.0], &vec![2.0, 1.0], "Left eye");
-                        implot::plot_line(&vec![4.0, 4.0], &vec![2.0, 1.0], "Right eye");
+                        PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
+                        PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);
 
                         let x_values = vec![1.0, 2.0, 4.0, 5.0];
                         let y_values = vec![1.0, 0.0, 0.0, 1.0];
-                        implot::plot_line(&x_values, &y_values, "Mouth");
+                        PlotLine::new("Mouth").plot(&x_values, &y_values);
                     });
             });
 

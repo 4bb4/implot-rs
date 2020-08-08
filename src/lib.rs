@@ -13,8 +13,7 @@ use sys::imgui::im_str;
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
 /// `Plot` is to be used (within an imgui window) with the following pattern:
-/// ```rust
-/// # // This doctest fails because we don't have an imgui context to run things in here
+/// ```no_run
 /// # use implot;
 /// implot::Plot::new("my title")
 ///     .size(300.0, 200.0) // other things such as .x_label("some_label") can be added too
@@ -91,10 +90,15 @@ impl Plot {
         self
     }
 
-    /// Attempt to show the plot. Only do things with it and call `end()` after that
-    /// if this returns `true`. Not to be used directly, use `build` instead.
-    fn begin(&self) -> bool {
-        unsafe {
+    /// Attempt to show the plot. If this returns a token, the plot will actually
+    /// be drawn. In this case, use the drawing functionality to draw things on the
+    /// plot, and then call `end()` on the token when done with the plot.
+    /// If none was returned, that means the plot is not rendered.
+    ///
+    /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
+    /// instead.
+    pub fn begin(&self) -> Option<PlotToken> {
+        let should_render = unsafe {
             sys::ImPlot_BeginPlot(
                 im_str!("{}", self.title).as_ptr(),
                 im_str!("{}", self.x_label).as_ptr(),
@@ -109,12 +113,18 @@ impl Plot {
                 self.x2_flags,
                 self.y2_flags,
             )
-        }
-    }
+        };
 
-    /// End (this) plot. This gets called from build()
-    fn end(&self) {
-        unsafe { sys::ImPlot_EndPlot() }
+        if should_render {
+            Some(PlotToken {
+                plot_title: self.title.clone(),
+                has_ended: false,
+            })
+        } else {
+            // In contrast with imgui windows, end() does not have to be
+            // called if we don't render. This is more like an imgui popup modal.
+            None
+        }
     }
 
     /// Creates a window and runs a closure to construct the contents.
@@ -122,25 +132,65 @@ impl Plot {
     /// Note: the closure is not called if ImPlot::BeginPlot() returned
     /// false - TODO(4bb4) figure out if this is if things are not rendered
     pub fn build<F: FnOnce()>(self, f: F) {
-        if self.begin() {
+        if let Some(token) = self.begin() {
             f();
-            self.end()
+            token.end()
         }
     }
 }
 
-// TODO(4bb4) convert to struct and add methods to set title and flags
-/// Plot a line. Use this in closures passed to [`Plot::build()`](struct.Plot.html#method.build)
-pub fn plot_line(x: &Vec<f64>, y: &Vec<f64>, label: &str) {
-    unsafe {
-        implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
-            im_str!("{}", label).as_ptr() as *const i8,
-            x.as_ptr(),
-            y.as_ptr(),
-            x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45
-            0,
-            8,
-        );
+/// Tracks a plot that must be ended by calling `.end()`
+pub struct PlotToken {
+    /// For better error messages
+    plot_title: String,
+    /// Whether end() has been called on this already or not
+    has_ended: bool,
+}
+
+impl PlotToken {
+    /// End a previously begin()'ed plot.
+    pub fn end(mut self) {
+        self.has_ended = true;
+        unsafe { sys::ImPlot_EndPlot() };
+    }
+}
+
+impl Drop for PlotToken {
+    fn drop(&mut self) {
+        if !self.has_ended && !std::thread::panicking() {
+            panic!(
+                "Warning: A PlotToken for plot \"{}\" was not called end() on",
+                self.plot_title
+            );
+        }
+    }
+}
+
+/// Struct to provide functionality for plotting a line in a plot.
+pub struct PlotLine {
+    /// Label to show in the legend for this line
+    label: String,
+}
+
+impl PlotLine {
+    pub fn new(label: &str) -> Self {
+        PlotLine {
+            label: label.to_owned(),
+        }
+    }
+
+    /// Plot a line. Use this in closures passed to [`Plot::build()`](struct.Plot.html#method.build)
+    pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+        unsafe {
+            implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
+                im_str!("{}", self.label).as_ptr() as *const i8,
+                x.as_ptr(),
+                y.as_ptr(),
+                x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
+                0,                           // No offset
+                std::mem::size_of::<f64>() as i32, // Stride, set to one f64 for the standard use case
+            );
+        }
     }
 }
 

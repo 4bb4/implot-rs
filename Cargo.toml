@@ -1,6 +1,6 @@
 [package]
 name = "implot"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2018"
 authors = ["Sandro Merkli", "implot-rs contributors"]
 description = "High-level Rust bindings to implot"
@@ -19,5 +19,5 @@ members = [
 ]
 exclude = [
     "implot-sys-bindgen",
-    "testexample",
+    "implot-examples",
 ]

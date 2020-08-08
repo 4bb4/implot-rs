@@ -1,10 +1,21 @@
 # implot-rs
 
-🚧 **Work in progress, check back later (or open an issue if you'd like to collaborate)** 🚧 
+Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
+[bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
 
+![demo](demo.png)
 
-Initial attempt at creating Rust bindings for https://github.com/epezent/implot. 
+## Requirements
+imgui-rs requires minimum Rust version 1.40, so this project does as well by extension.
+Currently the master branch of imgui-rs is used as a dependency until 
+https://github.com/Gekkio/imgui-rs/pull/339 makes it into a release.
 
-At this point, raw bindings are working in implot-sys, and there is a test example 
-(just an adapted version of imgui-rs' example) that calls into them for trying things
-out. More idiomatic bindings will be built next. 
+The sys crate compiles imgui, so a C++ compiler will also be required.
+
+## Status
+Currently a work in progress. The author is open to collaboration, if you'd like to 
+help, feel free to reach out via a Github issue.
+
+At this point, raw bindings are working in implot-sys, and more idiomatic interfaces
+for plot creation as well as adding lines to plots are implemented. Everything else 
+is still being built.

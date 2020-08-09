@@ -9,6 +9,7 @@
 //!
 pub extern crate implot_sys as sys;
 use sys::imgui::im_str;
+pub use sys::imgui::Condition;
 
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
@@ -27,14 +28,22 @@ use sys::imgui::im_str;
 pub struct Plot {
     /// Title of the plot, shown on top.
     title: String,
-    /// Label of the x axis, shown on the bottom
-    x_label: String,
-    /// Label of the y axis, shown on the left
-    y_label: String,
     /// Size of the plot in x direction, in the same units imgui uses.
     size_x: f32,
     /// Size of the plot in y direction, in the same units imgui uses.
     size_y: f32,
+    /// Label of the x axis, shown on the bottom
+    x_label: String,
+    /// Label of the y axis, shown on the left
+    y_label: String,
+    /// X axis limits, if present
+    x_limits: Option<[f64; 2]>,
+    /// Y axis limits, if present
+    y_limits: Option<[f64; 2]>,
+    /// Condition on which the x limits are set
+    x_limit_condition: Option<Condition>,
+    /// Condition on which the y limits are set (first y axis for now)
+    y_limit_condition: Option<Condition>,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
     /// Flags relating to the first x axis of the plot TODO(4bb4) make those into bitflags
@@ -55,10 +64,14 @@ impl Plot {
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
             title: title.to_owned(),
-            x_label: "".to_owned(),
-            y_label: "".to_owned(),
             size_x: 400.0,
             size_y: 400.0,
+            x_label: "".to_owned(),
+            y_label: "".to_owned(),
+            x_limits: None,
+            y_limits: None,
+            x_limit_condition: None,
+            y_limit_condition: None,
             plot_flags: 0xFF, // TODO(4bb4) define the defaults better
             x_flags: 7,       // TODO(4bb4) define the defaults better
             y_flags: 7,       // TODO(4bb4) define the defaults better
@@ -90,6 +103,22 @@ impl Plot {
         self
     }
 
+    /// Set the x limits of the plot
+    #[inline]
+    pub fn x_limits(mut self, x_min: f64, x_max: f64, condition: Condition) -> Self {
+        self.x_limits = Some([x_min, x_max]);
+        self.x_limit_condition = Some(condition);
+        self
+    }
+
+    /// Set the y limits of the plot
+    #[inline]
+    pub fn y_limits(mut self, y_min: f64, y_max: f64, condition: Condition) -> Self {
+        self.y_limits = Some([y_min, y_max]);
+        self.y_limit_condition = Some(condition);
+        self
+    }
+
     /// Attempt to show the plot. If this returns a token, the plot will actually
     /// be drawn. In this case, use the drawing functionality to draw things on the
     /// plot, and then call `end()` on the token when done with the plot.
@@ -98,6 +127,22 @@ impl Plot {
     /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
     /// instead.
     pub fn begin(&self) -> Option<PlotToken> {
+        if let (Some(limits), Some(condition)) = (self.x_limits, self.x_limit_condition) {
+            unsafe {
+                sys::ImPlot_SetNextPlotLimitsX(limits[0], limits[1], condition as sys::ImGuiCond);
+            }
+        }
+        if let (Some(limits), Some(condition)) = (self.y_limits, self.y_limit_condition) {
+            // TODO(4bb4) allow for specification of multiple y limits, not just the first
+            unsafe {
+                sys::ImPlot_SetNextPlotLimitsY(
+                    limits[0],
+                    limits[1],
+                    condition as sys::ImGuiCond,
+                    0,
+                );
+            }
+        }
         let should_render = unsafe {
             sys::ImPlot_BeginPlot(
                 im_str!("{}", self.title).as_ptr(),

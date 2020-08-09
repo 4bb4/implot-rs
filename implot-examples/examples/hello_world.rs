@@ -25,6 +25,8 @@ fn main() {
                     .size(400.0, 300.0)
                     .x_label("awesome x label")
                     .y_label("awesome y label")
+                    .x_limits(0.0, 6.0, Condition::FirstUseEver)
+                    .y_limits(-1.0, 3.0, Condition::FirstUseEver)
                     .build(|| {
                         PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
                         PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);

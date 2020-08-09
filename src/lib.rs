@@ -226,6 +226,10 @@ impl PlotLine {
 
     /// Plot a line. Use this in closures passed to [`Plot::build()`](struct.Plot.html#method.build)
     pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+        // If there is no data to plot, we stop here
+        if x.len().min(y.len()) == 0 {
+            return;
+        }
         unsafe {
             implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
                 im_str!("{}", self.label).as_ptr() as *const i8,

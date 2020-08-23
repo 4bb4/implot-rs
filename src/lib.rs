@@ -320,8 +320,9 @@ pub struct PlotLine {
 }
 
 impl PlotLine {
+    /// Create a new line to be plotted. Does not draw anything yet.
     pub fn new(label: &str) -> Self {
-        PlotLine {
+        Self {
             label: label.to_owned(),
         }
     }
@@ -333,13 +334,68 @@ impl PlotLine {
             return;
         }
         unsafe {
-            implot_sys::ImPlot_PlotLinedoublePtrdoublePtr(
+            sys::ImPlot_PlotLinedoublePtrdoublePtr(
                 im_str!("{}", self.label).as_ptr() as *const i8,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
                 0,                           // No offset
                 std::mem::size_of::<f64>() as i32, // Stride, set to one f64 for the standard use case
+            );
+        }
+    }
+}
+
+/// Struct to provide functionality for adding text within a plot
+pub struct PlotText {
+    /// Label to show in plot
+    label: String,
+
+    /// X component of the pixel offset to be used. Will be used independently of the actual plot
+    /// scaling. Defaults to 0.
+    pixel_offset_x: f32,
+
+    /// Y component of the pixel offset to be used. Will be used independently of the actual plot
+    /// scaling. Defaults to 0.
+    pixel_offset_y: f32,
+}
+
+impl PlotText {
+    /// Create a new text label to be shown. Does not draw anything yet.
+    pub fn new(label: &str) -> Self {
+        Self {
+            label: label.into(),
+            pixel_offset_x: 0.0,
+            pixel_offset_y: 0.0,
+        }
+    }
+
+    /// Add a pixel offset to the text to be plotted. This offset will be independent of the
+    /// scaling of the plot itself.
+    pub fn with_pixel_offset(mut self, offset_x: f32, offset_y: f32) -> Self {
+        self.pixel_offset_x = offset_x;
+        self.pixel_offset_y = offset_y;
+        self
+    }
+
+    /// Draw the text label in the plot at the given position, optionally vertically. Use this in
+    /// closures passed to [`Plot::build()`](struct.Plot.html#method.build)
+    pub fn plot(&self, x: f64, y: f64, vertical: bool) {
+        // If there is nothing to show, don't do anything
+        if self.label == "" {
+            return;
+        }
+
+        unsafe {
+            sys::ImPlot_PlotTextdouble(
+                im_str!("{}", self.label).as_ptr() as *const i8,
+                x,
+                y,
+                vertical,
+                sys::ImVec2 {
+                    x: self.pixel_offset_x,
+                    y: self.pixel_offset_y,
+                },
             );
         }
     }

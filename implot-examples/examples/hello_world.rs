@@ -1,5 +1,5 @@
 use imgui::*;
-use implot::{AxisFlags, Plot, PlotFlags, PlotLine};
+use implot::{AxisFlags, Plot, PlotFlags, PlotLine, PlotText};
 
 mod support;
 
@@ -28,14 +28,21 @@ fn main() {
                     .x_limits(0.0, 6.0, Condition::FirstUseEver)
                     .y_limits(-1.0, 3.0, Condition::FirstUseEver)
                     .with_plot_flags(&(PlotFlags::DEFAULT))
-                    .with_y_axis_flags(&(AxisFlags::INVERT))
+                    .with_y_axis_flags(&(AxisFlags::DEFAULT | AxisFlags::INVERT))
                     .build(|| {
+                        // Line plotting
                         PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
                         PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);
-
                         let x_values = vec![1.0, 2.0, 4.0, 5.0];
                         let y_values = vec![1.0, 0.0, 0.0, 1.0];
                         PlotLine::new("Mouth").plot(&x_values, &y_values);
+
+                        // Text
+                        PlotText::new("Text!").plot(2.0, 2.0, false);
+                        PlotText::new("Text with offset!")
+                            .with_pixel_offset(10.0, 30.0)
+                            .plot(2.0, 2.0, false);
+                        PlotText::new("Vertical Text!").plot(0.1, 2.5, true);
                     });
             });
 

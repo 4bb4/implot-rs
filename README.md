@@ -24,9 +24,8 @@ is still being built.
   - [x] Basic hello world
   - [x] Plot flags
 - [ ] Plotting functionality
-  - [ ] Line plot
-    - [x] Single y axis
-    - [ ] Multiple y axes
+  - [x] Line plot
+  - [x] Text plot
   - [ ] Scatter plot
   - [ ] Bar plot
     - [ ] Vertical
@@ -34,7 +33,6 @@ is still being built.
   - [ ] Error bar plot
     - [ ] Vertical
     - [ ] Horizontal
-  - [ ] Text
   - [ ] Heatmap
   - [ ] Pie chart
   - [ ] Digital data

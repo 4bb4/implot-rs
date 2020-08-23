@@ -11,10 +11,13 @@ pub extern crate implot_sys as sys;
 use bitflags::bitflags;
 use sys::imgui::im_str;
 pub use sys::imgui::Condition;
+// TODO(4bb4) facade-wrap these
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
 
+// --- Enum definitions --------------------------------------------------------------------------
 bitflags! {
     /// Window hover check option flags. Documentation copied from implot.h for convenience.
     #[repr(transparent)]
@@ -78,6 +81,44 @@ bitflags! {
     }
 }
 
+bitflags! {
+    /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
+    /// name somewhat confusing because we are not referring to colors, but _which_ thing can
+    /// be colored - hence I added the "Element".
+    #[repr(transparent)]
+    pub struct PlotColorElement: u32 {
+        /// Plot line/outline color (defaults to next unused color in current colormap)
+        const LINE = sys::ImPlotCol__ImPlotCol_Line;
+        /// Plot fill color for bars (defaults to the current line color)
+        const FILL = sys::ImPlotCol__ImPlotCol_Fill;
+        /// Marker outline color (defaults to the current line color)
+        const MARKER_OUTLINE = sys::ImPlotCol__ImPlotCol_MarkerOutline;
+        /// Marker fill color (defaults to the current line color)
+        const MARKER_FILL = sys::ImPlotCol__ImPlotCol_MarkerFill;
+        /// Error bar color (defaults to text color)
+        const ERROR_BAR = sys::ImPlotCol__ImPlotCol_ErrorBar;
+        /// Plot frame background color (defaults to FRAME_BG)
+        const FRAME_BG = sys::ImPlotCol__ImPlotCol_FrameBg;
+        /// Plot area background color (defaults to WINDOW_BG)
+        const PLOT_BG = sys::ImPlotCol__ImPlotCol_PlotBg;
+        /// Plot area border color (defaults to text color)
+        const PLOT_BORDER = sys::ImPlotCol__ImPlotCol_PlotBorder;
+        /// X-axis grid/label color (defaults to 25% text color)
+        const X_AXIS = sys::ImPlotCol__ImPlotCol_XAxis;
+        /// Y-axis grid/label color (defaults to 25% text color)
+        const Y_AXIS = sys::ImPlotCol__ImPlotCol_YAxis;
+        /// 2nd y-axis grid/label color (defaults to 25% text color)
+        const Y_AXIS2 = sys::ImPlotCol__ImPlotCol_YAxis2;
+        /// 3rd y-axis grid/label color (defaults to 25% text color)
+        const Y_AXIS3 = sys::ImPlotCol__ImPlotCol_YAxis3;
+        /// Box-selection color (defaults to yellow)
+        const SELECTION = sys::ImPlotCol__ImPlotCol_Selection;
+        /// Box-query color (defaults to green)
+        const QUERY = sys::ImPlotCol__ImPlotCol_Query;
+    }
+}
+
+// --- Main plot structure -----------------------------------------------------------------------
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
 /// `Plot` is to be used (within an imgui window) with the following pattern:
@@ -104,9 +145,9 @@ pub struct Plot {
     /// Label of the y axis, shown on the left
     y_label: String,
     /// X axis limits, if present
-    x_limits: Option<[f64; 2]>,
+    x_limits: Option<ImPlotRange>,
     /// Y axis limits, if present
-    y_limits: Option<[f64; 2]>,
+    y_limits: Option<ImPlotRange>,
     /// Condition on which the x limits are set
     x_limit_condition: Option<Condition>,
     /// Condition on which the y limits are set (first y axis for now)
@@ -172,16 +213,16 @@ impl Plot {
 
     /// Set the x limits of the plot
     #[inline]
-    pub fn x_limits(mut self, x_min: f64, x_max: f64, condition: Condition) -> Self {
-        self.x_limits = Some([x_min, x_max]);
+    pub fn x_limits(mut self, limits: &ImPlotRange, condition: Condition) -> Self {
+        self.x_limits = Some(*limits);
         self.x_limit_condition = Some(condition);
         self
     }
 
     /// Set the y limits of the plot
     #[inline]
-    pub fn y_limits(mut self, y_min: f64, y_max: f64, condition: Condition) -> Self {
-        self.y_limits = Some([y_min, y_max]);
+    pub fn y_limits(mut self, limits: &ImPlotRange, condition: Condition) -> Self {
+        self.y_limits = Some(*limits);
         self.y_limit_condition = Some(condition);
         self
     }
@@ -231,17 +272,18 @@ impl Plot {
     pub fn begin(&self) -> Option<PlotToken> {
         if let (Some(limits), Some(condition)) = (self.x_limits, self.x_limit_condition) {
             unsafe {
-                sys::ImPlot_SetNextPlotLimitsX(limits[0], limits[1], condition as sys::ImGuiCond);
+                sys::ImPlot_SetNextPlotLimitsX(limits.Min, limits.Max, condition as sys::ImGuiCond);
             }
         }
         if let (Some(limits), Some(condition)) = (self.y_limits, self.y_limit_condition) {
             // TODO(4bb4) allow for specification of multiple y limits, not just the first
+            let selected_y_axis = 0;
             unsafe {
                 sys::ImPlot_SetNextPlotLimitsY(
-                    limits[0],
-                    limits[1],
+                    limits.Min,
+                    limits.Max,
                     condition as sys::ImGuiCond,
-                    0,
+                    selected_y_axis,
                 );
             }
         }
@@ -313,6 +355,7 @@ impl Drop for PlotToken {
     }
 }
 
+// --- Actual plotting functionality -------------------------------------------------------------
 /// Struct to provide functionality for plotting a line in a plot.
 pub struct PlotLine {
     /// Label to show in the legend for this line
@@ -401,6 +444,53 @@ impl PlotText {
     }
 }
 
+// --- Push/pop utils -------------------------------------------------------------------------
+// Currently not in a struct yet. imgui-rs has some smarts about dealing with stacks, in particular
+// leak detection, which I'd like to replicate here at some point.
+/// Push a style color to the stack, giving an element and the four components of the color.
+/// The components should be between 0.0 (no intensity) and 1.0 (full intensity)
+pub fn push_style_color(element: &PlotColorElement, red: f32, green: f32, blue: f32, alpha: f32) {
+    // TODO this is actually unsafe, safe-wrap this like in imgui-rs' stacks.rs
+    unsafe {
+        sys::ImPlot_PushStyleColorVec4(
+            element.bits() as sys::ImPlotCol,
+            sys::ImVec4 {
+                x: red,
+                y: green,
+                z: blue,
+                w: alpha,
+            },
+        );
+    }
+}
+
+/// Pop a given number of previously-pushed style color from the stack.
+pub fn pop_style_color(count: i32) {
+    // TODO this is actually unsafe, safe-wrap this like in imgui-rs' stacks.rs
+    unsafe { sys::ImPlot_PopStyleColor(count) }
+}
+
+// --- Miscellaneous -----------------------------------------------------------------------------
+/// Returns true if the plot area in the current or most recent plot is hovered.
+pub fn is_plot_hovered() -> bool {
+    unsafe { sys::ImPlot_IsPlotHovered() }
+}
+
+/// Returns the mouse position in x,y coordinates of the current or most recent plot. Currently
+/// pertains to whatever Y axis was most recently selected. TODO(4bb4) add y axis selection
+pub fn get_plot_mouse_position() -> ImPlotPoint {
+    let y_axis_selection = 0;
+    unsafe { sys::ImPlot_GetPlotMousePos(y_axis_selection) }
+}
+
+/// Returns the current or most recent plot axis range. Currently pertains to whatever Y axis was
+/// most recently selected. TODO(4bb4) add y axis selection
+pub fn get_plot_limits() -> ImPlotLimits {
+    let y_axis_selection = 0;
+    unsafe { sys::ImPlot_GetPlotLimits(y_axis_selection) }
+}
+
+// --- Demo window -------------------------------------------------------------------------------
 /// Show the demo window for poking around what functionality implot has to
 /// offer. Note that not all of this is necessarily implemented in implot-rs
 /// already - if you find something missing you'd really like, raise an issue.

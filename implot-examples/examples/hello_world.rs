@@ -1,5 +1,11 @@
 use imgui::*;
-use implot::{AxisFlags, Plot, PlotFlags, PlotLine, PlotText};
+use implot::{
+    get_plot_limits, get_plot_mouse_position, is_plot_hovered, pop_style_color, push_style_color,
+};
+use implot::{
+    AxisFlags, ImPlotLimits, ImPlotPoint, ImPlotRange, Plot, PlotColorElement, PlotFlags, PlotLine,
+    PlotText,
+};
 
 mod support;
 
@@ -20,13 +26,24 @@ fn main() {
                 ));
                 ui.checkbox(im_str!("Show demo"), &mut showing_demo);
 
+                // Create some containers for exfiltrating data from the closure below
+                let mut hover_pos: Option<ImPlotPoint> = None;
+                let mut plot_limits: Option<ImPlotLimits> = None;
+
                 // Draw a plot
+                push_style_color(&PlotColorElement::PLOT_BG, 1.0, 1.0, 1.0, 0.2);
                 Plot::new("Demo plot")
                     .size(400.0, 300.0)
                     .x_label("awesome x label")
                     .y_label("awesome y label")
-                    .x_limits(0.0, 6.0, Condition::FirstUseEver)
-                    .y_limits(-1.0, 3.0, Condition::FirstUseEver)
+                    .x_limits(&ImPlotRange { Min: 0.0, Max: 6.0 }, Condition::FirstUseEver)
+                    .y_limits(
+                        &ImPlotRange {
+                            Min: -1.0,
+                            Max: 3.0,
+                        },
+                        Condition::FirstUseEver,
+                    )
                     .with_plot_flags(&(PlotFlags::DEFAULT))
                     .with_y_axis_flags(&(AxisFlags::DEFAULT | AxisFlags::INVERT))
                     .build(|| {
@@ -43,7 +60,31 @@ fn main() {
                             .with_pixel_offset(10.0, 30.0)
                             .plot(2.0, 2.0, false);
                         PlotText::new("Vertical Text!").plot(0.1, 2.5, true);
+                        if is_plot_hovered() {
+                            hover_pos = Some(get_plot_mouse_position());
+                        }
+                        plot_limits = Some(get_plot_limits());
                     });
+
+                // Print some previously-exfiltrated info. This is because calling
+                // things like is_plot_hovered or get_plot_mouse_position() outside
+                // of an actual Plot is not allowed.
+                if let Some(pos) = hover_pos {
+                    ui.text(im_str!("hovered at {}, {}", pos.x, pos.y));
+                }
+                if let Some(limits) = plot_limits {
+                    ui.text(im_str!(
+                        "X limits are {:+10.3}, {:+10.3}",
+                        limits.X.Min,
+                        limits.X.Max
+                    ));
+                    ui.text(im_str!(
+                        "Y limits are {:+10.3}, {:+10.3}",
+                        limits.Y.Min,
+                        limits.Y.Max
+                    ));
+                }
+                pop_style_color(1);
             });
 
         if showing_demo {

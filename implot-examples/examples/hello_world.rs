@@ -1,5 +1,5 @@
 use imgui::*;
-use implot::{Plot, PlotLine};
+use implot::{AxisFlags, Plot, PlotFlags, PlotLine};
 
 mod support;
 
@@ -27,6 +27,8 @@ fn main() {
                     .y_label("awesome y label")
                     .x_limits(0.0, 6.0, Condition::FirstUseEver)
                     .y_limits(-1.0, 3.0, Condition::FirstUseEver)
+                    .with_plot_flags(&(PlotFlags::DEFAULT))
+                    .with_y_axis_flags(&(AxisFlags::INVERT))
                     .build(|| {
                         PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
                         PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);

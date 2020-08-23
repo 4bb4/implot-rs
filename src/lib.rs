@@ -8,8 +8,75 @@
 //!
 //!
 pub extern crate implot_sys as sys;
+use bitflags::bitflags;
 use sys::imgui::im_str;
 pub use sys::imgui::Condition;
+
+const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
+const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
+
+bitflags! {
+    /// Window hover check option flags. Documentation copied from implot.h for convenience.
+    #[repr(transparent)]
+    pub struct PlotFlags: u32 {
+        /// The mouse position, in plot coordinates, will be displayed in the bottom-right
+        const MOUSE_POSITION = sys::ImPlotFlags__ImPlotFlags_MousePos;
+        /// A legend will be displayed in the top-left
+        const LEGEND = sys::ImPlotFlags__ImPlotFlags_Legend;
+        /// Plot items will be highlighted when their legend entry is hovered
+        const HIGHLIGHT = sys::ImPlotFlags__ImPlotFlags_Highlight;
+        /// The user will be able to box-select with right-mouse
+        const BOX_SELECT = sys::ImPlotFlags__ImPlotFlags_BoxSelect;
+        /// The user will be able to draw query rects with middle-mouse
+        const QUERY = sys::ImPlotFlags__ImPlotFlags_Query;
+        /// The user will be able to open a context menu with double-right click
+        const CONTEXT_MENU = sys::ImPlotFlags__ImPlotFlags_ContextMenu;
+        /// The default mouse cursor will be replaced with a crosshair when hovered
+        const CROSSHAIRS = sys::ImPlotFlags__ImPlotFlags_Crosshairs;
+        /// Plot data outside the plot area will be culled from rendering
+        const CULL_DATA = sys::ImPlotFlags__ImPlotFlags_CullData;
+        /// Lines and fills will be anti-aliased (not recommended)
+        const ANTIALIASED = sys::ImPlotFlags__ImPlotFlags_AntiAliased;
+        /// A child window region will not be used to capture mouse scroll (can boost performance
+        /// for single ImGui window applications)
+        const NO_CHILD = sys::ImPlotFlags__ImPlotFlags_NoChild;
+        /// Enable a 2nd y axis
+        const Y_AXIS_2 = sys::ImPlotFlags__ImPlotFlags_YAxis2;
+        /// Enable a 3nd y axis
+        const Y_AXIS_3 = sys::ImPlotFlags__ImPlotFlags_YAxis3;
+        /// Default selection of flags
+        const DEFAULT = sys::ImPlotFlags__ImPlotFlags_Default;
+    }
+}
+
+bitflags! {
+    /// Axis flags. Documentation copied from implot.h for convenience.
+    #[repr(transparent)]
+    pub struct AxisFlags: u32 {
+        /// Grid lines will be displayed
+        const GRID_LINES = sys::ImPlotAxisFlags__ImPlotAxisFlags_GridLines;
+        /// Tick marks will be displayed for each grid line
+        const TICK_MARKS = sys::ImPlotAxisFlags__ImPlotAxisFlags_TickMarks;
+        /// Text labels will be displayed for each grid line
+        const TICK_LABELS = sys::ImPlotAxisFlags__ImPlotAxisFlags_TickLabels;
+        /// The axis will be inverted
+        const INVERT = sys::ImPlotAxisFlags__ImPlotAxisFlags_Invert;
+        /// The axis minimum value will be locked when panning/zooming
+        const LOCK_MIN = sys::ImPlotAxisFlags__ImPlotAxisFlags_LockMin;
+        /// The axis maximum value will be locked when panning/zooming
+        const LOCK_MAX = sys::ImPlotAxisFlags__ImPlotAxisFlags_LockMax;
+        /// Grid divisions will adapt to the current pixel size the axis
+        const ADAPTIVE = sys::ImPlotAxisFlags__ImPlotAxisFlags_Adaptive;
+        /// A logartithmic (base 10) axis scale will be used
+        const LOG_SCALE = sys::ImPlotAxisFlags__ImPlotAxisFlags_LogScale;
+        /// Scientific notation will be used for tick labels if displayed (WIP, not very good yet)
+        const SCIENTIFIC = sys::ImPlotAxisFlags__ImPlotAxisFlags_Scientific;
+        /// Default set of flags
+        const DEFAULT = sys::ImPlotAxisFlags__ImPlotAxisFlags_Default;
+        /// Same as defaults, but without grid lines
+        const AUXILIARY = sys::ImPlotAxisFlags__ImPlotAxisFlags_Auxiliary;
+    }
+}
 
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
@@ -50,12 +117,12 @@ pub struct Plot {
     x_flags: sys::ImPlotAxisFlags,
     /// Flags relating to the first y axis of the plot TODO(4bb4) make those into bitflags
     y_flags: sys::ImPlotAxisFlags,
-    /// Flags relating to the second x axis of the plot (if present, otherwise ignored)
-    /// TODO(4bb4) make those into bitflags
-    x2_flags: sys::ImPlotAxisFlags,
     /// Flags relating to the second y axis of the plot (if present, otherwise ignored)
     /// TODO(4bb4) make those into bitflags
     y2_flags: sys::ImPlotAxisFlags,
+    /// Flags relating to the third y axis of the plot (if present, otherwise ignored)
+    /// TODO(4bb4) make those into bitflags
+    y3_flags: sys::ImPlotAxisFlags,
 }
 
 impl Plot {
@@ -64,19 +131,19 @@ impl Plot {
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
             title: title.to_owned(),
-            size_x: 400.0,
-            size_y: 400.0,
+            size_x: DEFAULT_PLOT_SIZE_X,
+            size_y: DEFAULT_PLOT_SIZE_Y,
             x_label: "".to_owned(),
             y_label: "".to_owned(),
             x_limits: None,
             y_limits: None,
             x_limit_condition: None,
             y_limit_condition: None,
-            plot_flags: 0xFF, // TODO(4bb4) define the defaults better
-            x_flags: 7,       // TODO(4bb4) define the defaults better
-            y_flags: 7,       // TODO(4bb4) define the defaults better
-            x2_flags: 0,      // TODO(4bb4) define the defaults better
-            y2_flags: 0,      // TODO(4bb4) define the defaults better
+            plot_flags: PlotFlags::DEFAULT.bits() as sys::ImPlotFlags,
+            x_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
+            y_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
+            y2_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
+            y3_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
         }
     }
 
@@ -119,6 +186,41 @@ impl Plot {
         self
     }
 
+    /// Set the plot flags, see the help for `PlotFlags` for what the available flags are
+    #[inline]
+    pub fn with_plot_flags(mut self, flags: &PlotFlags) -> Self {
+        self.plot_flags = flags.bits() as sys::ImPlotFlags;
+        self
+    }
+
+    /// Set the axis flags for the X axis in this plot
+    #[inline]
+    pub fn with_x_axis_flags(mut self, flags: &AxisFlags) -> Self {
+        self.x_flags = flags.bits() as sys::ImPlotAxisFlags;
+        self
+    }
+
+    /// Set the axis flags for the first Y axis in this plot
+    #[inline]
+    pub fn with_y_axis_flags(mut self, flags: &AxisFlags) -> Self {
+        self.y_flags = flags.bits() as sys::ImPlotAxisFlags;
+        self
+    }
+
+    /// Set the axis flags for the second Y axis in this plot
+    #[inline]
+    pub fn with_y2_axis_flags(mut self, flags: &AxisFlags) -> Self {
+        self.y2_flags = flags.bits() as sys::ImPlotAxisFlags;
+        self
+    }
+
+    /// Set the axis flags for the third Y axis in this plot
+    #[inline]
+    pub fn with_y3_axis_flags(mut self, flags: &AxisFlags) -> Self {
+        self.y3_flags = flags.bits() as sys::ImPlotAxisFlags;
+        self
+    }
+
     /// Attempt to show the plot. If this returns a token, the plot will actually
     /// be drawn. In this case, use the drawing functionality to draw things on the
     /// plot, and then call `end()` on the token when done with the plot.
@@ -155,8 +257,8 @@ impl Plot {
                 self.plot_flags,
                 self.x_flags,
                 self.y_flags,
-                self.x2_flags,
                 self.y2_flags,
+                self.y3_flags,
             )
         };
 

@@ -9,6 +9,7 @@
 //!
 pub extern crate implot_sys as sys;
 use bitflags::bitflags;
+use std::convert::TryFrom;
 use sys::imgui::im_str;
 pub use sys::imgui::Condition;
 // TODO(4bb4) facade-wrap these
@@ -18,6 +19,9 @@ const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
 
 // --- Enum definitions --------------------------------------------------------------------------
+// Things that are to be combined like flags are done using bitflags, and things that are meant
+// as enumerations in the traditional sense are plain enums.
+
 bitflags! {
     /// Window hover check option flags. Documentation copied from implot.h for convenience.
     #[repr(transparent)]
@@ -82,40 +86,89 @@ bitflags! {
 }
 
 bitflags! {
-    /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
-    /// name somewhat confusing because we are not referring to colors, but _which_ thing can
-    /// be colored - hence I added the "Element".
+    /// Axis flags. Documentation copied from implot.h for convenience.
     #[repr(transparent)]
-    pub struct PlotColorElement: u32 {
-        /// Plot line/outline color (defaults to next unused color in current colormap)
-        const LINE = sys::ImPlotCol__ImPlotCol_Line;
-        /// Plot fill color for bars (defaults to the current line color)
-        const FILL = sys::ImPlotCol__ImPlotCol_Fill;
-        /// Marker outline color (defaults to the current line color)
-        const MARKER_OUTLINE = sys::ImPlotCol__ImPlotCol_MarkerOutline;
-        /// Marker fill color (defaults to the current line color)
-        const MARKER_FILL = sys::ImPlotCol__ImPlotCol_MarkerFill;
-        /// Error bar color (defaults to text color)
-        const ERROR_BAR = sys::ImPlotCol__ImPlotCol_ErrorBar;
-        /// Plot frame background color (defaults to FRAME_BG)
-        const FRAME_BG = sys::ImPlotCol__ImPlotCol_FrameBg;
-        /// Plot area background color (defaults to WINDOW_BG)
-        const PLOT_BG = sys::ImPlotCol__ImPlotCol_PlotBg;
-        /// Plot area border color (defaults to text color)
-        const PLOT_BORDER = sys::ImPlotCol__ImPlotCol_PlotBorder;
-        /// X-axis grid/label color (defaults to 25% text color)
-        const X_AXIS = sys::ImPlotCol__ImPlotCol_XAxis;
-        /// Y-axis grid/label color (defaults to 25% text color)
-        const Y_AXIS = sys::ImPlotCol__ImPlotCol_YAxis;
-        /// 2nd y-axis grid/label color (defaults to 25% text color)
-        const Y_AXIS2 = sys::ImPlotCol__ImPlotCol_YAxis2;
-        /// 3rd y-axis grid/label color (defaults to 25% text color)
-        const Y_AXIS3 = sys::ImPlotCol__ImPlotCol_YAxis3;
-        /// Box-selection color (defaults to yellow)
-        const SELECTION = sys::ImPlotCol__ImPlotCol_Selection;
-        /// Box-query color (defaults to green)
-        const QUERY = sys::ImPlotCol__ImPlotCol_Query;
+    pub struct Marker: u32 {
+        /// no marker
+        const NONE   = sys::ImPlotMarker__ImPlotMarker_None;
+        /// a circle marker will be rendered at each point
+        const CIRCLE = sys::ImPlotMarker__ImPlotMarker_Circle;
+        /// a square maker will be rendered at each point
+        const SQUARE = sys::ImPlotMarker__ImPlotMarker_Square;
+        /// a diamond marker will be rendered at each point
+        const DIAMOND = sys::ImPlotMarker__ImPlotMarker_Diamond;
+        /// an upward-pointing triangle marker will up rendered at each point
+        const UP = sys::ImPlotMarker__ImPlotMarker_Up;
+        /// an downward-pointing triangle marker will up rendered at each point
+        const DOWN = sys::ImPlotMarker__ImPlotMarker_Down;
+        /// an leftward-pointing triangle marker will up rendered at each point
+        const LEFT = sys::ImPlotMarker__ImPlotMarker_Left;
+        /// an rightward-pointing triangle marker will up rendered at each point
+        const RIGHT = sys::ImPlotMarker__ImPlotMarker_Right;
+        /// a cross marker will be rendered at each point (not filled)
+        const CROSS = sys::ImPlotMarker__ImPlotMarker_Cross;
+        /// a plus marker will be rendered at each point (not filled)
+        const PLUS = sys::ImPlotMarker__ImPlotMarker_Plus;
+        /// a asterisk marker will be rendered at each point (not filled)
+        const ASTERISK = sys::ImPlotMarker__ImPlotMarker_Asterisk;
     }
+}
+
+/// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
+/// name somewhat confusing because we are not referring to colors, but _which_ thing can
+/// be colored - hence I added the "Element".
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum PlotColorElement {
+    /// Plot line/outline color (defaults to next unused color in current colormap)
+    Line = sys::ImPlotCol__ImPlotCol_Line,
+    /// Plot fill color for bars (defaults to the current line color)
+    Fill = sys::ImPlotCol__ImPlotCol_Fill,
+    /// Marker outline color (defaults to the current line color)
+    MarkerOutline = sys::ImPlotCol__ImPlotCol_MarkerOutline,
+    /// Marker fill color (defaults to the current line color)
+    MarkerFill = sys::ImPlotCol__ImPlotCol_MarkerFill,
+    /// Error bar color (defaults to text color)
+    ErrorBar = sys::ImPlotCol__ImPlotCol_ErrorBar,
+    /// Plot frame background color (defaults to FRAME_BG)
+    FrameBg = sys::ImPlotCol__ImPlotCol_FrameBg,
+    /// Plot area background color (defaults to WINDOW_BG)
+    PlotBg = sys::ImPlotCol__ImPlotCol_PlotBg,
+    /// Plot area border color (defaults to text color)
+    PlotBorder = sys::ImPlotCol__ImPlotCol_PlotBorder,
+    /// X-axis grid/label color (defaults to 25% text color)
+    XAxis = sys::ImPlotCol__ImPlotCol_XAxis,
+    /// Y-axis grid/label color (defaults to 25% text color)
+    YAxis = sys::ImPlotCol__ImPlotCol_YAxis,
+    /// 2nd y-axis grid/label color (defaults to 25% text color)
+    YAxis2 = sys::ImPlotCol__ImPlotCol_YAxis2,
+    /// 3rd y-axis grid/label color (defaults to 25% text color)
+    YAxis3 = sys::ImPlotCol__ImPlotCol_YAxis3,
+    /// Box-selection color (defaults to yellow)
+    Selection = sys::ImPlotCol__ImPlotCol_Selection,
+    /// Box-query color (defaults to green)
+    Query = sys::ImPlotCol__ImPlotCol_Query,
+}
+
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum StyleVar {
+    /// f32, line weight in pixels
+    LineWeight = sys::ImPlotStyleVar__ImPlotStyleVar_LineWeight,
+    /// u32,  marker specification
+    Marker = sys::ImPlotStyleVar__ImPlotStyleVar_Marker,
+    /// f32, marker size in pixels (roughly the marker's "radius")
+    MarkerSize = sys::ImPlotStyleVar__ImPlotStyleVar_MarkerSize,
+    /// f32, outline weight of markers in pixels
+    MarkerWeight = sys::ImPlotStyleVar__ImPlotStyleVar_MarkerWeight,
+    /// f32, error bar whisker width in pixels
+    ErrorBarSize = sys::ImPlotStyleVar__ImPlotStyleVar_ErrorBarSize,
+    /// f32, error bar whisker weight in pixels
+    ErrorBarWeight = sys::ImPlotStyleVar__ImPlotStyleVar_ErrorBarWeight,
+    /// f32, digital channels bit height (at 1) in pixels
+    DigitalBitHeight = sys::ImPlotStyleVar__ImPlotStyleVar_DigitalBitHeight,
+    /// f32, digital channels bit padding gap in pixels
+    DigitalBitGap = sys::ImPlotStyleVar__ImPlotStyleVar_DigitalBitGap,
 }
 
 // --- Main plot structure -----------------------------------------------------------------------
@@ -448,12 +501,24 @@ impl PlotText {
 // Currently not in a struct yet. imgui-rs has some smarts about dealing with stacks, in particular
 // leak detection, which I'd like to replicate here at some point.
 /// Push a style color to the stack, giving an element and the four components of the color.
-/// The components should be between 0.0 (no intensity) and 1.0 (full intensity)
-pub fn push_style_color(element: &PlotColorElement, red: f32, green: f32, blue: f32, alpha: f32) {
-    // TODO this is actually unsafe, safe-wrap this like in imgui-rs' stacks.rs
+/// The components should be between 0.0 (no intensity) and 1.0 (full intensity).
+/// The return value is a token that gets used for removing the style color from the stack again:
+/// ```no_run
+/// # use implot::{push_style_color, PlotColorElement};
+/// let pushed_var = push_style_color(&PlotColorElement::Line, 1.0, 1.0, 1.0, 0.2);
+/// // Plot some things
+/// pushed_var.pop();
+/// ```
+pub fn push_style_color(
+    element: &PlotColorElement,
+    red: f32,
+    green: f32,
+    blue: f32,
+    alpha: f32,
+) -> StyleColorToken {
     unsafe {
         sys::ImPlot_PushStyleColorVec4(
-            element.bits() as sys::ImPlotCol,
+            *element as sys::ImPlotCol,
             sys::ImVec4 {
                 x: red,
                 y: green,
@@ -462,18 +527,97 @@ pub fn push_style_color(element: &PlotColorElement, red: f32, green: f32, blue: 
             },
         );
     }
+    StyleColorToken { was_popped: false }
 }
 
-/// Pop a given number of previously-pushed style color from the stack.
-pub fn pop_style_color(count: i32) {
-    // TODO this is actually unsafe, safe-wrap this like in imgui-rs' stacks.rs
-    unsafe { sys::ImPlot_PopStyleColor(count) }
+/// Tracks a change pushed to the style color stack
+pub struct StyleColorToken {
+    /// Whether this token has been popped or not.
+    /// TODO(4bb4) figure out if it is a good idea to warn about this not being popped when it is
+    /// dropped - this may not be a good idea since users may want to push some style vars for
+    /// longer durations.
+    was_popped: bool,
+}
+
+impl StyleColorToken {
+    pub fn pop(mut self) {
+        if self.was_popped {
+            panic!("Attempted to pop a style color token twice.")
+        }
+        self.was_popped = true;
+        unsafe {
+            sys::ImPlot_PopStyleColor(1);
+        }
+    }
+}
+
+/// Push a f32 style variable to the stack. The returned token is used for removing
+/// the variable from the stack again:
+/// ```no_run
+/// # use implot::{push_style_var_f32, StyleVar};
+/// let pushed_var = push_style_var_f32(&StyleVar::LineWeight, 11.0);
+/// // Plot some things
+/// pushed_var.pop();
+/// ```
+pub fn push_style_var_f32(element: &StyleVar, value: f32) -> StyleVarToken {
+    unsafe {
+        sys::ImPlot_PushStyleVarFloat(*element as sys::ImPlotStyleVar, value);
+    }
+    StyleVarToken { was_popped: false }
+}
+
+/// Push an u32 style variable to the stack. The only u32 style variable is Marker
+/// at the moment, for that, use something like
+/// ```no_run
+/// # use implot::{push_style_var_u32, StyleVar, Marker};
+/// let markerchoice = push_style_var_u32(&StyleVar::Marker, Marker::CROSS.bits());
+/// // plot things
+/// markerchoice.pop()
+/// ```
+pub fn push_style_var_u32(element: &StyleVar, value: u32) -> StyleVarToken {
+    // It is a bit funky that we take an i32 here, but the enum that gets created
+    // by bindgen contains u32 values, so we do the same but convert them to the
+    // internal i32 values here. Since this could overflow if a too large u32 value
+    // was passed, we do a safe conversion here, panicking if it fails.
+    let value_i32 =
+        i32::try_from(value).expect("Invalid style variable passed, has to fit in an i32");
+    unsafe {
+        sys::ImPlot_PushStyleVarInt(*element as sys::ImPlotStyleVar, value_i32);
+    }
+    StyleVarToken { was_popped: false }
+}
+
+/// Tracks a change pushed to the style variable stack
+pub struct StyleVarToken {
+    /// Whether this token has been popped or not.
+    /// TODO(4bb4) figure out if it is a good idea to warn about this not being popped when it is
+    /// dropped - this may not be a good idea since users may want to push some style vars for
+    /// longer durations.
+    was_popped: bool,
+}
+
+impl StyleVarToken {
+    /// Pop this token from the stack.
+    pub fn pop(mut self) {
+        if self.was_popped {
+            panic!("Attempted to pop a style var token twice.")
+        }
+        self.was_popped = true;
+        unsafe {
+            sys::ImPlot_PopStyleVar(1);
+        }
+    }
 }
 
 // --- Miscellaneous -----------------------------------------------------------------------------
 /// Returns true if the plot area in the current or most recent plot is hovered.
 pub fn is_plot_hovered() -> bool {
     unsafe { sys::ImPlot_IsPlotHovered() }
+}
+
+/// Returns true if the current or most recent plot is queried
+pub fn is_plot_queried() -> bool {
+    unsafe { sys::ImPlot_IsPlotQueried() }
 }
 
 /// Returns the mouse position in x,y coordinates of the current or most recent plot. Currently
@@ -488,6 +632,13 @@ pub fn get_plot_mouse_position() -> ImPlotPoint {
 pub fn get_plot_limits() -> ImPlotLimits {
     let y_axis_selection = 0;
     unsafe { sys::ImPlot_GetPlotLimits(y_axis_selection) }
+}
+
+/// Returns the query limits of the current or most recent plot.  Currently pertains to whatever Y
+/// axis was most recently selected. TODO(4bb4) add y axis selection
+pub fn get_plot_query() -> ImPlotLimits {
+    let y_axis_selection = 0;
+    unsafe { sys::ImPlot_GetPlotQuery(y_axis_selection) }
 }
 
 // --- Demo window -------------------------------------------------------------------------------

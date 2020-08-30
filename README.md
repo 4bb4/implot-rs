@@ -23,6 +23,9 @@ If you spot any design inconsistencies or papercuts, feel free to open an issue.
 Currently a work in progress. The author is open to collaboration, if you'd like to 
 help, feel free to reach out via a Github issue.
 
+Note that the API is not stabilized yet and expected to change as development progresses.
+Once there are actual releases on crates.io, semantic versioning will be followed.
+
 At this point, raw bindings are working in implot-sys, and more idiomatic interfaces
 for plot creation as well a subset of the functionality for plots are implemented. 
 See below for an overview of the progress.
@@ -46,20 +49,20 @@ See below for an overview of the progress.
 - [ ] Plot customization
   - [x] Axis flags
   - [x] Styling colors
-  - [ ] Markers
-  - [ ] Styling variables
+  - [x] Styling variables
   - [ ] Colormaps
 - [ ] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot
   - [x] plot limits
-  - [ ] is queried
-  - [ ] GetPlotQuery
+  - [x] is queried
+  - [x] get plot query
+  - [ ] Choice of y axis
 - [ ] Utils
   - [x] Plot limit setting
-  - [ ] imgui-rs style safe push/pop stacks
+  - [x] imgui-rs style safe push/pop stacks
   - [ ] Plot tick setting
-  - [ ] Plot y axis setting for subsequent elements
+  - [ ] Set Y axis setting for subsequent elements
   - [ ] Plot position and size reading
   - [ ] Pixel to plot position
   - [ ] Plot to pixel position

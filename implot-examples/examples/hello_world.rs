@@ -1,10 +1,14 @@
+// This is a somewhat messy example that currently just gets used to test out functionality as it
+// is built. It will be taken apart into separate examples with clearer demo purposes later.
+
 use imgui::*;
 use implot::{
-    get_plot_limits, get_plot_mouse_position, is_plot_hovered, pop_style_color, push_style_color,
+    get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
+    push_style_color, push_style_var_f32, push_style_var_u32,
 };
 use implot::{
-    AxisFlags, ImPlotLimits, ImPlotPoint, ImPlotRange, Plot, PlotColorElement, PlotFlags, PlotLine,
-    PlotText,
+    AxisFlags, ImPlotLimits, ImPlotPoint, ImPlotRange, Marker, Plot, PlotColorElement, PlotFlags,
+    PlotLine, PlotText, StyleVar,
 };
 
 mod support;
@@ -29,9 +33,10 @@ fn main() {
                 // Create some containers for exfiltrating data from the closure below
                 let mut hover_pos: Option<ImPlotPoint> = None;
                 let mut plot_limits: Option<ImPlotLimits> = None;
+                let mut query_limits: Option<ImPlotLimits> = None;
 
                 // Draw a plot
-                push_style_color(&PlotColorElement::PLOT_BG, 1.0, 1.0, 1.0, 0.2);
+                let style = push_style_color(&PlotColorElement::PlotBg, 1.0, 1.0, 1.0, 0.2);
                 Plot::new("Demo plot")
                     .size(400.0, 300.0)
                     .x_label("awesome x label")
@@ -48,8 +53,15 @@ fn main() {
                     .with_y_axis_flags(&(AxisFlags::DEFAULT | AxisFlags::INVERT))
                     .build(|| {
                         // Line plotting
+                        let markerchoice =
+                            push_style_var_u32(&StyleVar::Marker, Marker::CROSS.bits());
                         PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
+                        markerchoice.pop();
+
+                        let lineweight = push_style_var_f32(&StyleVar::LineWeight, 5.0);
                         PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);
+                        lineweight.pop();
+
                         let x_values = vec![1.0, 2.0, 4.0, 5.0];
                         let y_values = vec![1.0, 0.0, 0.0, 1.0];
                         PlotLine::new("Mouth").plot(&x_values, &y_values);
@@ -63,6 +75,10 @@ fn main() {
                         if is_plot_hovered() {
                             hover_pos = Some(get_plot_mouse_position());
                         }
+
+                        if is_plot_queried() {
+                            query_limits = Some(get_plot_query());
+                        }
                         plot_limits = Some(get_plot_limits());
                     });
 
@@ -73,18 +89,12 @@ fn main() {
                     ui.text(im_str!("hovered at {}, {}", pos.x, pos.y));
                 }
                 if let Some(limits) = plot_limits {
-                    ui.text(im_str!(
-                        "X limits are {:+10.3}, {:+10.3}",
-                        limits.X.Min,
-                        limits.X.Max
-                    ));
-                    ui.text(im_str!(
-                        "Y limits are {:+10.3}, {:+10.3}",
-                        limits.Y.Min,
-                        limits.Y.Max
-                    ));
+                    ui.text(im_str!("Plot limits are {:#?}", limits));
                 }
-                pop_style_color(1);
+                if let Some(query) = query_limits {
+                    ui.text(im_str!("Query limits are {:#?}", query));
+                }
+                style.pop();
             });
 
         if showing_demo {

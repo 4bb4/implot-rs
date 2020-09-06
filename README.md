@@ -12,6 +12,22 @@ https://github.com/Gekkio/imgui-rs/pull/339 makes it into a release.
 
 The sys crate compiles implot, so a C++ compiler will also be required.
 
+## Examples 
+Examples are being built in the `implot-examples` crate in this repo. To try them out, 
+clone the repo, change into the `implot-examples` directory and try for example
+```
+  cargo run --example line_plots
+```
+
+## Documentation
+Since the crate is not released yet, the documentation is not hosted yet either. You
+can build it yourself however by cloning this repo and then doing 
+```
+  cargo doc --open
+```
+An effort is made to document everything as it is being added. Feel free to open an issue
+if documentation is unclear or lacking.
+
 ## Design approach
 This repo tries to follow the approaches and style used in `imgui-rs` somewhat closely,
 because implot is to be used within imgui programs, and hence keeping the interfaces

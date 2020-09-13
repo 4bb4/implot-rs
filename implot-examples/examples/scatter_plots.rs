@@ -25,7 +25,7 @@ fn show_basic_plot(ui: &Ui) {
 
 fn show_custom_markers_plot(ui: &Ui) {
     ui.text(im_str!(
-        "This header just plots a line with as little code as possible."
+        "This header shows how markers can be used in scatter plots."
     ));
     let content_width = ui.window_content_region_width();
     Plot::new("Simple scatter plot")
@@ -47,7 +47,8 @@ fn show_custom_markers_plot(ui: &Ui) {
             let marker_size = push_style_var_f32(&StyleVar::MarkerSize, 12.0);
             PlotScatter::new("legend label 2").plot(&x_positions, &y_positions);
 
-            // TODO(4bb4) check if these have to be in reverse push order
+            // TODO(4bb4) check if these have to be in reverse push order. Does not
+            // seem to be the case.
             marker_size.pop();
             marker_choice.pop();
         });
@@ -57,7 +58,7 @@ fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
     system.main_loop(move |_, ui| {
-        Window::new(im_str!("Line plots example"))
+        Window::new(im_str!("Scatter plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
                 ui.text(im_str!("Hello from implot-rs!"));

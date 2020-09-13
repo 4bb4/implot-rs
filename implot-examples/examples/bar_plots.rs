@@ -2,7 +2,7 @@
 //! features of the libray, see the line_plots example.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
-use implot::{push_style_var_f32, push_style_var_u32, Marker, Plot, PlotBars, StyleVar};
+use implot::{Plot, PlotBars};
 
 mod support;
 
@@ -45,7 +45,7 @@ fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
     system.main_loop(move |_, ui| {
-        Window::new(im_str!("Line plots example"))
+        Window::new(im_str!("Bar plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
                 ui.text(im_str!("Hello from implot-rs!"));

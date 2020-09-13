@@ -7,8 +7,8 @@ Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 
 ## Requirements
 imgui-rs requires minimum Rust version 1.40, so this project does as well by extension.
-Currently the master branch of imgui-rs is used as a dependency until 
-https://github.com/Gekkio/imgui-rs/pull/339 makes it into a release.
+Currently a pinned version (66260c123b9a80275bd3a366ef403444db11a676) of imgui-rs is used 
+as a dependency until https://github.com/Gekkio/imgui-rs/pull/339 makes it into a release.
 
 The sys crate compiles implot, so a C++ compiler will also be required.
 

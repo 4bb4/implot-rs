@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 bindgen = "0.53.1"
-imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }
-imgui = { git = "https://github.com/Gekkio/imgui-rs/", branch = "master" }
+imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
+imgui = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }

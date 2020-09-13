@@ -52,10 +52,10 @@ See below for an overview of the progress.
 - [ ] Plotting functionality
   - [x] Line plot
   - [x] Text plot
-  - [ ] Scatter plot
-  - [ ] Bar plot
-    - [ ] Vertical
-    - [ ] Horizontal
+  - [x] Scatter plot
+  - [x] Bar plot
+    - [x] Vertical
+    - [x] Horizontal
   - [ ] Error bar plot
     - [ ] Vertical
     - [ ] Horizontal

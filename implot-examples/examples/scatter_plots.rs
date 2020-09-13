@@ -8,7 +8,7 @@ mod support;
 
 fn show_basic_plot(ui: &Ui) {
     ui.text(im_str!(
-        "This header just plots a line with as little code as possible."
+        "This header just draws a scatter plot with as little code as possible."
     ));
     let content_width = ui.window_content_region_width();
     Plot::new("Simple scatter plot")

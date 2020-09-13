@@ -1,5 +1,5 @@
-// This example demonstrates how line plots are to be used, along with some querying features
-// that will be applicable to all kinds of plots.
+//! This example demonstrates how line plots are to be used, along with some querying features
+//! that will be applicable to all kinds of plots.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
@@ -16,12 +16,14 @@ fn show_basic_plot(ui: &Ui) {
     ));
     let content_width = ui.window_content_region_width();
     Plot::new("Simple line plot")
-        // The size call could also be omitted, though the defaults don't consider content
+        // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
         .build(|| {
             // If this is called outside a plot build callback, the program will panic.
-            PlotLine::new("A line").plot(&vec![0.1, 0.9], &vec![0.1, 0.9]);
+            let x_positions = vec![0.1, 0.9];
+            let y_positions = vec![0.1, 0.9];
+            PlotLine::new("legend label").plot(&x_positions, &y_positions);
         });
 }
 
@@ -171,18 +173,19 @@ fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
     system.main_loop(move |_, ui| {
-        Window::new(im_str!("Hello world"))
+        Window::new(im_str!("Line plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
                 ui.text(im_str!("Hello from implot-rs!"));
                 ui.text_wrapped(im_str!(
-                    "The headers here demo some of the features of the library. \
-                    Have a look at the example source code to see how they are 
-                    implemented.\n\
+                    "The headers here demo the line plotting features of the library. \
+                    Have a look at the example source code to \
+                    see how they are implemented.\n\
                     Check out the demo from ImPlot itself first \
                     (by enabling the 'Show demo' checkbox) for instructions \
                     on how to interact with ImPlot plots."
                 ));
+
                 ui.checkbox(im_str!("Show demo"), &mut showing_demo);
 
                 // Show individual examples in collapsed headers

@@ -442,6 +442,40 @@ impl PlotLine {
     }
 }
 
+/// Struct to provide functionality for creating a scatter plot
+pub struct PlotScatter {
+    /// Label to show in the legend for this line
+    label: String,
+}
+
+impl PlotScatter {
+    /// Create a new scatter plot to be shown. Does not draw anything yet.
+    pub fn new(label: &str) -> Self {
+        Self {
+            label: label.to_owned(),
+        }
+    }
+
+    /// Draw a previously-created scatter plot. Use this in closures passed to
+    /// [`Plot::build()`](struct.Plot.html#method.build)
+    pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+        // If there is no data to plot, we stop here
+        if x.len().min(y.len()) == 0 {
+            return;
+        }
+        unsafe {
+            sys::ImPlot_PlotScatterdoublePtrdoublePtr(
+                im_str!("{}", self.label).as_ptr() as *const i8,
+                x.as_ptr(),
+                y.as_ptr(),
+                x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
+                0,                           // No offset
+                std::mem::size_of::<f64>() as i32, // Stride, set to one f64 for the standard use case
+            );
+        }
+    }
+}
+
 /// Struct to provide functionality for adding text within a plot
 pub struct PlotText {
     /// Label to show in plot

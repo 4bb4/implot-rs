@@ -172,6 +172,15 @@ pub enum StyleVar {
 }
 
 // --- Main plot structure -----------------------------------------------------------------------
+/// Different plot tick types
+enum PlotTicks {
+    /// Every tick comes with a label
+    Labelled(Vec<(f64, String)>),
+
+    /// No labels, ticks are simply used to say which numbers get shown
+    Unlabelled(Vec<f64>),
+}
+
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
 /// `Plot` is to be used (within an imgui window) with the following pattern:
@@ -205,6 +214,10 @@ pub struct Plot {
     x_limit_condition: Option<Condition>,
     /// Condition on which the y limits are set (first y axis for now)
     y_limit_condition: Option<Condition>,
+    /// Possibly labeled ticks for the X axis, if any
+    x_ticks: Option<PlotTicks>,
+    /// Possibly labeled ticks for the Y axis, if any
+    y_ticks: Option<PlotTicks>,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
     /// Flags relating to the first x axis of the plot TODO(4bb4) make those into bitflags
@@ -233,6 +246,8 @@ impl Plot {
             y_limits: None,
             x_limit_condition: None,
             y_limit_condition: None,
+            x_ticks: None,
+            y_ticks: None,
             plot_flags: PlotFlags::DEFAULT.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
             y_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
@@ -280,6 +295,38 @@ impl Plot {
         self
     }
 
+    /// Set X ticks without labels for the plot. The vector contains one label each in
+    /// the form of a tuple `(label_position, label_string)`.
+    #[inline]
+    pub fn x_ticks(mut self, ticks: &Vec<f64>) -> Self {
+        self.x_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self
+    }
+
+    /// Set X ticks without labels for the plot. The vector contains one label each in
+    /// the form of a tuple `(label_position, label_string)`.
+    #[inline]
+    pub fn y_ticks(mut self, ticks: &Vec<f64>) -> Self {
+        self.y_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self
+    }
+
+    /// Set X ticks with labels for the plot. The vector contains one position and label
+    /// each in the form of a tuple `(label_position, label_string)`.
+    #[inline]
+    pub fn x_ticks_with_labels(mut self, tick_labels: &Vec<(f64, String)>) -> Self {
+        self.x_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self
+    }
+
+    /// Set Y ticks with labels for the plot. The vector contains one position and label
+    /// each in the form of a tuple `(label_position, label_string)`.
+    #[inline]
+    pub fn y_ticks_with_labels(mut self, tick_labels: &Vec<(f64, String)>) -> Self {
+        self.y_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self
+    }
+
     /// Set the plot flags, see the help for `PlotFlags` for what the available flags are
     #[inline]
     pub fn with_plot_flags(mut self, flags: &PlotFlags) -> Self {
@@ -315,19 +362,16 @@ impl Plot {
         self
     }
 
-    /// Attempt to show the plot. If this returns a token, the plot will actually
-    /// be drawn. In this case, use the drawing functionality to draw things on the
-    /// plot, and then call `end()` on the token when done with the plot.
-    /// If none was returned, that means the plot is not rendered.
-    ///
-    /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
-    /// instead.
-    pub fn begin(&self) -> Option<PlotToken> {
+    /// Internal helper function to set axis limits in case they are specified.
+    fn maybe_set_axis_limits(&self) {
+        // Set X limits if specified
         if let (Some(limits), Some(condition)) = (self.x_limits, self.x_limit_condition) {
             unsafe {
                 sys::ImPlot_SetNextPlotLimitsX(limits.Min, limits.Max, condition as sys::ImGuiCond);
             }
         }
+
+        // Set X limits if specified
         if let (Some(limits), Some(condition)) = (self.y_limits, self.y_limit_condition) {
             // TODO(4bb4) allow for specification of multiple y limits, not just the first
             let selected_y_axis = 0;
@@ -340,6 +384,108 @@ impl Plot {
                 );
             }
         }
+    }
+
+    /// Internal helper function to set tick labels in case they are specified. This is more
+    /// boilerplate-y than I'd like - that has to do with the X and Y functions having different
+    /// signatures but being conceptually the same, the conversion of the Rust types to C pointers
+    /// and the choice to model the tick data as vector-of-data here instead of the
+    /// two-related-vectors approach taken in the C++ library.
+    fn maybe_set_tick_labels(&self) {
+        // Unified "put data in format required for C function and call the C function"
+        // closure - used for both X and Y plotting
+        let set_tick_labels = |tick_data: &PlotTicks, tick_plotter: &dyn Fn(&Vec<f64>, _)| {
+            // Extract tick positions as &Vec<f64>
+            let collected_positions; // container variable for longer lifetime
+            let tick_positions: &Vec<f64> = match &tick_data {
+                PlotTicks::Unlabelled(positions) => positions,
+                PlotTicks::Labelled(positions_and_labels) => {
+                    collected_positions = positions_and_labels.iter().map(|x| x.0).collect();
+                    &collected_positions
+                }
+            };
+
+            if tick_positions.len() == 0 {
+                return; // No ticks to show means no more work
+            }
+
+            // Extract tick labels as a vector of owned ImStrings. The latter are null-terminated.
+            let tick_labels: Option<Vec<_>> = match tick_data {
+                PlotTicks::Unlabelled(_) => None,
+                PlotTicks::Labelled(positions_and_labels) => Some(
+                    positions_and_labels
+                        .iter()
+                        .map(|x| im_str!("{}", x.1))
+                        .collect::<Vec<_>>(),
+                ),
+            };
+            tick_plotter(tick_positions, tick_labels);
+        };
+
+        // Call X and Y tick setters separately, creating a "caller closure" for
+        // the unsafe call to smooth over function signature differences
+        if let Some(x_ticks) = &self.x_ticks {
+            let x_tick_plotter = |pos: &Vec<f64>, labels: Option<Vec<sys::imgui::ImString>>| {
+                unsafe {
+                    sys::ImPlot_SetNextPlotTicksXdoublePtr(
+                        pos.as_ptr(),
+                        pos.len() as i32,
+                        if let Some(labels_value) = &labels {
+                            labels_value
+                                .iter()
+                                .map(|x| x.as_ptr() as *const i8)
+                                .collect::<Vec<_>>()
+                                .as_mut_ptr()
+                        } else {
+                            std::ptr::null_mut()
+                        },
+                        false, // "show_default" setting, TODO(4bb4) figure out what this does
+                    )
+                }
+            };
+            set_tick_labels(x_ticks, &x_tick_plotter);
+        }
+
+        if let Some(y_ticks) = &self.y_ticks {
+            let y_tick_plotter = |pos: &Vec<f64>, labels: Option<Vec<sys::imgui::ImString>>| {
+                let mut vecvec;
+                let ptr = if let Some(labels_value) = &labels {
+                    vecvec = labels_value
+                        .iter()
+                        .map(|x| x.as_ptr() as *const i8)
+                        .collect::<Vec<*const i8>>();
+                    let theptr = vecvec.as_mut_ptr();
+                    theptr
+                } else {
+                    std::ptr::null_mut()
+                };
+
+                unsafe {
+                    let ptr2 = ptr;
+                    sys::ImPlot_SetNextPlotTicksYdoublePtr(
+                        pos.as_ptr(),
+                        pos.len() as i32,
+                        ptr2,
+                        false, // "show_default" setting, TODO(4bb4) figure out what this does
+                        0,     // y axis selection, TODO(4bb4) make this configurable
+                    )
+                }
+            };
+            set_tick_labels(y_ticks, &y_tick_plotter);
+        }
+    }
+
+    /// Attempt to show the plot. If this returns a token, the plot will actually
+    /// be drawn. In this case, use the drawing functionality to draw things on the
+    /// plot, and then call `end()` on the token when done with the plot.
+    /// If none was returned, that means the plot is not rendered.
+    ///
+    /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
+    /// instead.
+    pub fn begin(&self) -> Option<PlotToken> {
+        self.maybe_set_axis_limits();
+        self.maybe_set_tick_labels();
+
         let should_render = unsafe {
             sys::ImPlot_BeginPlot(
                 im_str!("{}", self.title).as_ptr(),

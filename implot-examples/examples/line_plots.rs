@@ -48,8 +48,14 @@ fn show_configurable_plot(ui: &Ui) {
     let plot_flags = PlotFlags::DEFAULT;
     // - Axis flags, see the AxisFlags docs for more info. All flags are bitflags-created,
     //   so they support a bunch of convenient operations, see https://docs.rs/bitflags
-    let x_axis_flags = AxisFlags::DEFAULT - AxisFlags::TICK_LABELS;
+    let x_axis_flags = AxisFlags::DEFAULT;
     let y_axis_flags = AxisFlags::DEFAULT;
+
+    // - Unlabelled X axis ticks
+    let x_ticks = vec![2.2, 2.5, 2.8];
+
+    // - Labelled Y axis ticks
+    let y_ticks = vec![(1.1, "A".to_owned()), (1.4, "B".to_owned())];
 
     // Axis labels
     Plot::new("Configured line plot")
@@ -74,6 +80,8 @@ fn show_configurable_plot(ui: &Ui) {
             },
             Condition::Always,
         )
+        .x_ticks(&x_ticks)
+        .y_ticks_with_labels(&y_ticks)
         // If any of these flag setting calls are omitted, the defaults are used.
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)

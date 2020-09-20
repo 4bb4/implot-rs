@@ -80,8 +80,8 @@ fn show_configurable_plot(ui: &Ui) {
             },
             Condition::Always,
         )
-        .x_ticks(&x_ticks)
-        .y_ticks_with_labels(&y_ticks)
+        .x_ticks(&x_ticks, false)
+        .y_ticks_with_labels(&y_ticks, false)
         // If any of these flag setting calls are omitted, the defaults are used.
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)

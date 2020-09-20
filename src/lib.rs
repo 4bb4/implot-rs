@@ -216,8 +216,12 @@ pub struct Plot {
     y_limit_condition: Option<Condition>,
     /// Possibly labeled ticks for the X axis, if any
     x_ticks: Option<PlotTicks>,
+    /// Whether to also show the default X ticks when showing custom ticks or not
+    show_x_default_ticks: bool,
     /// Possibly labeled ticks for the Y axis, if any
     y_ticks: Option<PlotTicks>,
+    /// Whether to also show the default Y ticks when showing custom ticks or not
+    show_y_default_ticks: bool,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
     /// Flags relating to the first x axis of the plot TODO(4bb4) make those into bitflags
@@ -247,7 +251,9 @@ impl Plot {
             x_limit_condition: None,
             y_limit_condition: None,
             x_ticks: None,
+            show_x_default_ticks: false,
             y_ticks: None,
+            show_y_default_ticks: false,
             plot_flags: PlotFlags::DEFAULT.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
             y_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
@@ -296,34 +302,50 @@ impl Plot {
     }
 
     /// Set X ticks without labels for the plot. The vector contains one label each in
-    /// the form of a tuple `(label_position, label_string)`.
+    /// the form of a tuple `(label_position, label_string)`. The `show_default` setting
+    /// determines whether the default ticks are also shown.
     #[inline]
-    pub fn x_ticks(mut self, ticks: &Vec<f64>) -> Self {
+    pub fn x_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
         self.x_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self.show_x_default_ticks = show_default;
         self
     }
 
     /// Set X ticks without labels for the plot. The vector contains one label each in
-    /// the form of a tuple `(label_position, label_string)`.
+    /// the form of a tuple `(label_position, label_string)`. The `show_default` setting
+    /// determines whether the default ticks are also shown.
     #[inline]
-    pub fn y_ticks(mut self, ticks: &Vec<f64>) -> Self {
+    pub fn y_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
         self.y_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self.show_y_default_ticks = show_default;
         self
     }
 
     /// Set X ticks with labels for the plot. The vector contains one position and label
-    /// each in the form of a tuple `(label_position, label_string)`.
+    /// each in the form of a tuple `(label_position, label_string)`. The `show_default`
+    /// setting determines whether the default ticks are also shown.
     #[inline]
-    pub fn x_ticks_with_labels(mut self, tick_labels: &Vec<(f64, String)>) -> Self {
+    pub fn x_ticks_with_labels(
+        mut self,
+        tick_labels: &Vec<(f64, String)>,
+        show_default: bool,
+    ) -> Self {
         self.x_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self.show_x_default_ticks = show_default;
         self
     }
 
     /// Set Y ticks with labels for the plot. The vector contains one position and label
-    /// each in the form of a tuple `(label_position, label_string)`.
+    /// each in the form of a tuple `(label_position, label_string)`. The `show_default`
+    /// setting determines whether the default ticks are also shown.
     #[inline]
-    pub fn y_ticks_with_labels(mut self, tick_labels: &Vec<(f64, String)>) -> Self {
+    pub fn y_ticks_with_labels(
+        mut self,
+        tick_labels: &Vec<(f64, String)>,
+        show_default: bool,
+    ) -> Self {
         self.y_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self.show_y_default_ticks = show_default;
         self
     }
 
@@ -386,22 +408,87 @@ impl Plot {
         }
     }
 
-    /// Internal helper function to set tick labels in case they are specified. This is more
-    /// boilerplate-y than I'd like - that has to do with the X and Y functions having different
-    /// signatures but being conceptually the same, the conversion of the Rust types to C pointers
-    /// and the choice to model the tick data as vector-of-data here instead of the
-    /// two-related-vectors approach taken in the C++ library.
+    /// Internal wrapper for the ImPlot_SetNextPlotTicksXdoublePtr function for the
+    /// sake of unifying function signatures between the X and Y variants. Only gets used
+    /// from maybe_set_tick_labels.
+    fn wrap_set_next_plot_ticks_x(
+        &self,
+        pos: &Vec<f64>,
+        labels: Option<Vec<sys::imgui::ImString>>,
+    ) {
+        let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
+        let ptr = if let Some(labels_value) = &labels {
+            pointer_vec = labels_value
+                .iter()
+                .map(|x| x.as_ptr() as *const i8)
+                .collect::<Vec<*const i8>>();
+            pointer_vec.as_mut_ptr()
+        } else {
+            std::ptr::null_mut()
+        };
+
+        unsafe {
+            sys::ImPlot_SetNextPlotTicksXdoublePtr(
+                pos.as_ptr(),
+                pos.len() as i32,
+                ptr,
+                self.show_x_default_ticks,
+            )
+        }
+    }
+
+    /// Internal wrapper for the ImPlot_SetNextPlotTicksYdoublePtr function for the
+    /// sake of unifying function signatures between the X and Y variants. Only gets used
+    /// from maybe_set_tick_labels.
+    fn wrap_set_next_plot_ticks_y(
+        &self,
+        pos: &Vec<f64>,
+        labels: Option<Vec<sys::imgui::ImString>>,
+    ) {
+        let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
+        let ptr = if let Some(labels_value) = &labels {
+            pointer_vec = labels_value
+                .iter()
+                .map(|x| x.as_ptr() as *const i8)
+                .collect::<Vec<*const i8>>();
+            pointer_vec.as_mut_ptr()
+        } else {
+            std::ptr::null_mut()
+        };
+
+        unsafe {
+            sys::ImPlot_SetNextPlotTicksYdoublePtr(
+                pos.as_ptr(),
+                pos.len() as i32,
+                ptr,
+                self.show_y_default_ticks,
+                0, // y axis selection, TODO(4bb4) make this configurable
+            )
+        }
+    }
+
+    /// Internal helper function to set tick labels in case they are specified. This does the
+    /// preparation work that is the same for both the X and Y axis plots, then calls the
+    /// "set next plot ticks" wrapper functions for both X and Y.
     fn maybe_set_tick_labels(&self) {
         // Unified "put data in format required for C function and call the C function"
         // closure - used for both X and Y plotting
         let set_tick_labels = |tick_data: &PlotTicks, tick_plotter: &dyn Fn(&Vec<f64>, _)| {
             // Extract tick positions as &Vec<f64>
             let collected_positions; // container variable for longer lifetime
-            let tick_positions: &Vec<f64> = match &tick_data {
-                PlotTicks::Unlabelled(positions) => positions,
+            let (tick_positions, tick_labels): (&Vec<f64>, Option<Vec<_>>) = match &tick_data {
+                PlotTicks::Unlabelled(positions) => (positions, None),
                 PlotTicks::Labelled(positions_and_labels) => {
                     collected_positions = positions_and_labels.iter().map(|x| x.0).collect();
-                    &collected_positions
+                    (
+                        &collected_positions,
+                        Some(
+                            positions_and_labels
+                                .iter()
+                                .map(|x| im_str!("{}", x.1))
+                                .collect::<Vec<_>>(),
+                        ),
+                    )
                 }
             };
 
@@ -409,69 +496,18 @@ impl Plot {
                 return; // No ticks to show means no more work
             }
 
-            // Extract tick labels as a vector of owned ImStrings. The latter are null-terminated.
-            let tick_labels: Option<Vec<_>> = match tick_data {
-                PlotTicks::Unlabelled(_) => None,
-                PlotTicks::Labelled(positions_and_labels) => Some(
-                    positions_and_labels
-                        .iter()
-                        .map(|x| im_str!("{}", x.1))
-                        .collect::<Vec<_>>(),
-                ),
-            };
+            // This is currently called here and not extracted because tick_positions points
+            // to collected_positions, which is a local reference. Calling it here keeps
+            // the local data alive long enough for things to work out.
             tick_plotter(tick_positions, tick_labels);
         };
 
-        // Call X and Y tick setters separately, creating a "caller closure" for
-        // the unsafe call to smooth over function signature differences
         if let Some(x_ticks) = &self.x_ticks {
-            let x_tick_plotter = |pos: &Vec<f64>, labels: Option<Vec<sys::imgui::ImString>>| {
-                unsafe {
-                    sys::ImPlot_SetNextPlotTicksXdoublePtr(
-                        pos.as_ptr(),
-                        pos.len() as i32,
-                        if let Some(labels_value) = &labels {
-                            labels_value
-                                .iter()
-                                .map(|x| x.as_ptr() as *const i8)
-                                .collect::<Vec<_>>()
-                                .as_mut_ptr()
-                        } else {
-                            std::ptr::null_mut()
-                        },
-                        false, // "show_default" setting, TODO(4bb4) figure out what this does
-                    )
-                }
-            };
-            set_tick_labels(x_ticks, &x_tick_plotter);
+            set_tick_labels(x_ticks, &(|a, b| self.wrap_set_next_plot_ticks_x(a, b)));
         }
 
         if let Some(y_ticks) = &self.y_ticks {
-            let y_tick_plotter = |pos: &Vec<f64>, labels: Option<Vec<sys::imgui::ImString>>| {
-                let mut vecvec;
-                let ptr = if let Some(labels_value) = &labels {
-                    vecvec = labels_value
-                        .iter()
-                        .map(|x| x.as_ptr() as *const i8)
-                        .collect::<Vec<*const i8>>();
-                    let theptr = vecvec.as_mut_ptr();
-                    theptr
-                } else {
-                    std::ptr::null_mut()
-                };
-
-                unsafe {
-                    let ptr2 = ptr;
-                    sys::ImPlot_SetNextPlotTicksYdoublePtr(
-                        pos.as_ptr(),
-                        pos.len() as i32,
-                        ptr2,
-                        false, // "show_default" setting, TODO(4bb4) figure out what this does
-                        0,     // y axis selection, TODO(4bb4) make this configurable
-                    )
-                }
-            };
-            set_tick_labels(y_ticks, &y_tick_plotter);
+            set_tick_labels(y_ticks, &(|a, b| self.wrap_set_next_plot_ticks_y(a, b)));
         }
     }
 

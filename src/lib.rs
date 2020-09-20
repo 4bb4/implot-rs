@@ -172,15 +172,6 @@ pub enum StyleVar {
 }
 
 // --- Main plot structure -----------------------------------------------------------------------
-/// Different plot tick types
-enum PlotTicks {
-    /// Every tick comes with a label
-    Labelled(Vec<(f64, String)>),
-
-    /// No labels, ticks are simply used to say which numbers get shown
-    Unlabelled(Vec<f64>),
-}
-
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
 /// `Plot` is to be used (within an imgui window) with the following pattern:

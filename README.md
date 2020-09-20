@@ -77,7 +77,7 @@ See below for an overview of the progress.
 - [ ] Utils
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks
-  - [ ] Plot tick setting
+  - [x] Plot tick setting
   - [ ] Set Y axis setting for subsequent elements
   - [ ] Plot position and size reading
   - [ ] Pixel to plot position

@@ -10,8 +10,8 @@
 pub extern crate implot_sys as sys;
 use bitflags::bitflags;
 use std::convert::TryFrom;
-use sys::imgui::im_str;
 pub use sys::imgui::Condition;
+use sys::imgui::{im_str, ImString};
 // TODO(4bb4) facade-wrap these
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange};
 
@@ -214,12 +214,26 @@ pub struct Plot {
     x_limit_condition: Option<Condition>,
     /// Condition on which the y limits are set (first y axis for now)
     y_limit_condition: Option<Condition>,
-    /// Possibly labeled ticks for the X axis, if any
-    x_ticks: Option<PlotTicks>,
+    /// Positions for custom X axis ticks, if any
+    x_tick_positions: Option<Vec<f64>>,
+    /// Labels for custom X axis ticks, if any. I'd prefer to store these together
+    /// with the positions in one vector of an algebraic data type, but this would mean extra
+    /// copies when it comes time to draw the plot because the C++ library expects separate lists.
+    /// The data is stored as ImStrings because those are null-terminated, and since we have to
+    /// convert to null-terminated data anyway, we may as well do that directly instead of cloning
+    /// Strings and converting them afterwards.
+    x_tick_labels: Option<Vec<ImString>>,
     /// Whether to also show the default X ticks when showing custom ticks or not
     show_x_default_ticks: bool,
-    /// Possibly labeled ticks for the Y axis, if any
-    y_ticks: Option<PlotTicks>,
+    /// Positions for custom Y axis ticks, if any
+    y_tick_positions: Option<Vec<f64>>,
+    /// Labels for custom Y axis ticks, if any. I'd prefer to store these together
+    /// with the positions in one vector of an algebraic data type, but this would mean extra
+    /// copies when it comes time to draw the plot because the C++ library expects separate lists.
+    /// The data is stored as ImStrings because those are null-terminated, and since we have to
+    /// convert to null-terminated data anyway, we may as well do that directly instead of cloning
+    /// Strings and converting them afterwards.
+    y_tick_labels: Option<Vec<ImString>>,
     /// Whether to also show the default Y ticks when showing custom ticks or not
     show_y_default_ticks: bool,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
@@ -250,9 +264,11 @@ impl Plot {
             y_limits: None,
             x_limit_condition: None,
             y_limit_condition: None,
-            x_ticks: None,
+            x_tick_positions: None,
+            x_tick_labels: None,
             show_x_default_ticks: false,
-            y_ticks: None,
+            y_tick_positions: None,
+            y_tick_labels: None,
             show_y_default_ticks: false,
             plot_flags: PlotFlags::DEFAULT.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
@@ -306,7 +322,7 @@ impl Plot {
     /// determines whether the default ticks are also shown.
     #[inline]
     pub fn x_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
-        self.x_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self.x_tick_positions = Some(ticks.clone());
         self.show_x_default_ticks = show_default;
         self
     }
@@ -316,7 +332,7 @@ impl Plot {
     /// determines whether the default ticks are also shown.
     #[inline]
     pub fn y_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
-        self.y_ticks = Some(PlotTicks::Unlabelled(ticks.clone()));
+        self.y_tick_positions = Some(ticks.clone());
         self.show_y_default_ticks = show_default;
         self
     }
@@ -330,7 +346,8 @@ impl Plot {
         tick_labels: &Vec<(f64, String)>,
         show_default: bool,
     ) -> Self {
-        self.x_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self.x_tick_positions = Some(tick_labels.iter().map(|x| x.0).collect());
+        self.x_tick_labels = Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
         self.show_x_default_ticks = show_default;
         self
     }
@@ -344,7 +361,8 @@ impl Plot {
         tick_labels: &Vec<(f64, String)>,
         show_default: bool,
     ) -> Self {
-        self.y_ticks = Some(PlotTicks::Labelled(tick_labels.clone()));
+        self.y_tick_positions = Some(tick_labels.iter().map(|x| x.0).collect());
+        self.y_tick_labels = Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
         self.show_y_default_ticks = show_default;
         self
     }
@@ -408,106 +426,54 @@ impl Plot {
         }
     }
 
-    /// Internal wrapper for the ImPlot_SetNextPlotTicksXdoublePtr function for the
-    /// sake of unifying function signatures between the X and Y variants. Only gets used
-    /// from maybe_set_tick_labels.
-    fn wrap_set_next_plot_ticks_x(
-        &self,
-        pos: &Vec<f64>,
-        labels: Option<Vec<sys::imgui::ImString>>,
-    ) {
-        let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
-        let ptr = if let Some(labels_value) = &labels {
-            pointer_vec = labels_value
-                .iter()
-                .map(|x| x.as_ptr() as *const i8)
-                .collect::<Vec<*const i8>>();
-            pointer_vec.as_mut_ptr()
-        } else {
-            std::ptr::null_mut()
-        };
-
-        unsafe {
-            sys::ImPlot_SetNextPlotTicksXdoublePtr(
-                pos.as_ptr(),
-                pos.len() as i32,
-                ptr,
-                self.show_x_default_ticks,
-            )
-        }
-    }
-
-    /// Internal wrapper for the ImPlot_SetNextPlotTicksYdoublePtr function for the
-    /// sake of unifying function signatures between the X and Y variants. Only gets used
-    /// from maybe_set_tick_labels.
-    fn wrap_set_next_plot_ticks_y(
-        &self,
-        pos: &Vec<f64>,
-        labels: Option<Vec<sys::imgui::ImString>>,
-    ) {
-        let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
-        let ptr = if let Some(labels_value) = &labels {
-            pointer_vec = labels_value
-                .iter()
-                .map(|x| x.as_ptr() as *const i8)
-                .collect::<Vec<*const i8>>();
-            pointer_vec.as_mut_ptr()
-        } else {
-            std::ptr::null_mut()
-        };
-
-        unsafe {
-            sys::ImPlot_SetNextPlotTicksYdoublePtr(
-                pos.as_ptr(),
-                pos.len() as i32,
-                ptr,
-                self.show_y_default_ticks,
-                0, // y axis selection, TODO(4bb4) make this configurable
-            )
-        }
-    }
-
     /// Internal helper function to set tick labels in case they are specified. This does the
     /// preparation work that is the same for both the X and Y axis plots, then calls the
     /// "set next plot ticks" wrapper functions for both X and Y.
     fn maybe_set_tick_labels(&self) {
-        // Unified "put data in format required for C function and call the C function"
-        // closure - used for both X and Y plotting
-        let set_tick_labels = |tick_data: &PlotTicks, tick_plotter: &dyn Fn(&Vec<f64>, _)| {
-            // Extract tick positions as &Vec<f64>
-            let collected_positions; // container variable for longer lifetime
-            let (tick_positions, tick_labels): (&Vec<f64>, Option<Vec<_>>) = match &tick_data {
-                PlotTicks::Unlabelled(positions) => (positions, None),
-                PlotTicks::Labelled(positions_and_labels) => {
-                    collected_positions = positions_and_labels.iter().map(|x| x.0).collect();
-                    (
-                        &collected_positions,
-                        Some(
-                            positions_and_labels
-                                .iter()
-                                .map(|x| im_str!("{}", x.1))
-                                .collect::<Vec<_>>(),
-                        ),
-                    )
-                }
+        // Show x ticks if they are available
+        if self.x_tick_positions.is_some() && self.x_tick_positions.as_ref().unwrap().len() > 0 {
+            let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
+            let labels_pointer = if let Some(labels_value) = &self.x_tick_labels {
+                pointer_vec = labels_value
+                    .iter()
+                    .map(|x| x.as_ptr() as *const i8)
+                    .collect::<Vec<*const i8>>();
+                pointer_vec.as_mut_ptr()
+            } else {
+                std::ptr::null_mut()
             };
 
-            if tick_positions.len() == 0 {
-                return; // No ticks to show means no more work
+            unsafe {
+                sys::ImPlot_SetNextPlotTicksXdoublePtr(
+                    self.x_tick_positions.as_ref().unwrap().as_ptr(),
+                    self.x_tick_positions.as_ref().unwrap().len() as i32,
+                    labels_pointer,
+                    self.show_x_default_ticks,
+                )
             }
-
-            // This is currently called here and not extracted because tick_positions points
-            // to collected_positions, which is a local reference. Calling it here keeps
-            // the local data alive long enough for things to work out.
-            tick_plotter(tick_positions, tick_labels);
-        };
-
-        if let Some(x_ticks) = &self.x_ticks {
-            set_tick_labels(x_ticks, &(|a, b| self.wrap_set_next_plot_ticks_x(a, b)));
         }
 
-        if let Some(y_ticks) = &self.y_ticks {
-            set_tick_labels(y_ticks, &(|a, b| self.wrap_set_next_plot_ticks_y(a, b)));
+        if self.y_tick_positions.is_some() && self.y_tick_positions.as_ref().unwrap().len() > 0 {
+            let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
+            let labels_pointer = if let Some(labels_value) = &self.y_tick_labels {
+                pointer_vec = labels_value
+                    .iter()
+                    .map(|x| x.as_ptr() as *const i8)
+                    .collect::<Vec<*const i8>>();
+                pointer_vec.as_mut_ptr()
+            } else {
+                std::ptr::null_mut()
+            };
+
+            unsafe {
+                sys::ImPlot_SetNextPlotTicksYdoublePtr(
+                    self.y_tick_positions.as_ref().unwrap().as_ptr(),
+                    self.y_tick_positions.as_ref().unwrap().len() as i32,
+                    labels_pointer,
+                    self.show_y_default_ticks,
+                    0, // y axis selection, TODO(4bb4) make this configurable
+                )
+            }
         }
     }
 

@@ -2,6 +2,11 @@
 
 Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
+Currently not released on crates.io yet due to a dependency on an unreleased version of `imgui-rs`.
+One can still use it as a dependency directly from Git if desired, for example using the line
+```
+implot = { git = "https://github.com/4bb4/implot-rs/", rev = "your_favourite_commit" }
+```
 
 ![demo](demo.png)
 

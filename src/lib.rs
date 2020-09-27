@@ -13,7 +13,7 @@ use std::convert::TryFrom;
 pub use sys::imgui::Condition;
 use sys::imgui::{im_str, ImString};
 // TODO(4bb4) facade-wrap these
-pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange};
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
@@ -148,6 +148,32 @@ pub enum PlotColorElement {
     Selection = sys::ImPlotCol__ImPlotCol_Selection,
     /// Box-query color (defaults to green)
     Query = sys::ImPlotCol__ImPlotCol_Query,
+}
+
+/// Colormap choice. Documentation copied from implot.h for convenience.
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum Colormap {
+    /// ImPlot default colormap (n=10). Called "Standard" here because Default is reserved.
+    Standard = sys::ImPlotColormap__ImPlotColormap_Default,
+    /// a.k.a. matplotlib "Set1" (n=9)
+    Dark = sys::ImPlotColormap__ImPlotColormap_Dark,
+    /// a.k.a. matplotlib "Pastel1" (n=9)
+    Pastel = sys::ImPlotColormap__ImPlotColormap_Pastel,
+    /// a.k.a. matplotlib "Paired" (n=12)
+    Paired = sys::ImPlotColormap__ImPlotColormap_Paired,
+    /// a.k.a. matplotlib "viridis" (n=11)
+    Viridis = sys::ImPlotColormap__ImPlotColormap_Viridis,
+    /// a.k.a. matplotlib "plasma" (n=11)
+    Plasma = sys::ImPlotColormap__ImPlotColormap_Plasma,
+    /// a.k.a. matplotlib/MATLAB "hot" (n=11)
+    Hot = sys::ImPlotColormap__ImPlotColormap_Hot,
+    /// a.k.a. matplotlib/MATLAB "cool" (n=11)
+    Cool = sys::ImPlotColormap__ImPlotColormap_Cool,
+    /// a.k.a. matplotlib/MATLAB "pink" (n=11)
+    Pink = sys::ImPlotColormap__ImPlotColormap_Pink,
+    /// a.k.a. MATLAB "jet" (n=11)
+    Jet = sys::ImPlotColormap__ImPlotColormap_Jet,
 }
 
 #[repr(u32)]
@@ -743,6 +769,25 @@ impl PlotText {
                 },
             );
         }
+    }
+}
+
+// --- Color maps -----------------------------------------------------------------------------
+/// Switch to one of the built-in preset colormaps. If samples is greater than 1, the map will be
+/// linearly resampled.
+pub fn set_colormap_from_preset(preset: Colormap, samples: u32) {
+    unsafe {
+        // "as" casts saturate as of Rust 1.45. This is safe here, and at least the enum
+        // values are not expected to go outside the range of an i32 anyway, so there is no
+        // risk of changed values.
+        sys::ImPlot_SetColormapPlotColormap(preset as i32, samples as i32);
+    }
+}
+
+/// Set a custom colormap in the form of a vector of colors.
+pub fn set_colormap_from_vec(colors: Vec<ImVec4>) {
+    unsafe {
+        sys::ImPlot_SetColormapVec4Ptr(colors.as_ptr(), colors.len() as i32);
     }
 }
 

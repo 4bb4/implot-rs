@@ -4,8 +4,9 @@
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
-    push_style_color, push_style_var_f32, push_style_var_u32, AxisFlags, ImPlotLimits, ImPlotPoint,
-    ImPlotRange, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, StyleVar,
+    push_style_color, push_style_var_f32, push_style_var_u32, set_colormap_from_preset,
+    set_colormap_from_vec, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec4,
+    Marker, Plot, PlotColorElement, PlotFlags, PlotLine, StyleVar,
 };
 
 mod support;
@@ -177,6 +178,57 @@ fn show_style_plot(ui: &Ui) {
     style.pop();
 }
 
+fn show_colormaps_plot(ui: &Ui) {
+    ui.text(im_str!("This header demos how to select colormaps."));
+    let content_width = ui.window_content_region_width();
+
+    // Select a colormap from the presets. The presets are listed in the Colormap enum
+    // and usually have something from 9 to 11 colors in them, with the second number
+    // being the option to resample the colormap to a custom number of colors if picked
+    // higher than 1.
+    set_colormap_from_preset(Colormap::Plasma, 1);
+
+    Plot::new("Colormap demo plot")
+        .size(content_width, 300.0)
+        .build(|| {
+            (1..10)
+                .map(|x| x as f64 * 0.1)
+                .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x]))
+                .count();
+        });
+
+    // One can also specify a colormap as a vector of RGBA colors. ImPlot uses ImVec4 for this,
+    // so we follow suit. Make sure to set the last number (w in ImVec4) to 1.0 to see anything -
+    // it's the alpha channel.
+    set_colormap_from_vec(vec![
+        ImVec4 {
+            x: 0.9,
+            y: 0.9,
+            z: 0.0,
+            w: 1.0,
+        },
+        ImVec4 {
+            x: 0.0,
+            y: 0.9,
+            z: 0.9,
+            w: 1.0,
+        },
+    ]);
+
+    Plot::new("Colormap demo plot #2")
+        .size(content_width, 300.0)
+        .build(|| {
+            (1..10)
+                .map(|x| x as f64 * 0.1)
+                .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x]))
+                .count();
+        });
+
+    // Colormaps are not pushed, they are simply set, because they don't stack or anything.
+    // We can reset to the default by just setting the "Standard" preset.
+    set_colormap_from_preset(Colormap::Standard, 0);
+}
+
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
@@ -207,6 +259,9 @@ fn main() {
                 }
                 if CollapsingHeader::new(im_str!("Styling a plot")).build(&ui) {
                     show_style_plot(&ui);
+                }
+                if CollapsingHeader::new(im_str!("Colormap selection")).build(&ui) {
+                    show_colormaps_plot(&ui);
                 }
             });
 

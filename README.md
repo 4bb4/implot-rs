@@ -67,11 +67,11 @@ See below for an overview of the progress.
   - [ ] Heatmap
   - [ ] Pie chart
   - [ ] Digital data
-- [ ] Plot customization
+- [x] Plot customization
   - [x] Axis flags
   - [x] Styling colors
   - [x] Styling variables
-  - [ ] Colormaps
+  - [x] Colormaps
 - [ ] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot

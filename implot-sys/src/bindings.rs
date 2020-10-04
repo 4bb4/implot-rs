@@ -8981,37 +8981,42 @@ extern "C" {
 extern "C" {
     pub fn ImVector_ImWchar_UnInit(p: *mut ImVector_ImWchar);
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ImPlotContext {
+    _unused: [u8; 0],
+}
 pub type ImPlotFlags = ::std::os::raw::c_int;
 pub type ImPlotAxisFlags = ::std::os::raw::c_int;
 pub type ImPlotCol = ::std::os::raw::c_int;
 pub type ImPlotStyleVar = ::std::os::raw::c_int;
 pub type ImPlotMarker = ::std::os::raw::c_int;
 pub type ImPlotColormap = ::std::os::raw::c_int;
-pub const ImPlotFlags__ImPlotFlags_MousePos: ImPlotFlags_ = 1;
-pub const ImPlotFlags__ImPlotFlags_Legend: ImPlotFlags_ = 2;
-pub const ImPlotFlags__ImPlotFlags_Highlight: ImPlotFlags_ = 4;
-pub const ImPlotFlags__ImPlotFlags_BoxSelect: ImPlotFlags_ = 8;
-pub const ImPlotFlags__ImPlotFlags_Query: ImPlotFlags_ = 16;
-pub const ImPlotFlags__ImPlotFlags_ContextMenu: ImPlotFlags_ = 32;
-pub const ImPlotFlags__ImPlotFlags_Crosshairs: ImPlotFlags_ = 64;
-pub const ImPlotFlags__ImPlotFlags_CullData: ImPlotFlags_ = 128;
-pub const ImPlotFlags__ImPlotFlags_AntiAliased: ImPlotFlags_ = 256;
-pub const ImPlotFlags__ImPlotFlags_NoChild: ImPlotFlags_ = 512;
-pub const ImPlotFlags__ImPlotFlags_YAxis2: ImPlotFlags_ = 1024;
-pub const ImPlotFlags__ImPlotFlags_YAxis3: ImPlotFlags_ = 2048;
-pub const ImPlotFlags__ImPlotFlags_Default: ImPlotFlags_ = 175;
+pub const ImPlotFlags__ImPlotFlags_None: ImPlotFlags_ = 0;
+pub const ImPlotFlags__ImPlotFlags_NoLegend: ImPlotFlags_ = 1;
+pub const ImPlotFlags__ImPlotFlags_NoMenus: ImPlotFlags_ = 2;
+pub const ImPlotFlags__ImPlotFlags_NoBoxSelect: ImPlotFlags_ = 4;
+pub const ImPlotFlags__ImPlotFlags_NoMousePos: ImPlotFlags_ = 8;
+pub const ImPlotFlags__ImPlotFlags_NoHighlight: ImPlotFlags_ = 16;
+pub const ImPlotFlags__ImPlotFlags_NoChild: ImPlotFlags_ = 32;
+pub const ImPlotFlags__ImPlotFlags_YAxis2: ImPlotFlags_ = 64;
+pub const ImPlotFlags__ImPlotFlags_YAxis3: ImPlotFlags_ = 128;
+pub const ImPlotFlags__ImPlotFlags_Query: ImPlotFlags_ = 256;
+pub const ImPlotFlags__ImPlotFlags_Crosshairs: ImPlotFlags_ = 512;
+pub const ImPlotFlags__ImPlotFlags_AntiAliased: ImPlotFlags_ = 1024;
+pub const ImPlotFlags__ImPlotFlags_CanvasOnly: ImPlotFlags_ = 15;
 pub type ImPlotFlags_ = u32;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_GridLines: ImPlotAxisFlags_ = 1;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_TickMarks: ImPlotAxisFlags_ = 2;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_TickLabels: ImPlotAxisFlags_ = 4;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_Invert: ImPlotAxisFlags_ = 8;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_LockMin: ImPlotAxisFlags_ = 16;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_LockMax: ImPlotAxisFlags_ = 32;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_Adaptive: ImPlotAxisFlags_ = 64;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_LogScale: ImPlotAxisFlags_ = 128;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_Scientific: ImPlotAxisFlags_ = 256;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_Default: ImPlotAxisFlags_ = 71;
-pub const ImPlotAxisFlags__ImPlotAxisFlags_Auxiliary: ImPlotAxisFlags_ = 70;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_None: ImPlotAxisFlags_ = 0;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_NoGridLines: ImPlotAxisFlags_ = 1;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_NoTickMarks: ImPlotAxisFlags_ = 2;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_NoTickLabels: ImPlotAxisFlags_ = 4;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_LogScale: ImPlotAxisFlags_ = 8;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_Time: ImPlotAxisFlags_ = 16;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_Invert: ImPlotAxisFlags_ = 32;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_LockMin: ImPlotAxisFlags_ = 64;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_LockMax: ImPlotAxisFlags_ = 128;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_Lock: ImPlotAxisFlags_ = 192;
+pub const ImPlotAxisFlags__ImPlotAxisFlags_NoDecorations: ImPlotAxisFlags_ = 7;
 pub type ImPlotAxisFlags_ = u32;
 pub const ImPlotCol__ImPlotCol_Line: ImPlotCol_ = 0;
 pub const ImPlotCol__ImPlotCol_Fill: ImPlotCol_ = 1;
@@ -9021,47 +9026,73 @@ pub const ImPlotCol__ImPlotCol_ErrorBar: ImPlotCol_ = 4;
 pub const ImPlotCol__ImPlotCol_FrameBg: ImPlotCol_ = 5;
 pub const ImPlotCol__ImPlotCol_PlotBg: ImPlotCol_ = 6;
 pub const ImPlotCol__ImPlotCol_PlotBorder: ImPlotCol_ = 7;
-pub const ImPlotCol__ImPlotCol_XAxis: ImPlotCol_ = 8;
-pub const ImPlotCol__ImPlotCol_YAxis: ImPlotCol_ = 9;
-pub const ImPlotCol__ImPlotCol_YAxis2: ImPlotCol_ = 10;
-pub const ImPlotCol__ImPlotCol_YAxis3: ImPlotCol_ = 11;
-pub const ImPlotCol__ImPlotCol_Selection: ImPlotCol_ = 12;
-pub const ImPlotCol__ImPlotCol_Query: ImPlotCol_ = 13;
-pub const ImPlotCol__ImPlotCol_COUNT: ImPlotCol_ = 14;
+pub const ImPlotCol__ImPlotCol_LegendBg: ImPlotCol_ = 8;
+pub const ImPlotCol__ImPlotCol_LegendBorder: ImPlotCol_ = 9;
+pub const ImPlotCol__ImPlotCol_LegendText: ImPlotCol_ = 10;
+pub const ImPlotCol__ImPlotCol_TitleText: ImPlotCol_ = 11;
+pub const ImPlotCol__ImPlotCol_InlayText: ImPlotCol_ = 12;
+pub const ImPlotCol__ImPlotCol_XAxis: ImPlotCol_ = 13;
+pub const ImPlotCol__ImPlotCol_XAxisGrid: ImPlotCol_ = 14;
+pub const ImPlotCol__ImPlotCol_YAxis: ImPlotCol_ = 15;
+pub const ImPlotCol__ImPlotCol_YAxisGrid: ImPlotCol_ = 16;
+pub const ImPlotCol__ImPlotCol_YAxis2: ImPlotCol_ = 17;
+pub const ImPlotCol__ImPlotCol_YAxisGrid2: ImPlotCol_ = 18;
+pub const ImPlotCol__ImPlotCol_YAxis3: ImPlotCol_ = 19;
+pub const ImPlotCol__ImPlotCol_YAxisGrid3: ImPlotCol_ = 20;
+pub const ImPlotCol__ImPlotCol_Selection: ImPlotCol_ = 21;
+pub const ImPlotCol__ImPlotCol_Query: ImPlotCol_ = 22;
+pub const ImPlotCol__ImPlotCol_Crosshairs: ImPlotCol_ = 23;
+pub const ImPlotCol__ImPlotCol_COUNT: ImPlotCol_ = 24;
 pub type ImPlotCol_ = u32;
 pub const ImPlotStyleVar__ImPlotStyleVar_LineWeight: ImPlotStyleVar_ = 0;
 pub const ImPlotStyleVar__ImPlotStyleVar_Marker: ImPlotStyleVar_ = 1;
 pub const ImPlotStyleVar__ImPlotStyleVar_MarkerSize: ImPlotStyleVar_ = 2;
 pub const ImPlotStyleVar__ImPlotStyleVar_MarkerWeight: ImPlotStyleVar_ = 3;
-pub const ImPlotStyleVar__ImPlotStyleVar_ErrorBarSize: ImPlotStyleVar_ = 4;
-pub const ImPlotStyleVar__ImPlotStyleVar_ErrorBarWeight: ImPlotStyleVar_ = 5;
-pub const ImPlotStyleVar__ImPlotStyleVar_DigitalBitHeight: ImPlotStyleVar_ = 6;
-pub const ImPlotStyleVar__ImPlotStyleVar_DigitalBitGap: ImPlotStyleVar_ = 7;
-pub const ImPlotStyleVar__ImPlotStyleVar_COUNT: ImPlotStyleVar_ = 8;
+pub const ImPlotStyleVar__ImPlotStyleVar_FillAlpha: ImPlotStyleVar_ = 4;
+pub const ImPlotStyleVar__ImPlotStyleVar_ErrorBarSize: ImPlotStyleVar_ = 5;
+pub const ImPlotStyleVar__ImPlotStyleVar_ErrorBarWeight: ImPlotStyleVar_ = 6;
+pub const ImPlotStyleVar__ImPlotStyleVar_DigitalBitHeight: ImPlotStyleVar_ = 7;
+pub const ImPlotStyleVar__ImPlotStyleVar_DigitalBitGap: ImPlotStyleVar_ = 8;
+pub const ImPlotStyleVar__ImPlotStyleVar_PlotBorderSize: ImPlotStyleVar_ = 9;
+pub const ImPlotStyleVar__ImPlotStyleVar_MinorAlpha: ImPlotStyleVar_ = 10;
+pub const ImPlotStyleVar__ImPlotStyleVar_MajorTickLen: ImPlotStyleVar_ = 11;
+pub const ImPlotStyleVar__ImPlotStyleVar_MinorTickLen: ImPlotStyleVar_ = 12;
+pub const ImPlotStyleVar__ImPlotStyleVar_MajorTickSize: ImPlotStyleVar_ = 13;
+pub const ImPlotStyleVar__ImPlotStyleVar_MinorTickSize: ImPlotStyleVar_ = 14;
+pub const ImPlotStyleVar__ImPlotStyleVar_MajorGridSize: ImPlotStyleVar_ = 15;
+pub const ImPlotStyleVar__ImPlotStyleVar_MinorGridSize: ImPlotStyleVar_ = 16;
+pub const ImPlotStyleVar__ImPlotStyleVar_PlotPadding: ImPlotStyleVar_ = 17;
+pub const ImPlotStyleVar__ImPlotStyleVar_LabelPadding: ImPlotStyleVar_ = 18;
+pub const ImPlotStyleVar__ImPlotStyleVar_LegendPadding: ImPlotStyleVar_ = 19;
+pub const ImPlotStyleVar__ImPlotStyleVar_InfoPadding: ImPlotStyleVar_ = 20;
+pub const ImPlotStyleVar__ImPlotStyleVar_PlotMinSize: ImPlotStyleVar_ = 21;
+pub const ImPlotStyleVar__ImPlotStyleVar_COUNT: ImPlotStyleVar_ = 22;
 pub type ImPlotStyleVar_ = u32;
-pub const ImPlotMarker__ImPlotMarker_None: ImPlotMarker_ = 1;
-pub const ImPlotMarker__ImPlotMarker_Circle: ImPlotMarker_ = 2;
-pub const ImPlotMarker__ImPlotMarker_Square: ImPlotMarker_ = 4;
-pub const ImPlotMarker__ImPlotMarker_Diamond: ImPlotMarker_ = 8;
-pub const ImPlotMarker__ImPlotMarker_Up: ImPlotMarker_ = 16;
-pub const ImPlotMarker__ImPlotMarker_Down: ImPlotMarker_ = 32;
-pub const ImPlotMarker__ImPlotMarker_Left: ImPlotMarker_ = 64;
-pub const ImPlotMarker__ImPlotMarker_Right: ImPlotMarker_ = 128;
-pub const ImPlotMarker__ImPlotMarker_Cross: ImPlotMarker_ = 256;
-pub const ImPlotMarker__ImPlotMarker_Plus: ImPlotMarker_ = 512;
-pub const ImPlotMarker__ImPlotMarker_Asterisk: ImPlotMarker_ = 1024;
-pub type ImPlotMarker_ = u32;
+pub const ImPlotMarker__ImPlotMarker_None: ImPlotMarker_ = -1;
+pub const ImPlotMarker__ImPlotMarker_Circle: ImPlotMarker_ = 0;
+pub const ImPlotMarker__ImPlotMarker_Square: ImPlotMarker_ = 1;
+pub const ImPlotMarker__ImPlotMarker_Diamond: ImPlotMarker_ = 2;
+pub const ImPlotMarker__ImPlotMarker_Up: ImPlotMarker_ = 3;
+pub const ImPlotMarker__ImPlotMarker_Down: ImPlotMarker_ = 4;
+pub const ImPlotMarker__ImPlotMarker_Left: ImPlotMarker_ = 5;
+pub const ImPlotMarker__ImPlotMarker_Right: ImPlotMarker_ = 6;
+pub const ImPlotMarker__ImPlotMarker_Cross: ImPlotMarker_ = 7;
+pub const ImPlotMarker__ImPlotMarker_Plus: ImPlotMarker_ = 8;
+pub const ImPlotMarker__ImPlotMarker_Asterisk: ImPlotMarker_ = 9;
+pub const ImPlotMarker__ImPlotMarker_COUNT: ImPlotMarker_ = 10;
+pub type ImPlotMarker_ = i32;
 pub const ImPlotColormap__ImPlotColormap_Default: ImPlotColormap_ = 0;
-pub const ImPlotColormap__ImPlotColormap_Dark: ImPlotColormap_ = 1;
-pub const ImPlotColormap__ImPlotColormap_Pastel: ImPlotColormap_ = 2;
-pub const ImPlotColormap__ImPlotColormap_Paired: ImPlotColormap_ = 3;
-pub const ImPlotColormap__ImPlotColormap_Viridis: ImPlotColormap_ = 4;
-pub const ImPlotColormap__ImPlotColormap_Plasma: ImPlotColormap_ = 5;
-pub const ImPlotColormap__ImPlotColormap_Hot: ImPlotColormap_ = 6;
-pub const ImPlotColormap__ImPlotColormap_Cool: ImPlotColormap_ = 7;
-pub const ImPlotColormap__ImPlotColormap_Pink: ImPlotColormap_ = 8;
-pub const ImPlotColormap__ImPlotColormap_Jet: ImPlotColormap_ = 9;
-pub const ImPlotColormap__ImPlotColormap_COUNT: ImPlotColormap_ = 10;
+pub const ImPlotColormap__ImPlotColormap_Deep: ImPlotColormap_ = 1;
+pub const ImPlotColormap__ImPlotColormap_Dark: ImPlotColormap_ = 2;
+pub const ImPlotColormap__ImPlotColormap_Pastel: ImPlotColormap_ = 3;
+pub const ImPlotColormap__ImPlotColormap_Paired: ImPlotColormap_ = 4;
+pub const ImPlotColormap__ImPlotColormap_Viridis: ImPlotColormap_ = 5;
+pub const ImPlotColormap__ImPlotColormap_Plasma: ImPlotColormap_ = 6;
+pub const ImPlotColormap__ImPlotColormap_Hot: ImPlotColormap_ = 7;
+pub const ImPlotColormap__ImPlotColormap_Cool: ImPlotColormap_ = 8;
+pub const ImPlotColormap__ImPlotColormap_Pink: ImPlotColormap_ = 9;
+pub const ImPlotColormap__ImPlotColormap_Jet: ImPlotColormap_ = 10;
+pub const ImPlotColormap__ImPlotColormap_COUNT: ImPlotColormap_ = 11;
 pub type ImPlotColormap_ = u32;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -9184,20 +9215,36 @@ fn bindgen_test_layout_ImPlotLimits() {
 #[derive(Debug, Copy, Clone)]
 pub struct ImPlotStyle {
     pub LineWeight: f32,
-    pub Marker: ImPlotMarker,
+    pub Marker: ::std::os::raw::c_int,
     pub MarkerSize: f32,
     pub MarkerWeight: f32,
+    pub FillAlpha: f32,
     pub ErrorBarSize: f32,
     pub ErrorBarWeight: f32,
     pub DigitalBitHeight: f32,
     pub DigitalBitGap: f32,
-    pub Colors: [ImVec4; 14usize],
+    pub PlotBorderSize: f32,
+    pub MinorAlpha: f32,
+    pub MajorTickLen: ImVec2,
+    pub MinorTickLen: ImVec2,
+    pub MajorTickSize: ImVec2,
+    pub MinorTickSize: ImVec2,
+    pub MajorGridSize: ImVec2,
+    pub MinorGridSize: ImVec2,
+    pub PlotPadding: ImVec2,
+    pub LabelPadding: ImVec2,
+    pub LegendPadding: ImVec2,
+    pub InfoPadding: ImVec2,
+    pub PlotMinSize: ImVec2,
+    pub Colors: [ImVec4; 24usize],
+    pub AntiAliasedLines: bool,
+    pub UseLocalTime: bool,
 }
 #[test]
 fn bindgen_test_layout_ImPlotStyle() {
     assert_eq!(
         ::std::mem::size_of::<ImPlotStyle>(),
-        256usize,
+        520usize,
         concat!("Size of: ", stringify!(ImPlotStyle))
     );
     assert_eq!(
@@ -9246,8 +9293,18 @@ fn bindgen_test_layout_ImPlotStyle() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).ErrorBarSize as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).FillAlpha as *const _ as usize },
         16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(FillAlpha)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).ErrorBarSize as *const _ as usize },
+        20usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -9257,7 +9314,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).ErrorBarWeight as *const _ as usize },
-        20usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -9267,7 +9324,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).DigitalBitHeight as *const _ as usize },
-        24usize,
+        28usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -9277,7 +9334,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).DigitalBitGap as *const _ as usize },
-        28usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -9286,13 +9343,316 @@ fn bindgen_test_layout_ImPlotStyle() {
         )
     );
     assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotBorderSize as *const _ as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(PlotBorderSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MinorAlpha as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MinorAlpha)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MajorTickLen as *const _ as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MajorTickLen)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MinorTickLen as *const _ as usize },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MinorTickLen)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MajorTickSize as *const _ as usize },
+        60usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MajorTickSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MinorTickSize as *const _ as usize },
+        68usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MinorTickSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MajorGridSize as *const _ as usize },
+        76usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MajorGridSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).MinorGridSize as *const _ as usize },
+        84usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(MinorGridSize)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotPadding as *const _ as usize },
+        92usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(PlotPadding)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).LabelPadding as *const _ as usize },
+        100usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(LabelPadding)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).LegendPadding as *const _ as usize },
+        108usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(LegendPadding)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).InfoPadding as *const _ as usize },
+        116usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(InfoPadding)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotMinSize as *const _ as usize },
+        124usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(PlotMinSize)
+        )
+    );
+    assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).Colors as *const _ as usize },
-        32usize,
+        132usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
             "::",
             stringify!(Colors)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).AntiAliasedLines as *const _ as usize },
+        516usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(AntiAliasedLines)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).UseLocalTime as *const _ as usize },
+        517usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(UseLocalTime)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ImPlotInputMap {
+    pub PanButton: ImGuiMouseButton,
+    pub PanMod: ImGuiKeyModFlags,
+    pub FitButton: ImGuiMouseButton,
+    pub ContextMenuButton: ImGuiMouseButton,
+    pub BoxSelectButton: ImGuiMouseButton,
+    pub BoxSelectMod: ImGuiKeyModFlags,
+    pub BoxSelectCancelButton: ImGuiMouseButton,
+    pub QueryButton: ImGuiMouseButton,
+    pub QueryMod: ImGuiKeyModFlags,
+    pub QueryToggleMod: ImGuiKeyModFlags,
+    pub HorizontalMod: ImGuiKeyModFlags,
+    pub VerticalMod: ImGuiKeyModFlags,
+}
+#[test]
+fn bindgen_test_layout_ImPlotInputMap() {
+    assert_eq!(
+        ::std::mem::size_of::<ImPlotInputMap>(),
+        48usize,
+        concat!("Size of: ", stringify!(ImPlotInputMap))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ImPlotInputMap>(),
+        4usize,
+        concat!("Alignment of ", stringify!(ImPlotInputMap))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).PanButton as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(PanButton)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).PanMod as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(PanMod)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).FitButton as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(FitButton)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ImPlotInputMap>())).ContextMenuButton as *const _ as usize
+        },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(ContextMenuButton)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).BoxSelectButton as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(BoxSelectButton)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).BoxSelectMod as *const _ as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(BoxSelectMod)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<ImPlotInputMap>())).BoxSelectCancelButton as *const _ as usize
+        },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(BoxSelectCancelButton)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).QueryButton as *const _ as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(QueryButton)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).QueryMod as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(QueryMod)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).QueryToggleMod as *const _ as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(QueryToggleMod)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).HorizontalMod as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(HorizontalMod)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotInputMap>())).VerticalMod as *const _ as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotInputMap),
+            "::",
+            stringify!(VerticalMod)
         )
     );
 }
@@ -9306,22 +9666,19 @@ extern "C" {
     pub fn ImPlotPoint_ImPlotPointdouble(_x: f64, _y: f64) -> *mut ImPlotPoint;
 }
 extern "C" {
-    pub fn ImPlotRange_ImPlotRange() -> *mut ImPlotRange;
+    pub fn ImPlotRange_ImPlotRangeNil() -> *mut ImPlotRange;
 }
 extern "C" {
     pub fn ImPlotRange_destroy(self_: *mut ImPlotRange);
+}
+extern "C" {
+    pub fn ImPlotRange_ImPlotRangedouble(_min: f64, _max: f64) -> *mut ImPlotRange;
 }
 extern "C" {
     pub fn ImPlotRange_Contains(self_: *mut ImPlotRange, value: f64) -> bool;
 }
 extern "C" {
     pub fn ImPlotRange_Size(self_: *mut ImPlotRange) -> f64;
-}
-extern "C" {
-    pub fn ImPlotLimits_ImPlotLimits() -> *mut ImPlotLimits;
-}
-extern "C" {
-    pub fn ImPlotLimits_destroy(self_: *mut ImPlotLimits);
 }
 extern "C" {
     pub fn ImPlotLimits_ContainsPlotPoInt(self_: *mut ImPlotLimits, p: ImPlotPoint) -> bool;
@@ -9334,6 +9691,24 @@ extern "C" {
 }
 extern "C" {
     pub fn ImPlotStyle_destroy(self_: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlotInputMap_ImPlotInputMap() -> *mut ImPlotInputMap;
+}
+extern "C" {
+    pub fn ImPlotInputMap_destroy(self_: *mut ImPlotInputMap);
+}
+extern "C" {
+    pub fn ImPlot_CreateContext() -> *mut ImPlotContext;
+}
+extern "C" {
+    pub fn ImPlot_DestroyContext(ctx: *mut ImPlotContext);
+}
+extern "C" {
+    pub fn ImPlot_GetCurrentContext() -> *mut ImPlotContext;
+}
+extern "C" {
+    pub fn ImPlot_SetCurrentContext(ctx: *mut ImPlotContext);
 }
 extern "C" {
     pub fn ImPlot_BeginPlot(
@@ -9483,6 +9858,91 @@ extern "C" {
             ) -> ImPlotPoint,
         >,
         data: *mut ::std::os::raw::c_void,
+        count: ::std::os::raw::c_int,
+        offset: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadedFloatPtrIntFloat(
+        label_id: *const ::std::os::raw::c_char,
+        values: *const f32,
+        count: ::std::os::raw::c_int,
+        y_ref: f32,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadeddoublePtrIntdouble(
+        label_id: *const ::std::os::raw::c_char,
+        values: *const f64,
+        count: ::std::os::raw::c_int,
+        y_ref: f64,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadedFloatPtrFloatPtrIntFloat(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f32,
+        ys: *const f32,
+        count: ::std::os::raw::c_int,
+        y_ref: f32,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadeddoublePtrdoublePtrIntdouble(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f64,
+        ys: *const f64,
+        count: ::std::os::raw::c_int,
+        y_ref: f64,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadedFloatPtrFloatPtrFloatPtr(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f32,
+        ys1: *const f32,
+        ys2: *const f32,
+        count: ::std::os::raw::c_int,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadeddoublePtrdoublePtrdoublePtr(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f64,
+        ys1: *const f64,
+        ys2: *const f64,
+        count: ::std::os::raw::c_int,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotShadedFnPlotPoIntPtr(
+        label_id: *const ::std::os::raw::c_char,
+        getter1: ::std::option::Option<
+            unsafe extern "C" fn(
+                data: *mut ::std::os::raw::c_void,
+                idx: ::std::os::raw::c_int,
+            ) -> ImPlotPoint,
+        >,
+        data1: *mut ::std::os::raw::c_void,
+        getter2: ::std::option::Option<
+            unsafe extern "C" fn(
+                data: *mut ::std::os::raw::c_void,
+                idx: ::std::os::raw::c_int,
+            ) -> ImPlotPoint,
+        >,
+        data2: *mut ::std::os::raw::c_void,
         count: ::std::os::raw::c_int,
         offset: ::std::os::raw::c_int,
     );
@@ -9698,6 +10158,48 @@ extern "C" {
     );
 }
 extern "C" {
+    pub fn ImPlot_PlotStemsFloatPtrIntFloat(
+        label_id: *const ::std::os::raw::c_char,
+        values: *const f32,
+        count: ::std::os::raw::c_int,
+        y_ref: f32,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotStemsdoublePtrIntdouble(
+        label_id: *const ::std::os::raw::c_char,
+        values: *const f64,
+        count: ::std::os::raw::c_int,
+        y_ref: f64,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotStemsFloatPtrFloatPtr(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f32,
+        ys: *const f32,
+        count: ::std::os::raw::c_int,
+        y_ref: f32,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotStemsdoublePtrdoublePtr(
+        label_id: *const ::std::os::raw::c_char,
+        xs: *const f64,
+        ys: *const f64,
+        count: ::std::os::raw::c_int,
+        y_ref: f64,
+        offset: ::std::os::raw::c_int,
+        stride: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
     pub fn ImPlot_PlotPieChartFloatPtr(
         label_ids: *mut *const ::std::os::raw::c_char,
         values: *const f32,
@@ -9802,75 +10304,33 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_IsPlotHovered() -> bool;
+    pub fn ImPlot_SetNextPlotLimits(xmin: f64, xmax: f64, ymin: f64, ymax: f64, cond: ImGuiCond);
 }
 extern "C" {
-    pub fn ImPlot_GetPlotMousePos(y_axis: ::std::os::raw::c_int) -> ImPlotPoint;
-}
-extern "C" {
-    pub fn ImPlot_GetPlotLimits(y_axis: ::std::os::raw::c_int) -> ImPlotLimits;
-}
-extern "C" {
-    pub fn ImPlot_IsPlotQueried() -> bool;
-}
-extern "C" {
-    pub fn ImPlot_GetPlotQuery(y_axis: ::std::os::raw::c_int) -> ImPlotLimits;
-}
-extern "C" {
-    pub fn ImPlot_GetStyle() -> *mut ImPlotStyle;
-}
-extern "C" {
-    pub fn ImPlot_PushStyleColorU32(idx: ImPlotCol, col: ImU32);
-}
-extern "C" {
-    pub fn ImPlot_PushStyleColorVec4(idx: ImPlotCol, col: ImVec4);
-}
-extern "C" {
-    pub fn ImPlot_PopStyleColor(count: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_PushStyleVarFloat(idx: ImPlotStyleVar, val: f32);
-}
-extern "C" {
-    pub fn ImPlot_PushStyleVarInt(idx: ImPlotStyleVar, val: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_PopStyleVar(count: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_SetColormapPlotColormap(colormap: ImPlotColormap, samples: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_SetColormapVec4Ptr(colors: *const ImVec4, num_colors: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_GetColormapSize() -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn ImPlot_GetColormapColor(pOut: *mut ImVec4, index: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn ImPlot_LerpColormap(pOut: *mut ImVec4, t: f32);
-}
-extern "C" {
-    pub fn ImPlot_SetNextPlotLimits(
-        x_min: f64,
-        x_max: f64,
-        y_min: f64,
-        y_max: f64,
-        cond: ImGuiCond,
-    );
-}
-extern "C" {
-    pub fn ImPlot_SetNextPlotLimitsX(x_min: f64, x_max: f64, cond: ImGuiCond);
+    pub fn ImPlot_SetNextPlotLimitsX(xmin: f64, xmax: f64, cond: ImGuiCond);
 }
 extern "C" {
     pub fn ImPlot_SetNextPlotLimitsY(
-        y_min: f64,
-        y_max: f64,
+        ymin: f64,
+        ymax: f64,
         cond: ImGuiCond,
         y_axis: ::std::os::raw::c_int,
     );
+}
+extern "C" {
+    pub fn ImPlot_LinkNextPlotLimits(
+        xmin: *mut f64,
+        xmax: *mut f64,
+        ymin: *mut f64,
+        ymax: *mut f64,
+        ymin2: *mut f64,
+        ymax2: *mut f64,
+        ymin3: *mut f64,
+        ymax3: *mut f64,
+    );
+}
+extern "C" {
+    pub fn ImPlot_FitNextPlotAxes(x: bool, y: bool, y2: bool, y3: bool);
 }
 extern "C" {
     pub fn ImPlot_SetNextPlotTicksXdoublePtr(
@@ -9912,25 +10372,196 @@ extern "C" {
     pub fn ImPlot_SetPlotYAxis(y_axis: ::std::os::raw::c_int);
 }
 extern "C" {
+    pub fn ImPlot_PixelsToPlotVec2(
+        pOut: *mut ImPlotPoint,
+        pix: ImVec2,
+        y_axis: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PixelsToPlotFloat(
+        pOut: *mut ImPlotPoint,
+        x: f32,
+        y: f32,
+        y_axis: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotToPixelsPlotPoInt(
+        pOut: *mut ImVec2,
+        plt: ImPlotPoint,
+        y_axis: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn ImPlot_PlotToPixelsdouble(
+        pOut: *mut ImVec2,
+        x: f64,
+        y: f64,
+        y_axis: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
     pub fn ImPlot_GetPlotPos(pOut: *mut ImVec2);
 }
 extern "C" {
     pub fn ImPlot_GetPlotSize(pOut: *mut ImVec2);
 }
 extern "C" {
-    pub fn ImPlot_PixelsToPlot(pix: ImVec2, y_axis: ::std::os::raw::c_int) -> ImPlotPoint;
+    pub fn ImPlot_IsPlotHovered() -> bool;
 }
 extern "C" {
-    pub fn ImPlot_PlotToPixels(pOut: *mut ImVec2, plt: ImPlotPoint, y_axis: ::std::os::raw::c_int);
+    pub fn ImPlot_IsPlotXAxisHovered() -> bool;
+}
+extern "C" {
+    pub fn ImPlot_IsPlotYAxisHovered(y_axis: ::std::os::raw::c_int) -> bool;
+}
+extern "C" {
+    pub fn ImPlot_GetPlotMousePos(pOut: *mut ImPlotPoint, y_axis: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_GetPlotLimits(pOut: *mut ImPlotLimits, y_axis: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_IsPlotQueried() -> bool;
+}
+extern "C" {
+    pub fn ImPlot_GetPlotQuery(pOut: *mut ImPlotLimits, y_axis: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_GetStyle() -> *mut ImPlotStyle;
+}
+extern "C" {
+    pub fn ImPlot_StyleColorsAuto(dst: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlot_StyleColorsClassic(dst: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlot_StyleColorsDark(dst: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlot_StyleColorsLight(dst: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlot_PushStyleColorU32(idx: ImPlotCol, col: ImU32);
+}
+extern "C" {
+    pub fn ImPlot_PushStyleColorVec4(idx: ImPlotCol, col: ImVec4);
+}
+extern "C" {
+    pub fn ImPlot_PopStyleColor(count: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_PushStyleVarFloat(idx: ImPlotStyleVar, val: f32);
+}
+extern "C" {
+    pub fn ImPlot_PushStyleVarInt(idx: ImPlotStyleVar, val: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_PushStyleVarVec2(idx: ImPlotStyleVar, val: ImVec2);
+}
+extern "C" {
+    pub fn ImPlot_PopStyleVar(count: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_SetNextLineStyle(col: ImVec4, weight: f32);
+}
+extern "C" {
+    pub fn ImPlot_SetNextFillStyle(col: ImVec4, alpha_mod: f32);
+}
+extern "C" {
+    pub fn ImPlot_SetNextMarkerStyle(
+        marker: ImPlotMarker,
+        size: f32,
+        fill: ImVec4,
+        weight: f32,
+        outline: ImVec4,
+    );
+}
+extern "C" {
+    pub fn ImPlot_SetNextErrorBarStyle(col: ImVec4, size: f32, weight: f32);
+}
+extern "C" {
+    pub fn ImPlot_GetStyleColorName(color: ImPlotCol) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn ImPlot_GetMarkerName(marker: ImPlotMarker) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn ImPlot_PushColormapPlotColormap(colormap: ImPlotColormap);
+}
+extern "C" {
+    pub fn ImPlot_PushColormapVec4Ptr(colormap: *const ImVec4, size: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_PopColormap(count: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_SetColormapVec4Ptr(colormap: *const ImVec4, size: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_SetColormapPlotColormap(colormap: ImPlotColormap, samples: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_GetColormapSize() -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn ImPlot_GetColormapColor(pOut: *mut ImVec4, index: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn ImPlot_LerpColormap(pOut: *mut ImVec4, t: f32);
+}
+extern "C" {
+    pub fn ImPlot_NextColormapColor(pOut: *mut ImVec4);
 }
 extern "C" {
     pub fn ImPlot_ShowColormapScale(scale_min: f64, scale_max: f64, height: f32);
+}
+extern "C" {
+    pub fn ImPlot_GetColormapName(colormap: ImPlotColormap) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn ImPlot_IsLegendEntryHovered(label_id: *const ::std::os::raw::c_char) -> bool;
+}
+extern "C" {
+    pub fn ImPlot_BeginLegendDragDropSource(
+        label_id: *const ::std::os::raw::c_char,
+        flags: ImGuiDragDropFlags,
+    ) -> bool;
+}
+extern "C" {
+    pub fn ImPlot_EndLegendDragDropSource();
+}
+extern "C" {
+    pub fn ImPlot_BeginLegendPopup(
+        label_id: *const ::std::os::raw::c_char,
+        mouse_button: ImGuiMouseButton,
+    ) -> bool;
+}
+extern "C" {
+    pub fn ImPlot_EndLegendPopup();
+}
+extern "C" {
+    pub fn ImPlot_GetInputMap() -> *mut ImPlotInputMap;
+}
+extern "C" {
+    pub fn ImPlot_GetPlotDrawList() -> *mut ImDrawList;
 }
 extern "C" {
     pub fn ImPlot_PushPlotClipRect();
 }
 extern "C" {
     pub fn ImPlot_PopPlotClipRect();
+}
+extern "C" {
+    pub fn ImPlot_ShowStyleSelector(label: *const ::std::os::raw::c_char) -> bool;
+}
+extern "C" {
+    pub fn ImPlot_ShowStyleEditor(ref_: *mut ImPlotStyle);
+}
+extern "C" {
+    pub fn ImPlot_ShowUserGuide();
 }
 extern "C" {
     pub fn ImPlot_ShowDemoWindow(p_open: *mut bool);

@@ -4,9 +4,9 @@
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
-    push_style_color, push_style_var_f32, push_style_var_u32, set_colormap_from_preset,
-    set_colormap_from_vec, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec4,
-    Marker, Plot, PlotColorElement, PlotFlags, PlotLine, StyleVar,
+    push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
+    set_colormap_from_vec, AxisFlags, Colormap, Context, ImPlotLimits, ImPlotPoint, ImPlotRange,
+    ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, StyleVar,
 };
 
 mod support;
@@ -46,11 +46,11 @@ fn show_configurable_plot(ui: &Ui) {
     let y_min = 1.0;
     let y_max = 2.0;
     // - Plot flags, see the PlotFlags docs for more info
-    let plot_flags = PlotFlags::DEFAULT;
+    let plot_flags = PlotFlags::NONE;
     // - Axis flags, see the AxisFlags docs for more info. All flags are bitflags-created,
     //   so they support a bunch of convenient operations, see https://docs.rs/bitflags
-    let x_axis_flags = AxisFlags::DEFAULT;
-    let y_axis_flags = AxisFlags::DEFAULT;
+    let x_axis_flags = AxisFlags::NONE;
+    let y_axis_flags = AxisFlags::NONE;
 
     // - Unlabelled X axis ticks
     let x_ticks = vec![2.2, 2.5, 2.8];
@@ -154,12 +154,12 @@ fn show_style_plot(ui: &Ui) {
             },
             Condition::Always,
         )
-        .with_plot_flags(&(PlotFlags::DEFAULT))
-        .with_y_axis_flags(&(AxisFlags::DEFAULT))
+        .with_plot_flags(&(PlotFlags::NONE))
+        .with_y_axis_flags(&(AxisFlags::NONE))
         .build(|| {
             // Markers can be selected as shown here. The markers are internally represented
             // as an u32, hence this calling style.
-            let markerchoice = push_style_var_u32(&StyleVar::Marker, Marker::CROSS.bits());
+            let markerchoice = push_style_var_i32(&StyleVar::Marker, Marker::Cross as i32);
             PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
             // Calling pop() on the return value of the push above will undo the marker choice.
             markerchoice.pop();
@@ -232,6 +232,7 @@ fn show_colormaps_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
+    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
     system.main_loop(move |_, ui| {
         Window::new(im_str!("Line plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)

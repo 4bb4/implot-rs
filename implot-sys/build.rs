@@ -5,11 +5,14 @@
 // for now, but expected to diverge from that over time.
 use std::{env, fs, io, path::Path};
 
-const CPP_FILES: [&str; 3] = [
+const CPP_FILES: &[&str] = &[
     "third-party/cimplot/cimplot.cpp",
     "third-party/cimplot/implot/implot.cpp",
+    "third-party/cimplot/implot/implot_items.cpp",
     "third-party/cimplot/implot/implot_demo.cpp", // Could remove this if demo not used
 ];
+
+const IMPLOT_INCLUDE_DIRECTORIES: &[&str] = &["third-party/cimplot/implot/"];
 
 fn assert_file_exists(path: &str) -> io::Result<()> {
     match fs::metadata(path) {
@@ -46,10 +49,13 @@ fn main() -> io::Result<()> {
     let imgui_include_path = Path::new(&cimgui_include_path).join("imgui");
     build.include(&cimgui_include_path);
     build.include(&imgui_include_path);
+    for path in IMPLOT_INCLUDE_DIRECTORIES {
+        build.include(path);
+    }
 
     // Taken from the imgui-sys build as well
     build.flag_if_supported("-Wno-return-type-c-linkage");
-    for path in &CPP_FILES {
+    for path in CPP_FILES {
         assert_file_exists(path)?;
         build.file(path);
     }

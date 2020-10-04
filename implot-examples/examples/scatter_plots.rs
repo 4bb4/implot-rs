@@ -2,7 +2,9 @@
 //! features of the libray, see the line_plots example.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
-use implot::{push_style_var_f32, push_style_var_u32, Marker, Plot, PlotScatter, StyleVar};
+use implot::{
+    push_style_var_f32, push_style_var_i32, Context, Marker, Plot, PlotScatter, StyleVar,
+};
 
 mod support;
 
@@ -28,7 +30,7 @@ fn show_custom_markers_plot(ui: &Ui) {
         "This header shows how markers can be used in scatter plots."
     ));
     let content_width = ui.window_content_region_width();
-    Plot::new("Simple scatter plot")
+    Plot::new("Multi-marker scatter plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
@@ -36,14 +38,14 @@ fn show_custom_markers_plot(ui: &Ui) {
             // Change to cross marker for one scatter plot call
             let x_positions = vec![0.1, 0.2, 0.1, 0.5, 0.9];
             let y_positions = vec![0.1, 0.1, 0.3, 0.3, 0.9];
-            let markerchoice = push_style_var_u32(&StyleVar::Marker, Marker::CROSS.bits());
+            let markerchoice = push_style_var_i32(&StyleVar::Marker, Marker::Cross as i32);
             PlotScatter::new("legend label 1").plot(&x_positions, &y_positions);
             markerchoice.pop();
 
             // One can combine things like marker size and markor choice
             let x_positions = vec![0.4, 0.1];
             let y_positions = vec![0.5, 0.3];
-            let marker_choice = push_style_var_u32(&StyleVar::Marker, Marker::DIAMOND.bits());
+            let marker_choice = push_style_var_i32(&StyleVar::Marker, Marker::Diamond as i32);
             let marker_size = push_style_var_f32(&StyleVar::MarkerSize, 12.0);
             PlotScatter::new("legend label 2").plot(&x_positions, &y_positions);
 
@@ -57,6 +59,7 @@ fn show_custom_markers_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
+    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
     system.main_loop(move |_, ui| {
         Window::new(im_str!("Scatter plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)

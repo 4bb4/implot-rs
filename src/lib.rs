@@ -9,11 +9,10 @@
 //!
 pub extern crate implot_sys as sys;
 use bitflags::bitflags;
-use std::convert::TryFrom;
 pub use sys::imgui::Condition;
 use sys::imgui::{im_str, ImString};
 // TODO(4bb4) facade-wrap these
-pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec4};
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
@@ -23,27 +22,23 @@ const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
 // as enumerations in the traditional sense are plain enums.
 
 bitflags! {
-    /// Window hover check option flags. Documentation copied from implot.h for convenience.
+    /// Flags for customizing plot behavior and interaction. Documentation copied from implot.h for
+    /// convenience. ImPlot itself also has a "CanvasOnly" flag, which can be emulated here with
+    /// the combination of `NO_LEGEND`, `NO_MENUS`, `NO_BOX_SELECT` and `NO_MOUSE_POSITION`.
     #[repr(transparent)]
     pub struct PlotFlags: u32 {
-        /// The mouse position, in plot coordinates, will be displayed in the bottom-right
-        const MOUSE_POSITION = sys::ImPlotFlags__ImPlotFlags_MousePos;
-        /// A legend will be displayed in the top-left
-        const LEGEND = sys::ImPlotFlags__ImPlotFlags_Legend;
-        /// Plot items will be highlighted when their legend entry is hovered
-        const HIGHLIGHT = sys::ImPlotFlags__ImPlotFlags_Highlight;
-        /// The user will be able to box-select with right-mouse
-        const BOX_SELECT = sys::ImPlotFlags__ImPlotFlags_BoxSelect;
-        /// The user will be able to draw query rects with middle-mouse
-        const QUERY = sys::ImPlotFlags__ImPlotFlags_Query;
-        /// The user will be able to open a context menu with double-right click
-        const CONTEXT_MENU = sys::ImPlotFlags__ImPlotFlags_ContextMenu;
-        /// The default mouse cursor will be replaced with a crosshair when hovered
-        const CROSSHAIRS = sys::ImPlotFlags__ImPlotFlags_Crosshairs;
-        /// Plot data outside the plot area will be culled from rendering
-        const CULL_DATA = sys::ImPlotFlags__ImPlotFlags_CullData;
-        /// Lines and fills will be anti-aliased (not recommended)
-        const ANTIALIASED = sys::ImPlotFlags__ImPlotFlags_AntiAliased;
+        /// "Default" according to original docs
+        const NONE = sys::ImPlotFlags__ImPlotFlags_None;
+        /// Plot items will not be highlighted when their legend entry is hovered
+        const NO_LEGEND = sys::ImPlotFlags__ImPlotFlags_NoLegend;
+        /// The user will not be able to open context menus with double-right click
+        const NO_MENUS = sys::ImPlotFlags__ImPlotFlags_NoMenus;
+        /// The user will not be able to box-select with right-mouse
+        const NO_BOX_SELECT = sys::ImPlotFlags__ImPlotFlags_NoBoxSelect;
+        /// The mouse position, in plot coordinates, will not be displayed
+        const NO_MOUSE_POSITION = sys::ImPlotFlags__ImPlotFlags_NoMousePos;
+        /// Plot items will not be highlighted when their legend entry is hovered
+        const NO_HIGHLIGHT = sys::ImPlotFlags__ImPlotFlags_NoHighlight;
         /// A child window region will not be used to capture mouse scroll (can boost performance
         /// for single ImGui window applications)
         const NO_CHILD = sys::ImPlotFlags__ImPlotFlags_NoChild;
@@ -51,67 +46,68 @@ bitflags! {
         const Y_AXIS_2 = sys::ImPlotFlags__ImPlotFlags_YAxis2;
         /// Enable a 3nd y axis
         const Y_AXIS_3 = sys::ImPlotFlags__ImPlotFlags_YAxis3;
-        /// Default selection of flags
-        const DEFAULT = sys::ImPlotFlags__ImPlotFlags_Default;
+        /// The user will be able to draw query rects with middle-mouse
+        const QUERY = sys::ImPlotFlags__ImPlotFlags_Query;
+        /// The default mouse cursor will be replaced with a crosshair when hovered
+        const CROSSHAIRS = sys::ImPlotFlags__ImPlotFlags_Crosshairs;
+        /// Plot data outside the plot area will be culled from rendering
+        const ANTIALIASED = sys::ImPlotFlags__ImPlotFlags_AntiAliased;
     }
 }
 
 bitflags! {
-    /// Axis flags. Documentation copied from implot.h for convenience.
+    /// Axis flags. Documentation copied from implot.h for convenience. ImPlot itself also
+    /// has `Lock`, which combines `LOCK_MIN` and `LOCK_MAX`, and `NoDecorations`, which combines
+    /// `NO_GRID_LINES`, `NO_TICK_MARKS` and `NO_TICK_LABELS`.
     #[repr(transparent)]
     pub struct AxisFlags: u32 {
-        /// Grid lines will be displayed
-        const GRID_LINES = sys::ImPlotAxisFlags__ImPlotAxisFlags_GridLines;
-        /// Tick marks will be displayed for each grid line
-        const TICK_MARKS = sys::ImPlotAxisFlags__ImPlotAxisFlags_TickMarks;
-        /// Text labels will be displayed for each grid line
-        const TICK_LABELS = sys::ImPlotAxisFlags__ImPlotAxisFlags_TickLabels;
+        /// "Default" according to original docs
+        const NONE = sys::ImPlotAxisFlags__ImPlotAxisFlags_None;
+        /// Grid lines will not be displayed
+        const NO_GRID_LINES = sys::ImPlotAxisFlags__ImPlotAxisFlags_NoGridLines;
+        /// Tick marks will not be displayed
+        const NO_TICK_MARKS = sys::ImPlotAxisFlags__ImPlotAxisFlags_NoTickMarks;
+        /// Text labels will not be displayed
+        const NO_TICK_LABELS = sys::ImPlotAxisFlags__ImPlotAxisFlags_NoTickLabels;
+        /// A logartithmic (base 10) axis scale will be used (mutually exclusive with AxisFlags::TIME)
+        const LOG_SCALE = sys::ImPlotAxisFlags__ImPlotAxisFlags_LogScale;
+        /// Axis will display date/time formatted labels (mutually exclusive with AxisFlags::LOG_SCALE)
+        const TIME = sys::ImPlotAxisFlags__ImPlotAxisFlags_Time;
         /// The axis will be inverted
         const INVERT = sys::ImPlotAxisFlags__ImPlotAxisFlags_Invert;
         /// The axis minimum value will be locked when panning/zooming
         const LOCK_MIN = sys::ImPlotAxisFlags__ImPlotAxisFlags_LockMin;
         /// The axis maximum value will be locked when panning/zooming
         const LOCK_MAX = sys::ImPlotAxisFlags__ImPlotAxisFlags_LockMax;
-        /// Grid divisions will adapt to the current pixel size the axis
-        const ADAPTIVE = sys::ImPlotAxisFlags__ImPlotAxisFlags_Adaptive;
-        /// A logartithmic (base 10) axis scale will be used
-        const LOG_SCALE = sys::ImPlotAxisFlags__ImPlotAxisFlags_LogScale;
-        /// Scientific notation will be used for tick labels if displayed (WIP, not very good yet)
-        const SCIENTIFIC = sys::ImPlotAxisFlags__ImPlotAxisFlags_Scientific;
-        /// Default set of flags
-        const DEFAULT = sys::ImPlotAxisFlags__ImPlotAxisFlags_Default;
-        /// Same as defaults, but without grid lines
-        const AUXILIARY = sys::ImPlotAxisFlags__ImPlotAxisFlags_Auxiliary;
     }
 }
 
-bitflags! {
-    /// Axis flags. Documentation copied from implot.h for convenience.
-    #[repr(transparent)]
-    pub struct Marker: u32 {
-        /// no marker
-        const NONE   = sys::ImPlotMarker__ImPlotMarker_None;
-        /// a circle marker will be rendered at each point
-        const CIRCLE = sys::ImPlotMarker__ImPlotMarker_Circle;
-        /// a square maker will be rendered at each point
-        const SQUARE = sys::ImPlotMarker__ImPlotMarker_Square;
-        /// a diamond marker will be rendered at each point
-        const DIAMOND = sys::ImPlotMarker__ImPlotMarker_Diamond;
-        /// an upward-pointing triangle marker will up rendered at each point
-        const UP = sys::ImPlotMarker__ImPlotMarker_Up;
-        /// an downward-pointing triangle marker will up rendered at each point
-        const DOWN = sys::ImPlotMarker__ImPlotMarker_Down;
-        /// an leftward-pointing triangle marker will up rendered at each point
-        const LEFT = sys::ImPlotMarker__ImPlotMarker_Left;
-        /// an rightward-pointing triangle marker will up rendered at each point
-        const RIGHT = sys::ImPlotMarker__ImPlotMarker_Right;
-        /// a cross marker will be rendered at each point (not filled)
-        const CROSS = sys::ImPlotMarker__ImPlotMarker_Cross;
-        /// a plus marker will be rendered at each point (not filled)
-        const PLUS = sys::ImPlotMarker__ImPlotMarker_Plus;
-        /// a asterisk marker will be rendered at each point (not filled)
-        const ASTERISK = sys::ImPlotMarker__ImPlotMarker_Asterisk;
-    }
+/// Markers, documentation copied from implot.h for convenience.
+#[repr(i32)]
+#[derive(Copy, Clone, Debug)]
+pub enum Marker {
+    /// no marker
+    None = sys::ImPlotMarker__ImPlotMarker_None,
+    /// a circle marker will be rendered at each point
+    Circle = sys::ImPlotMarker__ImPlotMarker_Circle,
+    /// a square maker will be rendered at each point
+    Square = sys::ImPlotMarker__ImPlotMarker_Square,
+    /// a diamond marker will be rendered at each point
+    Diamond = sys::ImPlotMarker__ImPlotMarker_Diamond,
+    /// an upward-pointing triangle marker will up rendered at each point
+    Up = sys::ImPlotMarker__ImPlotMarker_Up,
+    /// an downward-pointing triangle marker will up rendered at each point
+    Down = sys::ImPlotMarker__ImPlotMarker_Down,
+    /// an leftward-pointing triangle marker will up rendered at each point
+    Left = sys::ImPlotMarker__ImPlotMarker_Left,
+    /// an rightward-pointing triangle marker will up rendered at each point
+    Right = sys::ImPlotMarker__ImPlotMarker_Right,
+    /// a cross marker will be rendered at each point (not filled)
+    Cross = sys::ImPlotMarker__ImPlotMarker_Cross,
+    /// a plus marker will be rendered at each point (not filled)
+    Plus = sys::ImPlotMarker__ImPlotMarker_Plus,
+    /// a asterisk marker will be rendered at each point (not filled)
+    Asterisk = sys::ImPlotMarker__ImPlotMarker_Asterisk,
 }
 
 /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
@@ -136,16 +132,36 @@ pub enum PlotColorElement {
     PlotBg = sys::ImPlotCol__ImPlotCol_PlotBg,
     /// Plot area border color (defaults to text color)
     PlotBorder = sys::ImPlotCol__ImPlotCol_PlotBorder,
-    /// X-axis grid/label color (defaults to 25% text color)
+    /// Legend background color (defaults to ImGuiCol_PopupBg)
+    LegendBackground = sys::ImPlotCol__ImPlotCol_LegendBg,
+    /// Legend border color (defaults to ImPlotCol_PlotBorder)
+    LegendBorder = sys::ImPlotCol__ImPlotCol_LegendBorder,
+    /// Legend text color (defaults to ImPlotCol_InlayText)
+    LegendText = sys::ImPlotCol__ImPlotCol_LegendText,
+    /// Plot title text color (defaults to ImGuiCol_Text)
+    TitleText = sys::ImPlotCol__ImPlotCol_TitleText,
+    /// Color of text appearing inside of plots (defaults to ImGuiCol_Text)
+    InlayText = sys::ImPlotCol__ImPlotCol_InlayText,
+    /// X-axis label and tick lables color (defaults to ImGuiCol_Text)
     XAxis = sys::ImPlotCol__ImPlotCol_XAxis,
-    /// Y-axis grid/label color (defaults to 25% text color)
+    /// X-axis grid color (defaults to 25% ImPlotCol_XAxis)
+    XAxisGrid = sys::ImPlotCol__ImPlotCol_XAxisGrid,
+    /// Y-axis label and tick labels color (defaults to ImGuiCol_Text)
     YAxis = sys::ImPlotCol__ImPlotCol_YAxis,
-    /// 2nd y-axis grid/label color (defaults to 25% text color)
+    /// Y-axis grid color (defaults to 25% ImPlotCol_YAxis)
+    YAxisGrid = sys::ImPlotCol__ImPlotCol_YAxisGrid,
+    /// 2nd y-axis label and tick labels color (defaults to ImGuiCol_Text)
     YAxis2 = sys::ImPlotCol__ImPlotCol_YAxis2,
-    /// 3rd y-axis grid/label color (defaults to 25% text color)
+    /// 2nd y-axis grid/label color (defaults to 25% ImPlotCol_YAxis2)
+    YAxisGrid2 = sys::ImPlotCol__ImPlotCol_YAxisGrid2,
+    /// 3rd y-axis label and tick labels color (defaults to ImGuiCol_Text)
     YAxis3 = sys::ImPlotCol__ImPlotCol_YAxis3,
+    /// 3rd y-axis grid/label color (defaults to 25% ImPlotCol_YAxis3)
+    YAxisGrid3 = sys::ImPlotCol__ImPlotCol_YAxisGrid3,
     /// Box-selection color (defaults to yellow)
     Selection = sys::ImPlotCol__ImPlotCol_Selection,
+    /// crosshairs color (defaults to ImPlotCol_PlotBorder)
+    Crosshairs = sys::ImPlotCol__ImPlotCol_Crosshairs,
     /// Box-query color (defaults to green)
     Query = sys::ImPlotCol__ImPlotCol_Query,
 }
@@ -156,6 +172,8 @@ pub enum PlotColorElement {
 pub enum Colormap {
     /// ImPlot default colormap (n=10). Called "Standard" here because Default is reserved.
     Standard = sys::ImPlotColormap__ImPlotColormap_Default,
+    /// a.k.a. seaborn deep (n=10)
+    Deep = sys::ImPlotColormap__ImPlotColormap_Deep,
     /// a.k.a. matplotlib "Set1" (n=9)
     Dark = sys::ImPlotColormap__ImPlotColormap_Dark,
     /// a.k.a. matplotlib "Pastel1" (n=9)
@@ -187,6 +205,8 @@ pub enum StyleVar {
     MarkerSize = sys::ImPlotStyleVar__ImPlotStyleVar_MarkerSize,
     /// f32, outline weight of markers in pixels
     MarkerWeight = sys::ImPlotStyleVar__ImPlotStyleVar_MarkerWeight,
+    /// f32, alpha modifier applied to all plot item fills
+    FillAlpha = sys::ImPlotStyleVar__ImPlotStyleVar_FillAlpha,
     /// f32, error bar whisker width in pixels
     ErrorBarSize = sys::ImPlotStyleVar__ImPlotStyleVar_ErrorBarSize,
     /// f32, error bar whisker weight in pixels
@@ -195,6 +215,64 @@ pub enum StyleVar {
     DigitalBitHeight = sys::ImPlotStyleVar__ImPlotStyleVar_DigitalBitHeight,
     /// f32, digital channels bit padding gap in pixels
     DigitalBitGap = sys::ImPlotStyleVar__ImPlotStyleVar_DigitalBitGap,
+    /// f32,  thickness of border around plot area
+    PlotBorderSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotBorderSize,
+    /// f32,  alpha multiplier applied to minor axis grid lines
+    MinorAlpha = sys::ImPlotStyleVar__ImPlotStyleVar_MinorAlpha,
+    /// ImVec2, major tick lengths for X and Y axes
+    MajorTickLen = sys::ImPlotStyleVar__ImPlotStyleVar_MajorTickLen,
+    /// ImVec2, minor tick lengths for X and Y axes
+    MinorTickLen = sys::ImPlotStyleVar__ImPlotStyleVar_MinorTickLen,
+    /// ImVec2, line thickness of major ticks
+    MajorTickSize = sys::ImPlotStyleVar__ImPlotStyleVar_MajorTickSize,
+    /// ImVec2, line thickness of minor ticks
+    MinorTickSize = sys::ImPlotStyleVar__ImPlotStyleVar_MinorTickSize,
+    /// ImVec2, line thickness of major grid lines
+    MajorGridSize = sys::ImPlotStyleVar__ImPlotStyleVar_MajorGridSize,
+    /// ImVec2, line thickness of minor grid lines
+    MinorGridSize = sys::ImPlotStyleVar__ImPlotStyleVar_MinorGridSize,
+    /// ImVec2, padding between widget frame and plot area and/or labels
+    PlotPadding = sys::ImPlotStyleVar__ImPlotStyleVar_PlotPadding,
+    /// ImVec2, padding between axes labels, tick labels, and plot edge
+    LabelPadding = sys::ImPlotStyleVar__ImPlotStyleVar_LabelPadding,
+    /// ImVec2, legend padding from top-left of plot
+    LegendPadding = sys::ImPlotStyleVar__ImPlotStyleVar_LegendPadding,
+    /// ImVec2, padding between plot edge and interior info text
+    InfoPadding = sys::ImPlotStyleVar__ImPlotStyleVar_InfoPadding,
+    /// ImVec2, minimum size plot frame can be when shrunk
+    PlotMinSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotMinSize,
+}
+
+// --- Context -----------------------------------------------------------------------------------
+// TODO(4bb4) Do this properly.
+// The context should have to be created, and ideally it should be difficult to impossible
+// to do things without having a context. implot-rs makes it so that there is a context and
+// that context has a "frame()" function that returns a Ui, and that Ui is then used to create
+// widgets. Windows are built with a build() function that takes a reference to that Ui as an
+// argument, but also have a begin() function that take a context and put it in their token.
+//
+// I think I'll mirror that here. Adding some simple start and end functions for initial testing
+// though.
+pub struct Context {
+    raw: *mut sys::ImPlotContext,
+}
+
+impl Context {
+    pub fn create() -> Self {
+        let ctx = unsafe { sys::ImPlot_CreateContext() };
+        unsafe {
+            sys::ImPlot_SetCurrentContext(ctx);
+        }
+        Self { raw: ctx }
+    }
+}
+
+impl Drop for Context {
+    fn drop(&mut self) {
+        unsafe {
+            sys::ImPlot_DestroyContext(self.raw);
+        }
+    }
 }
 
 // --- Main plot structure -----------------------------------------------------------------------
@@ -287,11 +365,11 @@ impl Plot {
             y_tick_positions: None,
             y_tick_labels: None,
             show_y_default_ticks: false,
-            plot_flags: PlotFlags::DEFAULT.bits() as sys::ImPlotFlags,
-            x_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
-            y_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
-            y2_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
-            y3_flags: AxisFlags::DEFAULT.bits() as sys::ImPlotAxisFlags,
+            plot_flags: PlotFlags::NONE.bits() as sys::ImPlotFlags,
+            x_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
+            y_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
+            y2_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
+            y3_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
         }
     }
 
@@ -860,23 +938,26 @@ pub fn push_style_var_f32(element: &StyleVar, value: f32) -> StyleVarToken {
     StyleVarToken { was_popped: false }
 }
 
-/// Push an u32 style variable to the stack. The only u32 style variable is Marker
+/// Push an u32 style variable to the stack. The only i32 style variable is Marker
 /// at the moment, for that, use something like
 /// ```no_run
-/// # use implot::{push_style_var_u32, StyleVar, Marker};
-/// let markerchoice = push_style_var_u32(&StyleVar::Marker, Marker::CROSS.bits());
+/// # use implot::{push_style_var_i32, StyleVar, Marker};
+/// let markerchoice = push_style_var_i32(&StyleVar::Marker, Marker::Cross as i32);
 /// // plot things
 /// markerchoice.pop()
 /// ```
-pub fn push_style_var_u32(element: &StyleVar, value: u32) -> StyleVarToken {
-    // It is a bit funky that we take an i32 here, but the enum that gets created
-    // by bindgen contains u32 values, so we do the same but convert them to the
-    // internal i32 values here. Since this could overflow if a too large u32 value
-    // was passed, we do a safe conversion here, panicking if it fails.
-    let value_i32 =
-        i32::try_from(value).expect("Invalid style variable passed, has to fit in an i32");
+pub fn push_style_var_i32(element: &StyleVar, value: i32) -> StyleVarToken {
     unsafe {
-        sys::ImPlot_PushStyleVarInt(*element as sys::ImPlotStyleVar, value_i32);
+        sys::ImPlot_PushStyleVarInt(*element as sys::ImPlotStyleVar, value);
+    }
+    StyleVarToken { was_popped: false }
+}
+
+/// Push an ImVec2 style variable to the stack. The returned token is used for removing
+/// the variable from the stack again.
+pub fn push_style_var_imvec2(element: &StyleVar, value: ImVec2) -> StyleVarToken {
+    unsafe {
+        sys::ImPlot_PushStyleVarVec2(*element as sys::ImPlotStyleVar, value);
     }
     StyleVarToken { was_popped: false }
 }
@@ -918,21 +999,41 @@ pub fn is_plot_queried() -> bool {
 /// pertains to whatever Y axis was most recently selected. TODO(4bb4) add y axis selection
 pub fn get_plot_mouse_position() -> ImPlotPoint {
     let y_axis_selection = 0;
-    unsafe { sys::ImPlot_GetPlotMousePos(y_axis_selection) }
+    let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
+    unsafe {
+        sys::ImPlot_GetPlotMousePos(&mut point as *mut ImPlotPoint, y_axis_selection);
+    }
+    point
 }
 
 /// Returns the current or most recent plot axis range. Currently pertains to whatever Y axis was
 /// most recently selected. TODO(4bb4) add y axis selection
 pub fn get_plot_limits() -> ImPlotLimits {
     let y_axis_selection = 0;
-    unsafe { sys::ImPlot_GetPlotLimits(y_axis_selection) }
+    // ImPlotLimits doesn't seem to have default()
+    let mut limits = ImPlotLimits {
+        X: ImPlotRange { Min: 0.0, Max: 0.0 },
+        Y: ImPlotRange { Min: 0.0, Max: 0.0 },
+    };
+    unsafe {
+        sys::ImPlot_GetPlotLimits(&mut limits as *mut ImPlotLimits, y_axis_selection);
+    }
+    limits
 }
 
 /// Returns the query limits of the current or most recent plot.  Currently pertains to whatever Y
 /// axis was most recently selected. TODO(4bb4) add y axis selection
 pub fn get_plot_query() -> ImPlotLimits {
     let y_axis_selection = 0;
-    unsafe { sys::ImPlot_GetPlotQuery(y_axis_selection) }
+    // ImPlotLimits doesn't seem to have default()
+    let mut limits = ImPlotLimits {
+        X: ImPlotRange { Min: 0.0, Max: 0.0 },
+        Y: ImPlotRange { Min: 0.0, Max: 0.0 },
+    };
+    unsafe {
+        sys::ImPlot_GetPlotQuery(&mut limits as *mut ImPlotLimits, y_axis_selection);
+    }
+    limits
 }
 
 // --- Demo window -------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 //! features of the libray, see the line_plots example.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
-use implot::{Plot, PlotBars};
+use implot::{Context, Plot, PlotBars};
 
 mod support;
 
@@ -44,6 +44,7 @@ fn show_basic_horizontal_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
+    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
     system.main_loop(move |_, ui| {
         Window::new(im_str!("Bar plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)

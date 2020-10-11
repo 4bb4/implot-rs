@@ -12,6 +12,8 @@ categories = ["gui", "api-bindings"]
 [dependencies]
 implot-sys = { version = "0.1.0", path = "implot-sys" }
 bitflags = "1.0"
+parking_lot = "0.11"
+lazy_static = "1.1"
 
 
 [workspace]

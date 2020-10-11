@@ -8,6 +8,10 @@
 //!
 //!
 pub extern crate implot_sys as sys;
+
+#[macro_use]
+extern crate lazy_static;
+
 pub use sys::imgui::Condition;
 // TODO(4bb4) facade-wrap these
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};

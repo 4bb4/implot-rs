@@ -1,3 +1,5 @@
+use parking_lot::ReentrantMutex;
+
 // TODO(4bb4) Do this properly.
 // I already added a simple Context struct that can be created once and used as long as it is not
 // dropped here for initial tests - this is of course neither threadsafe nor otherwise safe to use
@@ -20,7 +22,7 @@
 //   I think I'll call this PlotUi to mimmick imgui-rs' Ui.
 // - Think about what this means in terms of the stacks and things like is_plot_hovered() -
 //   they should also only work when there is a context available.
-//
+
 /// An implot context.
 ///
 /// A context is required to do most of the things this library provides. While this was created
@@ -29,9 +31,26 @@ pub struct Context {
     raw: *mut sys::ImPlotContext,
 }
 
+lazy_static! {
+    // This mutex needs to be used to guard all public functions that can affect the underlying
+    // ImPlot active context
+    static ref CTX_MUTEX: ReentrantMutex<()> = ReentrantMutex::new(());
+}
+
+fn no_current_context() -> bool {
+    let ctx = unsafe { sys::ImPlot_GetCurrentContext() };
+    ctx.is_null()
+}
+
 impl Context {
     /// Create a context.
     pub fn create() -> Self {
+        let _guard = CTX_MUTEX.lock();
+        assert!(
+            no_current_context(),
+            "A new active context cannot be created, because another one already exists"
+        );
+
         let ctx = unsafe { sys::ImPlot_CreateContext() };
         unsafe {
             sys::ImPlot_SetCurrentContext(ctx);
@@ -42,6 +61,7 @@ impl Context {
 
 impl Drop for Context {
     fn drop(&mut self) {
+        let _guard = CTX_MUTEX.lock();
         unsafe {
             sys::ImPlot_DestroyContext(self.raw);
         }

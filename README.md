@@ -7,7 +7,8 @@ One can still use it as a dependency directly from Git if desired, for example u
 ```
 implot = { git = "https://github.com/4bb4/implot-rs/", rev = "your_favourite_commit" }
 ```
-This is a work in progress. See the "Status" section below for notes on what is already built.
+The bindings are currently based on ImPlot version 0.7. See the status section below for
+detailed information on implementation status.
 
 ![demo](demo.png)
 
@@ -50,11 +51,6 @@ Once there are actual releases on crates.io, semantic versioning will be followe
 
 At this point, raw bindings are working in implot-sys, and more idiomatic interfaces
 for plot creation as well a subset of the functionality for plots are implemented. 
-The master branch points to roughly implot 0.3, and a checklist of what is already
-implemented is shown below. Work is ongoing to move to implot 0.7 in the branch
-named `update-to-cimplot-0.7`. The latter branch is buildable, but work on wrapping
-the newly explicit contexts is not done yet, which is why it has not been merged into 
-master yet.
 
 - [x] "BeginPlot"
   - [x] Basic hello world
@@ -66,6 +62,9 @@ master yet.
   - [x] Bar plot
     - [x] Vertical
     - [x] Horizontal
+  - [ ] Shaded plot
+  - [ ] Stem plots
+  - [ ] Images
   - [ ] Error bar plot
     - [ ] Vertical
     - [ ] Horizontal
@@ -88,6 +87,7 @@ master yet.
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks
   - [x] Plot tick setting
+  - [ ] Input remapping
   - [ ] Set Y axis setting for subsequent elements
   - [ ] Plot position and size reading
   - [ ] Pixel to plot position

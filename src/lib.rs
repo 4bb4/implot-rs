@@ -6,8 +6,13 @@
 //! itself (in particular also the demo code [here](https://github.com/epezent/implot/blob/master/implot_demo.cpp))
 //! should help as well.
 //!
+//! For usage examples, see the `implot-examples` crate - it contains standalone runnable examples
+//! that showcase the API and features of this crate. The [Github readme](https://github.com/4bb4/implot-rs)
+//! lists the features that are already implemented as idiomatic bindings. For everything else, if
+//! you'd really like a particular feature, file an issue and it'll be given priority for wrapping,
+//! or directly contribute a PR, or use the low-level bindings directly for the time being.
 //!
-pub extern crate implot_sys as sys;
+extern crate implot_sys as sys;
 
 #[macro_use]
 extern crate lazy_static;

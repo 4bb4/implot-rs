@@ -79,9 +79,11 @@ bitflags! {
 /// `Plot` is to be used (within an imgui window) with the following pattern:
 /// ```no_run
 /// # use implot;
+/// let plotting_context = implot::Context::create();
+/// let plot_ui = plotting_context.get_plot_ui();
 /// implot::Plot::new("my title")
 ///     .size(300.0, 200.0) // other things such as .x_label("some_label") can be added too
-///     .build( || {
+///     .build(&plot_ui, || {
 ///         // Do things such as plotting lines
 ///     });
 ///

@@ -55,6 +55,7 @@ fn main() -> io::Result<()> {
 
     // Taken from the imgui-sys build as well
     build.flag_if_supported("-Wno-return-type-c-linkage");
+    build.flag_if_supported("-std=c++11");
     for path in CPP_FILES {
         assert_file_exists(path)?;
         build.file(path);

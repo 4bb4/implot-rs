@@ -1,5 +1,3 @@
-use parking_lot::ReentrantMutex;
-
 // TODO(4bb4) Do this properly.
 // I already added a simple Context struct that can be created once and used as long as it is not
 // dropped here for initial tests - this is of course neither threadsafe nor otherwise safe to use
@@ -22,6 +20,9 @@ use parking_lot::ReentrantMutex;
 //   I think I'll call this PlotUi to mimmick imgui-rs' Ui.
 // - Think about what this means in terms of the stacks and things like is_plot_hovered() -
 //   they should also only work when there is a context available.
+use parking_lot::ReentrantMutex;
+
+use crate::PlotUi;
 
 /// An implot context.
 ///
@@ -32,8 +33,7 @@ pub struct Context {
 }
 
 lazy_static! {
-    // This mutex needs to be used to guard all public functions that can affect the underlying
-    // ImPlot active context
+    // This mutex is used to guard any accesses to the context
     static ref CTX_MUTEX: ReentrantMutex<()> = ReentrantMutex::new(());
 }
 
@@ -56,6 +56,11 @@ impl Context {
             sys::ImPlot_SetCurrentContext(ctx);
         }
         Self { raw: ctx }
+    }
+
+    /// Get a "plot ui" struct, this will be used to build actual plots.
+    pub fn get_plot_ui(&self) -> PlotUi {
+        PlotUi { context: self }
     }
 }
 

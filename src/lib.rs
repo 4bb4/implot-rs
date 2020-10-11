@@ -12,23 +12,25 @@ pub extern crate implot_sys as sys;
 #[macro_use]
 extern crate lazy_static;
 
-pub use sys::imgui::Condition;
-// TODO(4bb4) facade-wrap these
-pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
+// TODO(4bb4) facade-wrap these?
+pub use sys::{imgui::Condition, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
-// Plot struct and associated enums
-pub mod context;
-pub mod plot;
-pub mod plot_elements;
+pub use self::context::*;
+pub use self::plot::*;
+pub use self::plot_elements::*;
 
-pub use context::Context;
-pub use plot::{AxisFlags, Plot, PlotFlags};
-pub use plot_elements::{PlotBars, PlotLine, PlotScatter, PlotText};
+mod context;
+mod plot;
+mod plot_elements;
 
-// --- Enum definitions --------------------------------------------------------------------------
-// Things that are to be combined like flags are done using bitflags, and things that are meant
-// as enumerations in the traditional sense are plain enums.
+/// A temporary reference for building plots. This does not really do anything on its own at
+/// this point, but it is used to enforce that a context is created and active for other features,
+/// such as creating plots.
+pub struct PlotUi<'ui> {
+    context: &'ui Context,
+}
 
+// --- Markers, color maps, style variables----------------------------------------------------
 /// Markers, documentation copied from implot.h for convenience.
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
@@ -190,11 +192,6 @@ pub enum StyleVar {
     PlotMinSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotMinSize,
 }
 
-// --- Context -----------------------------------------------------------------------------------
-
-// --- Main plot structure -----------------------------------------------------------------------
-
-// --- Color maps -----------------------------------------------------------------------------
 /// Switch to one of the built-in preset colormaps. If samples is greater than 1, the map will be
 /// linearly resampled.
 pub fn set_colormap_from_preset(preset: Colormap, samples: u32) {

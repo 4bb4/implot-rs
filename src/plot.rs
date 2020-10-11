@@ -8,6 +8,8 @@ pub use sys::imgui::Condition;
 use sys::imgui::{im_str, ImString};
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
+use crate::{Context, PlotUi};
+
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
 
@@ -375,7 +377,7 @@ impl Plot {
     ///
     /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
     /// instead.
-    pub fn begin(&self) -> Option<PlotToken> {
+    pub fn begin(&self, plot_ui: &PlotUi) -> Option<PlotToken> {
         self.maybe_set_axis_limits();
         self.maybe_set_tick_labels();
 
@@ -398,8 +400,8 @@ impl Plot {
 
         if should_render {
             Some(PlotToken {
+                context: plot_ui.context,
                 plot_title: self.title.clone(),
-                has_ended: false,
             })
         } else {
             // In contrast with imgui windows, end() does not have to be
@@ -412,8 +414,8 @@ impl Plot {
     ///
     /// Note: the closure is not called if ImPlot::BeginPlot() returned
     /// false - TODO(4bb4) figure out if this is if things are not rendered
-    pub fn build<F: FnOnce()>(self, f: F) {
-        if let Some(token) = self.begin() {
+    pub fn build<F: FnOnce()>(self, plot_ui: &PlotUi, f: F) {
+        if let Some(token) = self.begin(plot_ui) {
             f();
             token.end()
         }
@@ -422,23 +424,22 @@ impl Plot {
 
 /// Tracks a plot that must be ended by calling `.end()`
 pub struct PlotToken {
+    context: *const Context,
     /// For better error messages
     plot_title: String,
-    /// Whether end() has been called on this already or not
-    has_ended: bool,
 }
 
 impl PlotToken {
     /// End a previously begin()'ed plot.
     pub fn end(mut self) {
-        self.has_ended = true;
+        self.context = std::ptr::null();
         unsafe { sys::ImPlot_EndPlot() };
     }
 }
 
 impl Drop for PlotToken {
     fn drop(&mut self) {
-        if !self.has_ended && !std::thread::panicking() {
+        if !self.context.is_null() && !std::thread::panicking() {
             panic!(
                 "Warning: A PlotToken for plot \"{}\" was not called end() on",
                 self.plot_title

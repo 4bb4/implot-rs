@@ -6,12 +6,12 @@ use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
     push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
     set_colormap_from_vec, AxisFlags, Colormap, Context, ImPlotLimits, ImPlotPoint, ImPlotRange,
-    ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, StyleVar,
+    ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi, StyleVar,
 };
 
 mod support;
 
-fn show_basic_plot(ui: &Ui) {
+fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header just plots a line with as little code as possible."
     ));
@@ -20,7 +20,7 @@ fn show_basic_plot(ui: &Ui) {
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let x_positions = vec![0.1, 0.9];
             let y_positions = vec![0.1, 0.9];
@@ -28,7 +28,7 @@ fn show_basic_plot(ui: &Ui) {
         });
 }
 
-fn show_configurable_plot(ui: &Ui) {
+fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header demos what we can configure about plots."
     ));
@@ -87,12 +87,12 @@ fn show_configurable_plot(ui: &Ui) {
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)
         .with_y_axis_flags(&y_axis_flags)
-        .build(|| {
+        .build(plot_ui, || {
             PlotLine::new("A line").plot(&vec![2.1, 2.9], &vec![1.1, 1.9]);
         });
 }
 
-fn show_query_features_plot(ui: &Ui) {
+fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header demos how to use the querying features."
     ));
@@ -108,7 +108,8 @@ fn show_query_features_plot(ui: &Ui) {
         .size(content_width, 300.0)
         .x_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
         .y_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
-        .build(|| {
+        .with_plot_flags(&(PlotFlags::NONE | PlotFlags::QUERY))
+        .build(plot_ui, || {
             if is_plot_hovered() {
                 hover_pos = Some(get_plot_mouse_position());
             }
@@ -133,7 +134,7 @@ fn show_query_features_plot(ui: &Ui) {
     }
 }
 
-fn show_style_plot(ui: &Ui) {
+fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header demos how to use the styling features."
     ));
@@ -156,7 +157,7 @@ fn show_style_plot(ui: &Ui) {
         )
         .with_plot_flags(&(PlotFlags::NONE))
         .with_y_axis_flags(&(AxisFlags::NONE))
-        .build(|| {
+        .build(plot_ui, || {
             // Markers can be selected as shown here. The markers are internally represented
             // as an u32, hence this calling style.
             let markerchoice = push_style_var_i32(&StyleVar::Marker, Marker::Cross as i32);
@@ -178,7 +179,7 @@ fn show_style_plot(ui: &Ui) {
     style.pop();
 }
 
-fn show_colormaps_plot(ui: &Ui) {
+fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!("This header demos how to select colormaps."));
     let content_width = ui.window_content_region_width();
 
@@ -190,7 +191,7 @@ fn show_colormaps_plot(ui: &Ui) {
 
     Plot::new("Colormap demo plot")
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             (1..10)
                 .map(|x| x as f64 * 0.1)
                 .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x]))
@@ -217,7 +218,7 @@ fn show_colormaps_plot(ui: &Ui) {
 
     Plot::new("Colormap demo plot #2")
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             (1..10)
                 .map(|x| x as f64 * 0.1)
                 .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x]))
@@ -232,8 +233,11 @@ fn show_colormaps_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
-    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
+    let plotcontext = Context::create();
     system.main_loop(move |_, ui| {
+        // The context is moved into the closure after creation so plot_ui is valid.
+        let plot_ui = plotcontext.get_plot_ui();
+
         Window::new(im_str!("Line plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
@@ -250,19 +254,19 @@ fn main() {
 
                 // Show individual examples in collapsed headers
                 if CollapsingHeader::new(im_str!("Basic lineplot")).build(&ui) {
-                    show_basic_plot(&ui);
+                    show_basic_plot(&ui, &plot_ui);
                 }
                 if CollapsingHeader::new(im_str!("Configurable lineplot")).build(&ui) {
-                    show_configurable_plot(&ui);
+                    show_configurable_plot(&ui, &plot_ui);
                 }
                 if CollapsingHeader::new(im_str!("Querying a plot")).build(&ui) {
-                    show_query_features_plot(&ui);
+                    show_query_features_plot(&ui, &plot_ui);
                 }
                 if CollapsingHeader::new(im_str!("Styling a plot")).build(&ui) {
-                    show_style_plot(&ui);
+                    show_style_plot(&ui, &plot_ui);
                 }
                 if CollapsingHeader::new(im_str!("Colormap selection")).build(&ui) {
-                    show_colormaps_plot(&ui);
+                    show_colormaps_plot(&ui, &plot_ui);
                 }
             });
 

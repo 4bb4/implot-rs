@@ -3,12 +3,12 @@
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
-    push_style_var_f32, push_style_var_i32, Context, Marker, Plot, PlotScatter, StyleVar,
+    push_style_var_f32, push_style_var_i32, Context, Marker, Plot, PlotScatter, PlotUi, StyleVar,
 };
 
 mod support;
 
-fn show_basic_plot(ui: &Ui) {
+fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header just draws a scatter plot with as little code as possible."
     ));
@@ -17,7 +17,7 @@ fn show_basic_plot(ui: &Ui) {
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let x_positions = vec![0.1, 0.2, 0.1, 0.5, 0.9];
             let y_positions = vec![0.1, 0.1, 0.3, 0.3, 0.9];
@@ -25,7 +25,7 @@ fn show_basic_plot(ui: &Ui) {
         });
 }
 
-fn show_custom_markers_plot(ui: &Ui) {
+fn show_custom_markers_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header shows how markers can be used in scatter plots."
     ));
@@ -34,7 +34,7 @@ fn show_custom_markers_plot(ui: &Ui) {
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // Change to cross marker for one scatter plot call
             let x_positions = vec![0.1, 0.2, 0.1, 0.5, 0.9];
             let y_positions = vec![0.1, 0.1, 0.3, 0.3, 0.9];
@@ -59,8 +59,11 @@ fn show_custom_markers_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
-    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
+    let plotcontext = Context::create();
     system.main_loop(move |_, ui| {
+        // The context is moved into the closure after creation so plot_ui is valid.
+        let plot_ui = plotcontext.get_plot_ui();
+
         Window::new(im_str!("Scatter plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
@@ -77,11 +80,11 @@ fn main() {
 
                 // Show individual examples in collapsed headers
                 if CollapsingHeader::new(im_str!("Basic scatter plot")).build(&ui) {
-                    show_basic_plot(&ui);
+                    show_basic_plot(&ui, &plot_ui);
                 }
 
                 if CollapsingHeader::new(im_str!("Custom markers")).build(&ui) {
-                    show_custom_markers_plot(&ui);
+                    show_custom_markers_plot(&ui, &plot_ui);
                 }
             });
 

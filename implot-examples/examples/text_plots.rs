@@ -2,11 +2,11 @@
 //! features of the libray, see the line_plots example.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
-use implot::{Context, Plot, PlotText};
+use implot::{Context, Plot, PlotText, PlotUi};
 
 mod support;
 
-fn show_basic_plot(ui: &Ui) {
+fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header just plots some text with as little code as possible."
     ));
@@ -15,7 +15,7 @@ fn show_basic_plot(ui: &Ui) {
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // The text passed to "new" is what gets displayed.
             let x_position: f64 = 0.5;
             let y_position: f64 = 0.2;
@@ -33,8 +33,11 @@ fn show_basic_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
-    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
+    let plotcontext = Context::create();
     system.main_loop(move |_, ui| {
+        // The context is moved into the closure after creation so plot_ui is valid.
+        let plot_ui = plotcontext.get_plot_ui();
+
         Window::new(im_str!("Text plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
@@ -51,7 +54,7 @@ fn main() {
 
                 // Show individual examples in collapsed headers
                 if CollapsingHeader::new(im_str!("Basic text plot")).build(&ui) {
-                    show_basic_plot(&ui);
+                    show_basic_plot(&ui, &plot_ui);
                 }
             });
 

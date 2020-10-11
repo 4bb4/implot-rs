@@ -2,18 +2,18 @@
 //! features of the libray, see the line_plots example.
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
-use implot::{Context, Plot, PlotBars};
+use implot::{Context, Plot, PlotBars, PlotUi};
 
 mod support;
 
-fn show_basic_vertical_plot(ui: &Ui) {
+fn show_basic_vertical_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!("This header shows a simple vertical bar plot."));
     let content_width = ui.window_content_region_width();
     Plot::new("Vertical bar plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let axis_positions = vec![0.2, 0.4, 0.6, 0.8];
             let values = vec![0.1, 0.2, 0.3, 0.4];
@@ -23,14 +23,14 @@ fn show_basic_vertical_plot(ui: &Ui) {
         });
 }
 
-fn show_basic_horizontal_plot(ui: &Ui) {
+fn show_basic_horizontal_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!("This header shows a simple horizontal bar plot."));
     let content_width = ui.window_content_region_width();
     Plot::new("Horizontal bar plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
         .size(content_width, 300.0)
-        .build(|| {
+        .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let axis_positions = vec![0.2, 0.4, 0.6, 0.8];
             let values = vec![0.1, 0.2, 0.3, 0.4];
@@ -44,8 +44,11 @@ fn show_basic_horizontal_plot(ui: &Ui) {
 fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
-    let _plotcontext = Context::create(); // TODO(4bb4) use this as soon as things have been adapted
+    let plotcontext = Context::create();
     system.main_loop(move |_, ui| {
+        // The context is moved into the closure after creation so plot_ui is valid.
+        let plot_ui = plotcontext.get_plot_ui();
+
         Window::new(im_str!("Bar plots example"))
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
@@ -62,11 +65,11 @@ fn main() {
 
                 // Show individual examples in collapsed headers
                 if CollapsingHeader::new(im_str!("Basic vertical plot")).build(&ui) {
-                    show_basic_vertical_plot(&ui);
+                    show_basic_vertical_plot(&ui, &plot_ui);
                 }
 
                 if CollapsingHeader::new(im_str!("Basic horizontal plot")).build(&ui) {
-                    show_basic_horizontal_plot(&ui);
+                    show_basic_horizontal_plot(&ui, &plot_ui);
                 }
             });
 

@@ -24,4 +24,5 @@ members = [
 exclude = [
     "implot-sys-bindgen",
     "implot-examples",
+    "implot-wgpu-examples",
 ]

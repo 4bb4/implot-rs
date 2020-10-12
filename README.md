@@ -2,11 +2,7 @@
 
 Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
-Currently not released on crates.io yet due to a dependency on an unreleased version of `imgui-rs`.
-One can still use it as a dependency directly from Git if desired, for example using the line
-```
-implot = { git = "https://github.com/4bb4/implot-rs/", rev = "your_favourite_commit" }
-```
+
 The bindings are currently based on ImPlot version 0.7. See the status section below for
 detailed information on implementation status.
 
@@ -14,9 +10,6 @@ detailed information on implementation status.
 
 ## Requirements
 imgui-rs requires minimum Rust version 1.40, so this project does as well by extension.
-Currently a pinned version (66260c123b9a80275bd3a366ef403444db11a676) of imgui-rs is used 
-as a dependency until https://github.com/Gekkio/imgui-rs/pull/339 makes it into a release.
-
 The sys crate compiles implot, so a C++ compiler will also be required.
 
 ## Examples 

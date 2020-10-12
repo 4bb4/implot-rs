@@ -12,8 +12,8 @@ build = "build.rs"
 links = "implot"
 
 [dependencies]
-imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
-imgui = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
+imgui-sys = "0.5.0"
+imgui = "0.5.0"
 
 [build-dependencies]
 cc = "1.0"

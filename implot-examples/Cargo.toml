@@ -13,10 +13,10 @@ publish = false
 clipboard = "0.5"
 glium = { version = "0.27", default-features = true }
 image = "0.23"
-imgui-sys = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
-imgui = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
-imgui-glium-renderer = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
-imgui-winit-support = { git = "https://github.com/Gekkio/imgui-rs/", rev = "66260c123b9a80275bd3a366ef403444db11a676" }
+imgui-sys = "0.5.0"
+imgui = "0.5.0"
+imgui-glium-renderer = "0.5.0"
+imgui-winit-support = "0.5.0"
 
 implot-sys = { path = "../implot-sys" }
 implot = { path = "../" }

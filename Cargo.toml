@@ -8,6 +8,7 @@ homepage = "https://github.com/4bb4/implot-rs"
 repository = "https://github.com/4bb4/implot-rs"
 license = "MIT/Apache-2.0"
 categories = ["gui", "api-bindings"]
+readme = "README.md"
 
 [dependencies]
 implot-sys = { version = "0.1.0", path = "implot-sys" }

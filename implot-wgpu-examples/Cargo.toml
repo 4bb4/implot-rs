@@ -8,9 +8,8 @@ edition = "2018"
 implot = { path = "../" }
 
 wgpu = "^0.6.0"
-wgpu-subscriber = "^0.1.0" # tracing, also chrome profiling format support
 winit = "^0.22.2" # opening windows and handling input
 futures = "^0.3.5" # executing async functions using blocking executor
 imgui = "^0.5.0"
 imgui-winit-support = "^0.5.0" # connection of input (keys) to imgui
-imgui-wgpu = "^0.10.0" # imgui backend for drawing using wgpu
+imgui-wgpu = "^0.11.0" # imgui backend for drawing using wgpu

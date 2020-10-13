@@ -1,5 +1,5 @@
 use imgui::{im_str, CollapsingHeader, Condition, FontSource};
-use imgui_wgpu::Renderer;
+use imgui_wgpu::RendererConfig;
 use std::time::Instant;
 use winit::{
     event::{Event, WindowEvent},
@@ -81,7 +81,9 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
     let style = imgui.style_mut();
     style.use_classic_colors();
 
-    let mut renderer = Renderer::new(&mut imgui, &device, &queue, sc_desc.format);
+    let mut renderer = RendererConfig::new()
+        .set_texture_format(sc_desc.format)
+        .build(&mut imgui, &device, &queue);
 
     let mut last_frame = Instant::now();
     let mut last_cursor = None;
@@ -137,8 +139,8 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
                         let border = 10.0;
                         window.position([0.0, 0.0], Condition::Always).size(
                             [
-                                sc_desc.width as f32 / hidpi_factor - border,
-                                sc_desc.height as f32 / hidpi_factor - border,
+                                sc_desc.width as f32 / hidpi_factor as f32 - border,
+                                sc_desc.height as f32 / hidpi_factor as f32 - border,
                             ],
                             Condition::Always,
                         )
@@ -228,7 +230,6 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
 fn main() {
     let event_loop = EventLoop::new();
     let window = winit::window::Window::new(&event_loop).unwrap();
-    wgpu_subscriber::initialize_default_subscriber(None);
     // Temporarily avoid srgb formats for the swapchain on the web
     futures::executor::block_on(run(event_loop, window, wgpu::TextureFormat::Bgra8UnormSrgb));
 }

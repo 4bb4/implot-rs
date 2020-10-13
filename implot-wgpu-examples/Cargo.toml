@@ -1,5 +1,5 @@
 [package]
-name = "wgpu_plotting"
+name = "implot-wgpu-examples"
 version = "0.1.0"
 authors = ["Benedikt Mandelkow <benedikt.mandelkow@rwth-aachen.de>", "imgui-wgpu contributors"]
 edition = "2018"

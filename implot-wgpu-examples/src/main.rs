@@ -1,7 +1,9 @@
-use imgui::{im_str, CollapsingHeader, Condition, FontSource};
+use futures::executor::block_on;
+use imgui::*;
 use imgui_wgpu::RendererConfig;
 use std::time::Instant;
 use winit::{
+    dpi::LogicalSize,
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::Window,
@@ -10,41 +12,45 @@ use winit::{
 // the actual implot samples are in there
 mod ui;
 
-async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::TextureFormat) {
-    let size = window.inner_size();
+fn main() {
+    // Set up window and GPU
+    let event_loop = EventLoop::new();
     let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
-    let surface = unsafe { instance.create_surface(&window) };
-    let adapter = instance
-        .request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::Default,
-            // Request an adapter which can render to our surface
-            compatible_surface: Some(&surface),
-        })
-        .await
-        .expect("Failed to find an appropiate adapter");
 
-    // Create the logical device and command queue
-    let (device, queue) = adapter
-        .request_device(
-            &wgpu::DeviceDescriptor {
-                features: wgpu::Features::empty(),
-                limits: wgpu::Limits::default(),
-                shader_validation: true,
-            },
-            None,
-        )
-        .await
-        .expect("Failed to create device");
+    let (window, size, surface) = {
+        let window = Window::new(&event_loop).unwrap();
+        window.set_inner_size(LogicalSize {
+            width: 1280.0,
+            height: 720.0,
+        });
+        window.set_title(&"implot-wgpu".to_string());
+        let size = window.inner_size();
 
-    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: None,
-        bind_group_layouts: &[],
-        push_constant_ranges: &[],
-    });
+        let surface = unsafe { instance.create_surface(&window) };
 
+        (window, size, surface)
+    };
+
+    let adapter = block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+        power_preference: wgpu::PowerPreference::HighPerformance,
+        compatible_surface: Some(&surface),
+    }))
+    .unwrap();
+
+    let (device, queue) = block_on(adapter.request_device(
+        &wgpu::DeviceDescriptor {
+            features: wgpu::Features::empty(),
+            limits: wgpu::Limits::default(),
+            shader_validation: false,
+        },
+        None,
+    ))
+    .unwrap();
+
+    // Set up swap chain
     let mut sc_desc = wgpu::SwapChainDescriptor {
         usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-        format: swapchain_format,
+        format: wgpu::TextureFormat::Bgra8Unorm,
         width: size.width,
         height: size.height,
         present_mode: wgpu::PresentMode::Mailbox,
@@ -64,7 +70,7 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
     );
     imgui.set_ini_filename(None);
 
-    let hidpi_factor = window.scale_factor();
+    let mut hidpi_factor = window.scale_factor();
 
     let font_size = (13.0 * hidpi_factor) as f32;
     imgui.io_mut().font_global_scale = (1.0 / hidpi_factor) as f32;
@@ -78,12 +84,13 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
         }),
     }]);
 
-    let style = imgui.style_mut();
-    style.use_classic_colors();
-
+    //
+    // Set up dear imgui wgpu renderer
+    //
     let mut renderer = RendererConfig::new()
         .set_texture_format(sc_desc.format)
         .build(&mut imgui, &device, &queue);
+
 
     let mut last_frame = Instant::now();
     let mut last_cursor = None;
@@ -91,16 +98,18 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
     let mut showing_demo = false;
     let mut make_fullscreen = false;
 
+    // Event loop
     event_loop.run(move |event, _, control_flow| {
-        // Have the closure take ownership of the resources.
-        // `event_loop.run` never returns, therefore we must do this to ensure
-        // the resources are properly cleaned up.
-        let _ = (&instance, &adapter, &pipeline_layout);
+        *control_flow = ControlFlow::Poll;
 
         let plot_ui = implot.get_plot_ui();
-
-        *control_flow = ControlFlow::Poll;
         match event {
+            Event::WindowEvent {
+                event: WindowEvent::ScaleFactorChanged { scale_factor, .. },
+                ..
+            } => {
+                hidpi_factor = scale_factor;
+            }
             Event::WindowEvent {
                 event: WindowEvent::Resized(size),
                 ..
@@ -202,7 +211,7 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
                         ops: wgpu::Operations {
                             load: wgpu::LoadOp::Clear(wgpu::Color {
                                 r: 0.1,
-                                g: 0.2,
+                                g: 0.4,
                                 b: 0.3,
                                 a: 1.0,
                             }),
@@ -220,16 +229,9 @@ async fn run(event_loop: EventLoop<()>, window: Window, swapchain_format: wgpu::
 
                 queue.submit(Some(encoder.finish()));
             }
-            _ => {}
+            _ => (),
         }
 
         platform.handle_event(imgui.io_mut(), &window, &event);
     });
-}
-
-fn main() {
-    let event_loop = EventLoop::new();
-    let window = winit::window::Window::new(&event_loop).unwrap();
-    // Temporarily avoid srgb formats for the swapchain on the web
-    futures::executor::block_on(run(event_loop, window, wgpu::TextureFormat::Bgra8UnormSrgb));
 }

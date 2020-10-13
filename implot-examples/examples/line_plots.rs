@@ -30,7 +30,7 @@ fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
 
 fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
-        "This header demos what we can configure about plots."
+        "This header demos what we can configure about plots. €."
     ));
 
     // Settings for the plot

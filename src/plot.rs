@@ -91,16 +91,19 @@ bitflags! {
 /// (If you are coming from the C++ implementation or the C bindings: build() calls both
 /// begin() and end() internally)
 pub struct Plot {
-    /// Title of the plot, shown on top.
-    title: String,
+    /// Title of the plot, shown on top. Stored as ImString because that's what we'll use
+    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
+    title: ImString,
     /// Size of the plot in x direction, in the same units imgui uses.
     size_x: f32,
     /// Size of the plot in y direction, in the same units imgui uses.
     size_y: f32,
-    /// Label of the x axis, shown on the bottom
-    x_label: String,
-    /// Label of the y axis, shown on the left
-    y_label: String,
+    /// Label of the x axis, shown on the bottom. Stored as ImString because that's what we'll use
+    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
+    x_label: ImString,
+    /// Label of the y axis, shown on the left. Stored as ImString because that's what we'll use
+    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
+    y_label: ImString,
     /// X axis limits, if present
     x_limits: Option<ImPlotRange>,
     /// Y axis limits, if present
@@ -150,11 +153,11 @@ impl Plot {
     pub fn new(title: &str) -> Self {
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
-            title: title.to_owned(),
+            title: im_str!("{}", title),
             size_x: DEFAULT_PLOT_SIZE_X,
             size_y: DEFAULT_PLOT_SIZE_Y,
-            x_label: "".to_owned(),
-            y_label: "".to_owned(),
+            x_label: im_str!("").into(),
+            y_label: im_str!("").into(),
             x_limits: None,
             y_limits: None,
             x_limit_condition: None,
@@ -185,14 +188,14 @@ impl Plot {
     /// Set the x label of the plot
     #[inline]
     pub fn x_label(mut self, label: &str) -> Self {
-        self.x_label = label.to_owned();
+        self.x_label = im_str!("{}", label);
         self
     }
 
     /// Set the y label of the plot
     #[inline]
     pub fn y_label(mut self, label: &str) -> Self {
-        self.y_label = label.to_owned();
+        self.y_label = im_str!("{}", label);
         self
     }
 
@@ -385,9 +388,9 @@ impl Plot {
 
         let should_render = unsafe {
             sys::ImPlot_BeginPlot(
-                im_str!("{}", self.title).as_ptr(),
-                im_str!("{}", self.x_label).as_ptr(),
-                im_str!("{}", self.y_label).as_ptr(),
+                self.title.as_ptr(),
+                self.x_label.as_ptr(),
+                self.y_label.as_ptr(),
                 sys::ImVec2 {
                     x: self.size_x as f32,
                     y: self.size_y as f32,
@@ -428,7 +431,7 @@ impl Plot {
 pub struct PlotToken {
     context: *const Context,
     /// For better error messages
-    plot_title: String,
+    plot_title: ImString,
 }
 
 impl PlotToken {

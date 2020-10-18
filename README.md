@@ -1,3 +1,4 @@
+
 # implot-rs
 
 Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
@@ -5,6 +6,9 @@ Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 
 The bindings are currently based on ImPlot version 0.7. See the status section below for
 detailed information on implementation status. 
+
+[![Docs.rs documentation](https://docs.rs/implot/badge.svg)](https://docs.rs/implot/)
+![Tests](https://github.com/4bb4/implot-rs/workflows/Tests/badge.svg)
 
 **Important note:** As long as the code is pre-1.0 release, the API is expected to have 
 breaking changes between minor versions. Patch versions should be backwards compatible. 

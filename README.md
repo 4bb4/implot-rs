@@ -4,7 +4,11 @@ Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
 
 The bindings are currently based on ImPlot version 0.7. See the status section below for
-detailed information on implementation status.
+detailed information on implementation status. 
+
+**Important note:** As long as the code is pre-1.0 release, the API is expected to have 
+breaking changes between minor versions. Patch versions should be backwards compatible. 
+After 1.0, semver will be followed more properly.
 
 ![demo](demo.png)
 
@@ -20,27 +24,20 @@ clone the repo, change into the `implot-examples` directory and try for example
 ```
 
 ## Documentation
-Since the crate is not released yet, the documentation is not hosted yet either. You
-can build it yourself however by cloning this repo and then doing 
+For released versions, see 
+[![Docs.rs documentation](https://docs.rs/implot/badge.svg)](https://docs.rs/implot/). 
+Make sure you are looking at the right release, since the API is still changing. 
+For the master branch, can build it yourself however by cloning this repo and then doing 
 ```
   cargo doc --open
 ```
 An effort is made to document everything as it is being added. Feel free to open an issue
 if documentation is unclear or lacking.
 
-## Design approach
-This repo tries to follow the approaches and style used in `imgui-rs` somewhat closely,
-because implot is to be used within imgui programs, and hence keeping the interfaces
-and design philosophies close should make it easier to do that.
 
-If you spot any design inconsistencies or paper cuts, feel free to open an issue.
-
-## Status
-Currently a work in progress. The author is open to collaboration, if you'd like to 
-help, feel free to reach out via a Github issue.
-
-Note that the API is not stabilized yet and expected to change as development progresses.
-Once there are actual releases on crates.io, semantic versioning will be followed.
+## Implementation status
+Currently a work in progress, coverage of the C++ API is increased steadily. The author 
+is open to collaboration, if you'd like to help, feel free to reach out via a Github issue.
 
 At this point, raw bindings are working in implot-sys, and more idiomatic interfaces
 for plot creation as well a subset of the functionality for plots are implemented. 
@@ -69,20 +66,30 @@ for plot creation as well a subset of the functionality for plots are implemente
   - [x] Styling colors
   - [x] Styling variables
   - [x] Colormaps
-- [ ] Plot querying 
+- [x] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot
   - [x] plot limits
   - [x] is queried
   - [x] get plot query
-  - [ ] Choice of y axis
+  - [x] are axes hovered
+  - [x] Choice of y axis
 - [ ] Utils
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks
   - [x] Plot tick setting
   - [ ] Input remapping
-  - [ ] Set Y axis setting for subsequent elements
+  - [x] Set Y axis setting for subsequent elements
+  - [ ] Set non-default Y axis ticks and labels
   - [ ] Plot position and size reading
   - [ ] Pixel to plot position
   - [ ] Plot to pixel position
   - [ ] Push/pop plotclip rect (?)
+
+# Developer documentation
+## Design approach
+This repo tries to follow the approaches and style used in `imgui-rs` somewhat closely,
+because implot is to be used within imgui programs, and hence keeping the interfaces
+and design philosophies close should make it easier to do that.
+
+If you spot any design inconsistencies or paper cuts, feel free to open an issue.

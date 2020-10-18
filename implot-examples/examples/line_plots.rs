@@ -5,8 +5,9 @@ use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
     push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
-    set_colormap_from_vec, AxisFlags, Colormap, Context, ImPlotLimits, ImPlotPoint, ImPlotRange,
-    ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi, StyleVar,
+    set_colormap_from_vec, set_plot_y_axis, AxisFlags, Colormap, Context, ImPlotLimits,
+    ImPlotPoint, ImPlotRange, ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi,
+    StyleVar, YAxisChoice,
 };
 
 mod support;
@@ -28,9 +29,43 @@ fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
         });
 }
 
+fn show_two_yaxis_plot(ui: &Ui, plot_ui: &PlotUi) {
+    ui.text(im_str!(
+        "This header shows how to create a plot with multiple Y axes."
+    ));
+    let content_width = ui.window_content_region_width();
+    Plot::new("Multiple Y axis plots")
+        // The size call could also be omitted, though the defaults don't consider window
+        // width, which is why we're not doing so here.
+        .size(content_width, 300.0)
+        .with_plot_flags(&(PlotFlags::NONE | PlotFlags::Y_AXIS_2))
+        .y_limits(
+            &ImPlotRange { Min: 0.0, Max: 1.0 },
+            YAxisChoice::First,
+            Condition::Always,
+        )
+        .y_limits(
+            &ImPlotRange { Min: 1.0, Max: 3.5 },
+            YAxisChoice::Second,
+            Condition::Always,
+        )
+        .build(plot_ui, || {
+            let x_positions = vec![0.1, 0.9];
+
+            // The first Y axis is the default
+            let y_positions = vec![0.1, 0.9];
+            PlotLine::new("legend label").plot(&x_positions, &y_positions);
+
+            // Now we switch to the second axis for the next call
+            set_plot_y_axis(YAxisChoice::Second);
+            let y_positions = vec![3.3, 1.2];
+            PlotLine::new("legend label two").plot(&x_positions, &y_positions);
+        });
+}
+
 fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
-        "This header demos what we can configure about plots. €."
+        "This header demos what we can configure about plots."
     ));
 
     // Settings for the plot
@@ -79,14 +114,15 @@ fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
                 Min: y_min,
                 Max: y_max,
             },
+            YAxisChoice::First,
             Condition::Always,
         )
         .x_ticks(&x_ticks, false)
-        .y_ticks_with_labels(&y_ticks, false)
+        .y_ticks_with_labels(YAxisChoice::First, &y_ticks, false)
         // If any of these flag setting calls are omitted, the defaults are used.
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)
-        .with_y_axis_flags(&y_axis_flags)
+        .with_y_axis_flags(YAxisChoice::First, &y_axis_flags)
         .build(plot_ui, || {
             PlotLine::new("A line").plot(&vec![2.1, 2.9], &vec![1.1, 1.9]);
         });
@@ -107,17 +143,21 @@ fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Plot querying")
         .size(content_width, 300.0)
         .x_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
-        .y_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
+        .y_limits(
+            &ImPlotRange { Min: 0.0, Max: 5.0 },
+            YAxisChoice::First,
+            Condition::FirstUseEver,
+        )
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::QUERY))
         .build(plot_ui, || {
             if is_plot_hovered() {
-                hover_pos = Some(get_plot_mouse_position());
+                hover_pos = Some(get_plot_mouse_position(None));
             }
 
             if is_plot_queried() {
-                query_limits = Some(get_plot_query());
+                query_limits = Some(get_plot_query(None));
             }
-            plot_limits = Some(get_plot_limits());
+            plot_limits = Some(get_plot_limits(None));
         });
 
     // Print some previously-exfiltrated info. This is because calling
@@ -153,10 +193,11 @@ fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
                 Min: -1.0,
                 Max: 3.0,
             },
+            YAxisChoice::First,
             Condition::Always,
         )
         .with_plot_flags(&(PlotFlags::NONE))
-        .with_y_axis_flags(&(AxisFlags::NONE))
+        .with_y_axis_flags(YAxisChoice::First, &(AxisFlags::NONE))
         .build(plot_ui, || {
             // Markers can be selected as shown here. The markers are internally represented
             // as an u32, hence this calling style.
@@ -267,6 +308,9 @@ fn main() {
                 }
                 if CollapsingHeader::new(im_str!("Colormap selection")).build(&ui) {
                     show_colormaps_plot(&ui, &plot_ui);
+                }
+                if CollapsingHeader::new(im_str!("Multiple Y Axes")).build(&ui) {
+                    show_two_yaxis_plot(&ui, &plot_ui);
                 }
             });
 

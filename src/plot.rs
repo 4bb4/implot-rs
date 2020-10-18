@@ -8,7 +8,7 @@ pub use sys::imgui::Condition;
 use sys::imgui::{im_str, ImString};
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
-use crate::{Context, PlotUi};
+use crate::{Context, PlotUi, YAxisChoice, NUMBER_OF_Y_AXES};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
@@ -107,11 +107,11 @@ pub struct Plot {
     /// X axis limits, if present
     x_limits: Option<ImPlotRange>,
     /// Y axis limits, if present
-    y_limits: Option<ImPlotRange>,
+    y_limits: [Option<ImPlotRange>; NUMBER_OF_Y_AXES],
     /// Condition on which the x limits are set
     x_limit_condition: Option<Condition>,
-    /// Condition on which the y limits are set (first y axis for now)
-    y_limit_condition: Option<Condition>,
+    /// Condition on which the y limits are set for each of the axes
+    y_limit_condition: [Option<Condition>; NUMBER_OF_Y_AXES],
     /// Positions for custom X axis ticks, if any
     x_tick_positions: Option<Vec<f64>>,
     /// Labels for custom X axis ticks, if any. I'd prefer to store these together
@@ -124,33 +124,31 @@ pub struct Plot {
     /// Whether to also show the default X ticks when showing custom ticks or not
     show_x_default_ticks: bool,
     /// Positions for custom Y axis ticks, if any
-    y_tick_positions: Option<Vec<f64>>,
+    y_tick_positions: [Option<Vec<f64>>; NUMBER_OF_Y_AXES],
     /// Labels for custom Y axis ticks, if any. I'd prefer to store these together
     /// with the positions in one vector of an algebraic data type, but this would mean extra
     /// copies when it comes time to draw the plot because the C++ library expects separate lists.
     /// The data is stored as ImStrings because those are null-terminated, and since we have to
     /// convert to null-terminated data anyway, we may as well do that directly instead of cloning
     /// Strings and converting them afterwards.
-    y_tick_labels: Option<Vec<ImString>>,
+    y_tick_labels: [Option<Vec<ImString>>; NUMBER_OF_Y_AXES],
     /// Whether to also show the default Y ticks when showing custom ticks or not
-    show_y_default_ticks: bool,
+    show_y_default_ticks: [bool; NUMBER_OF_Y_AXES],
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
-    /// Flags relating to the first x axis of the plot TODO(4bb4) make those into bitflags
+    /// Flags relating to the X axis of the plot TODO(4bb4) make those into bitflags
     x_flags: sys::ImPlotAxisFlags,
-    /// Flags relating to the first y axis of the plot TODO(4bb4) make those into bitflags
-    y_flags: sys::ImPlotAxisFlags,
-    /// Flags relating to the second y axis of the plot (if present, otherwise ignored)
-    /// TODO(4bb4) make those into bitflags
-    y2_flags: sys::ImPlotAxisFlags,
-    /// Flags relating to the third y axis of the plot (if present, otherwise ignored)
-    /// TODO(4bb4) make those into bitflags
-    y3_flags: sys::ImPlotAxisFlags,
+    /// Flags relating to the each of the Y axes of the plot TODO(4bb4) make those into bitflags
+    y_flags: [sys::ImPlotAxisFlags; NUMBER_OF_Y_AXES],
 }
 
 impl Plot {
     /// Create a new plot with some defaults set. Does not draw anything yet.
     pub fn new(title: &str) -> Self {
+        // Needed for initialization, see https://github.com/rust-lang/rust/issues/49147
+        const POS_NONE: Option<Vec<f64>> = None;
+        const TICK_NONE: Option<Vec<ImString>> = None;
+
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
             title: im_str!("{}", title),
@@ -159,20 +157,18 @@ impl Plot {
             x_label: im_str!("").into(),
             y_label: im_str!("").into(),
             x_limits: None,
-            y_limits: None,
+            y_limits: [None; NUMBER_OF_Y_AXES],
             x_limit_condition: None,
-            y_limit_condition: None,
+            y_limit_condition: [None; NUMBER_OF_Y_AXES],
             x_tick_positions: None,
             x_tick_labels: None,
             show_x_default_ticks: false,
-            y_tick_positions: None,
-            y_tick_labels: None,
-            show_y_default_ticks: false,
+            y_tick_positions: [POS_NONE; NUMBER_OF_Y_AXES],
+            y_tick_labels: [TICK_NONE; NUMBER_OF_Y_AXES],
+            show_y_default_ticks: [false; NUMBER_OF_Y_AXES],
             plot_flags: PlotFlags::NONE.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
-            y_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
-            y2_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
-            y3_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
+            y_flags: [AxisFlags::NONE.bits() as sys::ImPlotAxisFlags; NUMBER_OF_Y_AXES],
         }
     }
 
@@ -207,11 +203,18 @@ impl Plot {
         self
     }
 
-    /// Set the y limits of the plot
+    /// Set the Y limits of the plot for the given Y axis. Call multiple times
+    /// to set for multiple axes.
     #[inline]
-    pub fn y_limits(mut self, limits: &ImPlotRange, condition: Condition) -> Self {
-        self.y_limits = Some(*limits);
-        self.y_limit_condition = Some(condition);
+    pub fn y_limits(
+        mut self,
+        limits: &ImPlotRange,
+        y_axis_choice: YAxisChoice,
+        condition: Condition,
+    ) -> Self {
+        let axis_index = y_axis_choice as usize;
+        self.y_limits[axis_index] = Some(*limits);
+        self.y_limit_condition[axis_index] = Some(condition);
         self
     }
 
@@ -229,9 +232,15 @@ impl Plot {
     /// the form of a tuple `(label_position, label_string)`. The `show_default` setting
     /// determines whether the default ticks are also shown.
     #[inline]
-    pub fn y_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
-        self.y_tick_positions = Some(ticks.clone());
-        self.show_y_default_ticks = show_default;
+    pub fn y_ticks(
+        mut self,
+        y_axis_choice: YAxisChoice,
+        ticks: &Vec<f64>,
+        show_default: bool,
+    ) -> Self {
+        let axis_index = y_axis_choice as usize;
+        self.y_tick_positions[axis_index] = Some(ticks.clone());
+        self.show_y_default_ticks[axis_index] = show_default;
         self
     }
 
@@ -256,12 +265,15 @@ impl Plot {
     #[inline]
     pub fn y_ticks_with_labels(
         mut self,
+        y_axis_choice: YAxisChoice,
         tick_labels: &Vec<(f64, String)>,
         show_default: bool,
     ) -> Self {
-        self.y_tick_positions = Some(tick_labels.iter().map(|x| x.0).collect());
-        self.y_tick_labels = Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
-        self.show_y_default_ticks = show_default;
+        let axis_index = y_axis_choice as usize;
+        self.y_tick_positions[axis_index] = Some(tick_labels.iter().map(|x| x.0).collect());
+        self.y_tick_labels[axis_index] =
+            Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
+        self.show_y_default_ticks[axis_index] = show_default;
         self
     }
 
@@ -279,24 +291,11 @@ impl Plot {
         self
     }
 
-    /// Set the axis flags for the first Y axis in this plot
+    /// Set the axis flags for the selected Y axis in this plot
     #[inline]
-    pub fn with_y_axis_flags(mut self, flags: &AxisFlags) -> Self {
-        self.y_flags = flags.bits() as sys::ImPlotAxisFlags;
-        self
-    }
-
-    /// Set the axis flags for the second Y axis in this plot
-    #[inline]
-    pub fn with_y2_axis_flags(mut self, flags: &AxisFlags) -> Self {
-        self.y2_flags = flags.bits() as sys::ImPlotAxisFlags;
-        self
-    }
-
-    /// Set the axis flags for the third Y axis in this plot
-    #[inline]
-    pub fn with_y3_axis_flags(mut self, flags: &AxisFlags) -> Self {
-        self.y3_flags = flags.bits() as sys::ImPlotAxisFlags;
+    pub fn with_y_axis_flags(mut self, y_axis_choice: YAxisChoice, flags: &AxisFlags) -> Self {
+        let axis_index = y_axis_choice as usize;
+        self.y_flags[axis_index] = flags.bits() as sys::ImPlotAxisFlags;
         self
     }
 
@@ -309,19 +308,23 @@ impl Plot {
             }
         }
 
-        // Set X limits if specified
-        if let (Some(limits), Some(condition)) = (self.y_limits, self.y_limit_condition) {
-            // TODO(4bb4) allow for specification of multiple y limits, not just the first
-            let selected_y_axis = 0;
-            unsafe {
-                sys::ImPlot_SetNextPlotLimitsY(
-                    limits.Min,
-                    limits.Max,
-                    condition as sys::ImGuiCond,
-                    selected_y_axis,
-                );
-            }
-        }
+        // Set Y limits if specified
+        self.y_limits
+            .iter()
+            .zip(self.y_limit_condition.iter())
+            .enumerate()
+            .for_each(|(k, (limits, condition))| {
+                if let (Some(limits), Some(condition)) = (limits, condition) {
+                    unsafe {
+                        sys::ImPlot_SetNextPlotLimitsY(
+                            limits.Min,
+                            limits.Max,
+                            *condition as sys::ImGuiCond,
+                            k as i32,
+                        );
+                    }
+                }
+            });
     }
 
     /// Internal helper function to set tick labels in case they are specified. This does the
@@ -351,28 +354,36 @@ impl Plot {
             }
         }
 
-        if self.y_tick_positions.is_some() && self.y_tick_positions.as_ref().unwrap().len() > 0 {
-            let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
-            let labels_pointer = if let Some(labels_value) = &self.y_tick_labels {
-                pointer_vec = labels_value
-                    .iter()
-                    .map(|x| x.as_ptr() as *const i8)
-                    .collect::<Vec<*const i8>>();
-                pointer_vec.as_mut_ptr()
-            } else {
-                std::ptr::null_mut()
-            };
+        self.y_tick_positions
+            .iter()
+            .zip(self.y_tick_labels.iter())
+            .zip(self.show_y_default_ticks.iter())
+            .enumerate()
+            .for_each(|(k, ((positions, labels), show_defaults))| {
+                if positions.is_some() && positions.as_ref().unwrap().len() > 0 {
+                    // The vector of pointers we create has to have a longer lifetime
+                    let mut pointer_vec;
+                    let labels_pointer = if let Some(labels_value) = &labels {
+                        pointer_vec = labels_value
+                            .iter()
+                            .map(|x| x.as_ptr() as *const i8)
+                            .collect::<Vec<*const i8>>();
+                        pointer_vec.as_mut_ptr()
+                    } else {
+                        std::ptr::null_mut()
+                    };
 
-            unsafe {
-                sys::ImPlot_SetNextPlotTicksYdoublePtr(
-                    self.y_tick_positions.as_ref().unwrap().as_ptr(),
-                    self.y_tick_positions.as_ref().unwrap().len() as i32,
-                    labels_pointer,
-                    self.show_y_default_ticks,
-                    0, // y axis selection, TODO(4bb4) make this configurable
-                )
-            }
-        }
+                    unsafe {
+                        sys::ImPlot_SetNextPlotTicksYdoublePtr(
+                            positions.as_ref().unwrap().as_ptr(),
+                            positions.as_ref().unwrap().len() as i32,
+                            labels_pointer,
+                            *show_defaults,
+                            k as i32,
+                        )
+                    }
+                }
+            });
     }
 
     /// Attempt to show the plot. If this returns a token, the plot will actually
@@ -397,9 +408,9 @@ impl Plot {
                 },
                 self.plot_flags,
                 self.x_flags,
-                self.y_flags,
-                self.y2_flags,
-                self.y3_flags,
+                self.y_flags[0],
+                self.y_flags[1],
+                self.y_flags[2],
             )
         };
 

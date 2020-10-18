@@ -28,6 +28,28 @@ mod context;
 mod plot;
 mod plot_elements;
 
+// The bindings for some reason don't contain this - it has to match the IMPLOT_AUTO from
+// the original C++ header for things to work properly.
+const IMPLOT_AUTO: i32 = -1;
+
+// Number of Y axes, this is used in a bunch of places for storing things like settings.
+// If this changes, also change the YAxisChoice enum.
+const NUMBER_OF_Y_AXES: usize = 3;
+
+/// Choice of Y axis. This an enum instead of just an integer so as to make it impossible
+/// to select a Y axis that is not present - this makes it easier to avoid `Result`-type
+/// return values on functions that could otherwise not really fail.
+// Implementation note: This enum is converted straight to an usize index in a few places
+// so we can store data about individual axes in arrays, so this pretty much should stay
+// just a mapping of words to numbers.
+#[derive(Clone)]
+#[repr(i32)]
+pub enum YAxisChoice {
+    First = 0,
+    Second = 1,
+    Third = 2,
+}
+
 /// A temporary reference for building plots. This does not really do anything on its own at
 /// this point, but it is used to enforce that a context is created and active for other features,
 /// such as creating plots.
@@ -251,9 +273,6 @@ pub fn push_style_color(
 /// Tracks a change pushed to the style color stack
 pub struct StyleColorToken {
     /// Whether this token has been popped or not.
-    /// TODO(4bb4) figure out if it is a good idea to warn about this not being popped when it is
-    /// dropped - this may not be a good idea since users may want to push some style vars for
-    /// longer durations.
     was_popped: bool,
 }
 
@@ -311,9 +330,6 @@ pub fn push_style_var_imvec2(element: &StyleVar, value: ImVec2) -> StyleVarToken
 /// Tracks a change pushed to the style variable stack
 pub struct StyleVarToken {
     /// Whether this token has been popped or not.
-    /// TODO(4bb4) figure out if it is a good idea to warn about this not being popped when it is
-    /// dropped - this may not be a good idea since users may want to push some style vars for
-    /// longer durations.
     was_popped: bool,
 }
 
@@ -341,45 +357,77 @@ pub fn is_plot_queried() -> bool {
     unsafe { sys::ImPlot_IsPlotQueried() }
 }
 
-/// Returns the mouse position in x,y coordinates of the current or most recent plot. Currently
-/// pertains to whatever Y axis was most recently selected. TODO(4bb4) add y axis selection
-pub fn get_plot_mouse_position() -> ImPlotPoint {
-    let y_axis_selection = 0;
+/// Returns the mouse position in x,y coordinates of the current or most recent plot,
+/// for the specified choice of Y axis. If `None` is the Y axis choice, that means the
+/// most recently selected Y axis is chosen.
+pub fn get_plot_mouse_position(y_axis_choice: Option<YAxisChoice>) -> ImPlotPoint {
+    let y_axis_choice_i32 = match y_axis_choice {
+        Some(choice) => choice as i32,
+        None => IMPLOT_AUTO,
+    };
     let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
     unsafe {
-        sys::ImPlot_GetPlotMousePos(&mut point as *mut ImPlotPoint, y_axis_selection);
+        sys::ImPlot_GetPlotMousePos(&mut point as *mut ImPlotPoint, y_axis_choice_i32);
     }
     point
 }
 
-/// Returns the current or most recent plot axis range. Currently pertains to whatever Y axis was
-/// most recently selected. TODO(4bb4) add y axis selection
-pub fn get_plot_limits() -> ImPlotLimits {
-    let y_axis_selection = 0;
+/// Returns the current or most recent plot axis range for the specified choice of Y axis. If
+/// `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
+pub fn get_plot_limits(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
+    let y_axis_choice_i32 = match y_axis_choice {
+        Some(choice) => choice as i32,
+        None => IMPLOT_AUTO,
+    };
     // ImPlotLimits doesn't seem to have default()
     let mut limits = ImPlotLimits {
         X: ImPlotRange { Min: 0.0, Max: 0.0 },
         Y: ImPlotRange { Min: 0.0, Max: 0.0 },
     };
     unsafe {
-        sys::ImPlot_GetPlotLimits(&mut limits as *mut ImPlotLimits, y_axis_selection);
+        sys::ImPlot_GetPlotLimits(&mut limits as *mut ImPlotLimits, y_axis_choice_i32);
     }
     limits
 }
 
-/// Returns the query limits of the current or most recent plot.  Currently pertains to whatever Y
-/// axis was most recently selected. TODO(4bb4) add y axis selection
-pub fn get_plot_query() -> ImPlotLimits {
-    let y_axis_selection = 0;
+/// Returns the query limits of the current or most recent plot, for the specified choice of Y
+/// axis. If `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
+pub fn get_plot_query(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
+    let y_axis_choice_i32 = match y_axis_choice {
+        Some(choice) => choice as i32,
+        None => IMPLOT_AUTO,
+    };
     // ImPlotLimits doesn't seem to have default()
     let mut limits = ImPlotLimits {
         X: ImPlotRange { Min: 0.0, Max: 0.0 },
         Y: ImPlotRange { Min: 0.0, Max: 0.0 },
     };
     unsafe {
-        sys::ImPlot_GetPlotQuery(&mut limits as *mut ImPlotLimits, y_axis_selection);
+        sys::ImPlot_GetPlotQuery(&mut limits as *mut ImPlotLimits, y_axis_choice_i32);
     }
     limits
+}
+
+/// Set the Y axis to be used for any upcoming plot elements
+pub fn set_plot_y_axis(y_axis_choice: YAxisChoice) {
+    unsafe {
+        sys::ImPlot_SetPlotYAxis(y_axis_choice as i32);
+    }
+}
+
+/// Returns true if the XAxis plot area in the current plot is hovered.
+pub fn is_plot_x_axis_hovered() -> bool {
+    unsafe { sys::ImPlot_IsPlotXAxisHovered() }
+}
+
+/// Returns true if the YAxis[n] plot area in the current plot is hovered. If `None` is the Y axis
+/// choice, that means the most recently selected Y axis is chosen.
+pub fn is_plot_y_axis_hovered(y_axis_choice: Option<YAxisChoice>) -> bool {
+    let y_axis_choice_i32 = match y_axis_choice {
+        Some(choice) => choice as i32,
+        None => IMPLOT_AUTO,
+    };
+    unsafe { sys::ImPlot_IsPlotYAxisHovered(y_axis_choice_i32) }
 }
 
 // --- Demo window -------------------------------------------------------------------------------

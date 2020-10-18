@@ -144,6 +144,7 @@ pub struct Plot {
 
 impl Plot {
     /// Create a new plot with some defaults set. Does not draw anything yet.
+    /// Note that this uses antialiasing by default, unlike the C++ API. If you are seeing artifacts or weird rendering, try disabling it.
     pub fn new(title: &str) -> Self {
         // Needed for initialization, see https://github.com/rust-lang/rust/issues/49147
         const POS_NONE: Option<Vec<f64>> = None;
@@ -166,7 +167,7 @@ impl Plot {
             y_tick_positions: [POS_NONE; NUMBER_OF_Y_AXES],
             y_tick_labels: [TICK_NONE; NUMBER_OF_Y_AXES],
             show_y_default_ticks: [false; NUMBER_OF_Y_AXES],
-            plot_flags: PlotFlags::NONE.bits() as sys::ImPlotFlags,
+            plot_flags: PlotFlags::ANTIALIASED.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
             y_flags: [AxisFlags::NONE.bits() as sys::ImPlotAxisFlags; NUMBER_OF_Y_AXES],
         }

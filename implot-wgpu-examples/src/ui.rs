@@ -3,7 +3,7 @@ use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
     push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
     set_colormap_from_vec, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec4,
-    Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi, StyleVar,
+    Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi, StyleVar, YAxisChoice,
 };
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -33,7 +33,7 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
     let x_size = 300.0;
     let y_size = 200.0;
     // - Strings for the axis labels
-    let x_label = "X label!";
+    let x_label = "X label";
     let y_label = "Y label!";
     // - Plot limits
     let x_min = 2.0;
@@ -74,14 +74,15 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
                 Min: y_min,
                 Max: y_max,
             },
+            YAxisChoice::First,
             Condition::Always,
         )
         .x_ticks(&x_ticks, false)
-        .y_ticks_with_labels(&y_ticks, false)
+        .y_ticks_with_labels(YAxisChoice::First, &y_ticks, false)
         // If any of these flag setting calls are omitted, the defaults are used.
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)
-        .with_y_axis_flags(&y_axis_flags)
+        .with_y_axis_flags(YAxisChoice::First, &y_axis_flags)
         .build(plot_ui, || {
             PlotLine::new("A line").plot(&vec![2.1, 2.9], &vec![1.1, 1.9]);
         });
@@ -102,17 +103,21 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Plot querying")
         .size(content_width, 300.0)
         .x_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
-        .y_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
+        .y_limits(
+            &ImPlotRange { Min: 0.0, Max: 5.0 },
+            YAxisChoice::First,
+            Condition::FirstUseEver,
+        )
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::QUERY))
         .build(plot_ui, || {
             if is_plot_hovered() {
-                hover_pos = Some(get_plot_mouse_position());
+                hover_pos = Some(get_plot_mouse_position(None));
             }
 
             if is_plot_queried() {
-                query_limits = Some(get_plot_query());
+                query_limits = Some(get_plot_query(None));
             }
-            plot_limits = Some(get_plot_limits());
+            plot_limits = Some(get_plot_limits(None));
         });
 
     // Print some previously-exfiltrated info. This is because calling
@@ -148,10 +153,11 @@ pub fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
                 Min: -1.0,
                 Max: 3.0,
             },
+            YAxisChoice::First,
             Condition::Always,
         )
         .with_plot_flags(&(PlotFlags::NONE))
-        .with_y_axis_flags(&(AxisFlags::NONE))
+        .with_y_axis_flags(YAxisChoice::First, &(AxisFlags::NONE))
         .build(plot_ui, || {
             // Markers can be selected as shown here. The markers are internally represented
             // as an u32, hence this calling style.

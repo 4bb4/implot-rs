@@ -91,7 +91,6 @@ fn main() {
         .set_texture_format(sc_desc.format)
         .build(&mut imgui, &device, &queue);
 
-
     let mut last_frame = Instant::now();
     let mut last_cursor = None;
 

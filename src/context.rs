@@ -4,8 +4,8 @@
 
 use parking_lot::ReentrantMutex;
 
+use crate::sys;
 use crate::PlotUi;
-
 /// An implot context.
 ///
 /// A context is required to do most of the things this library provides. While this was created
@@ -16,7 +16,7 @@ pub struct Context {
     raw: *mut sys::ImPlotContext,
 }
 
-lazy_static! {
+lazy_static::lazy_static! {
     // This mutex is used to guard any accesses to the context
     static ref CTX_MUTEX: ReentrantMutex<()> = ReentrantMutex::new(());
 }

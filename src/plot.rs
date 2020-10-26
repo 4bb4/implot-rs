@@ -2,13 +2,12 @@
 //!
 //! This module defines the `Plot` struct, which is used to create a 2D plot that will
 //! contain all other objects that can be created using this library.
-extern crate implot_sys as sys;
-use bitflags::bitflags;
-pub use sys::imgui::Condition;
-use sys::imgui::{im_str, ImString};
-pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
-
 use crate::{Context, PlotUi, YAxisChoice, NUMBER_OF_Y_AXES};
+use bitflags::bitflags;
+pub use imgui::Condition;
+use imgui::{im_str, ImString};
+use implot_sys as sys;
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
@@ -18,7 +17,7 @@ bitflags! {
     /// convenience. ImPlot itself also has a "CanvasOnly" flag, which can be emulated here with
     /// the combination of `NO_LEGEND`, `NO_MENUS`, `NO_BOX_SELECT` and `NO_MOUSE_POSITION`.
     #[repr(transparent)]
-    pub struct PlotFlags: u32 {
+    pub struct PlotFlags: i32 {
         /// "Default" according to original docs
         const NONE = sys::ImPlotFlags__ImPlotFlags_None;
         /// Plot items will not be highlighted when their legend entry is hovered
@@ -52,7 +51,7 @@ bitflags! {
     /// has `Lock`, which combines `LOCK_MIN` and `LOCK_MAX`, and `NoDecorations`, which combines
     /// `NO_GRID_LINES`, `NO_TICK_MARKS` and `NO_TICK_LABELS`.
     #[repr(transparent)]
-    pub struct AxisFlags: u32 {
+    pub struct AxisFlags: i32 {
         /// "Default" according to original docs
         const NONE = sys::ImPlotAxisFlags__ImPlotAxisFlags_None;
         /// Grid lines will not be displayed

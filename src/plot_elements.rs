@@ -3,7 +3,8 @@
 //! This module defines the various structs that can be used for drawing different things such
 //! as lines, bars, scatter plots and text in a plot. For the module to create plots themselves,
 //! see `plot`.
-use sys::imgui::im_str;
+use crate::sys;
+use imgui::im_str;
 
 // --- Actual plotting functionality -------------------------------------------------------------
 /// Struct to provide functionality for plotting a line in a plot.

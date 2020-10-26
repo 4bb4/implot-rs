@@ -12,17 +12,11 @@
 //! you'd really like a particular feature, file an issue and it'll be given priority for wrapping,
 //! or directly contribute a PR, or use the low-level bindings directly for the time being.
 //!
-extern crate implot_sys as sys;
-
-#[macro_use]
-extern crate lazy_static;
+use implot_sys as sys;
 
 // TODO(4bb4) facade-wrap these?
-pub use sys::{imgui::Condition, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
-
-pub use self::context::*;
-pub use self::plot::*;
-pub use self::plot_elements::*;
+pub use self::{context::*, plot::*, plot_elements::*};
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 mod context;
 mod plot;
@@ -89,7 +83,7 @@ pub enum Marker {
 /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
 /// name somewhat confusing because we are not referring to colors, but _which_ thing can
 /// be colored - hence I added the "Element".
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum PlotColorElement {
     /// Plot line/outline color (defaults to next unused color in current colormap)
@@ -143,7 +137,7 @@ pub enum PlotColorElement {
 }
 
 /// Colormap choice. Documentation copied from implot.h for convenience.
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum Colormap {
     /// ImPlot default colormap (n=10). Called "Standard" here because Default is reserved.
@@ -170,7 +164,7 @@ pub enum Colormap {
     Jet = sys::ImPlotColormap__ImPlotColormap_Jet,
 }
 
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum StyleVar {
     /// f32, line weight in pixels

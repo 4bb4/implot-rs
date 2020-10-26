@@ -1,6 +1,4 @@
 use std::env;
-use std::io::Write;
-use std::path::PathBuf;
 
 fn main() {
     // We just forward the DEP_IMGUI_THIRD_PARTY variable here because the

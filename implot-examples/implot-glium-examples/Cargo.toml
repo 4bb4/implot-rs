@@ -1,5 +1,5 @@
 [package]
-name = "implot-examples"
+name = "implot-glium-examples"
 version = "0.0.0"
 edition = "2018"
 authors = ["Sandro Merkli", "implot-rs contributors"]

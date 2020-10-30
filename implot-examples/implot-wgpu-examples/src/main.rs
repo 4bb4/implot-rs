@@ -9,10 +9,11 @@ use winit::{
     window::Window,
 };
 
-// the actual implot samples are in there
+// the actual implot samples are in there TODO(4bb4) move to using examples-shared instead
 mod ui;
 
 fn main() {
+    // --- Backend setup ----------------------------------------------------------------
     // Set up window and GPU
     let event_loop = EventLoop::new();
     let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -97,7 +98,7 @@ fn main() {
     let mut showing_demo = false;
     let mut make_fullscreen = false;
 
-    // Event loop
+    // --- Event loop -------------------------------------------------------------------
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
@@ -141,6 +142,7 @@ fn main() {
                     .expect("Failed to prepare frame");
                 let ui = imgui.frame();
 
+                // --- Actual drawing code ----------------------------------------------
                 {
                     let window = imgui::Window::new(im_str!("Hello implot"));
                     let window = if make_fullscreen {
@@ -195,6 +197,7 @@ fn main() {
                     implot::show_demo_window(&mut showing_demo);
                 }
 
+                // --- Post-drawing rendering code --------------------------------------
                 let mut encoder: wgpu::CommandEncoder =
                     device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 

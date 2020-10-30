@@ -19,8 +19,8 @@ pub struct System {
     pub event_loop: EventLoop<()>,
     pub display: glium::Display,
     pub imgui: Context,
-    pub platform: WinitPlatform,
     pub renderer: Renderer,
+    pub platform: WinitPlatform,
     pub font_size: f32,
 }
 

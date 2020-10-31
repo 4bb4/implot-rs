@@ -191,7 +191,7 @@ impl PlotText {
         }
 
         unsafe {
-            sys::ImPlot_PlotTextdouble(
+            sys::ImPlot_PlotText(
                 im_str!("{}", self.label).as_ptr() as *const i8,
                 x,
                 y,

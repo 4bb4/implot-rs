@@ -4,8 +4,9 @@
 Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
 
-The bindings are currently based on ImPlot version 0.7. See the status section below for
-detailed information on implementation status. 
+The bindings are currently based on ImPlot version 0.8-WIP (see 
+[implot-sys/third_party](implot-sys/third_party) for the exact commit currently pointed to). 
+The status section below provides detailed information on implementation status. 
 
 [![Docs.rs documentation](https://docs.rs/implot/badge.svg)](https://docs.rs/implot/)
 ![Tests](https://github.com/4bb4/implot-rs/workflows/Tests/badge.svg)
@@ -46,6 +47,10 @@ is open to collaboration, if you'd like to help, feel free to reach out via a Gi
 At this point, raw bindings are working in implot-sys, and more idiomatic interfaces
 for plot creation as well a subset of the functionality for plots are implemented. 
 
+While the raw bindings have versions of most functions for different data types such as
+32-bit or 64-bit floats and various integers, the higher-level bindings are currently only
+created for 64-bit floats.
+
 - [x] "BeginPlot"
   - [x] Basic hello world
   - [x] Plot flags
@@ -65,11 +70,16 @@ for plot creation as well a subset of the functionality for plots are implemente
   - [ ] Heatmap
   - [ ] Pie chart
   - [ ] Digital data
-- [x] Plot customization
+  - [ ] Stairs plot
+  - [ ] Annotations
+  - [ ] Dragline
+  - [ ] Dragpoint
+- [ ] Plot customization
   - [x] Axis flags
   - [x] Styling colors
   - [x] Styling variables
   - [x] Colormaps
+  - [ ] Legend locations
 - [x] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot

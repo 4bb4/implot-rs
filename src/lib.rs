@@ -83,7 +83,7 @@ pub enum Marker {
 /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
 /// name somewhat confusing because we are not referring to colors, but _which_ thing can
 /// be colored - hence I added the "Element".
-#[repr(i32)]
+#[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum PlotColorElement {
     /// Plot line/outline color (defaults to next unused color in current colormap)
@@ -137,7 +137,7 @@ pub enum PlotColorElement {
 }
 
 /// Colormap choice. Documentation copied from implot.h for convenience.
-#[repr(i32)]
+#[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum Colormap {
     /// ImPlot default colormap (n=10). Called "Standard" here because Default is reserved.
@@ -164,7 +164,7 @@ pub enum Colormap {
     Jet = sys::ImPlotColormap__ImPlotColormap_Jet,
 }
 
-#[repr(i32)]
+#[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum StyleVar {
     /// f32, line weight in pixels
@@ -207,8 +207,16 @@ pub enum StyleVar {
     LabelPadding = sys::ImPlotStyleVar__ImPlotStyleVar_LabelPadding,
     /// ImVec2, legend padding from top-left of plot
     LegendPadding = sys::ImPlotStyleVar__ImPlotStyleVar_LegendPadding,
+    /// ImVec2, legend inner padding from legend edges
+    LegendInnerPadding = sys::ImPlotStyleVar__ImPlotStyleVar_LegendInnerPadding,
+    /// ImVec2, spacing between legend entries
+    LegendSpacing = sys::ImPlotStyleVar__ImPlotStyleVar_LegendSpacing,
     /// ImVec2, padding between plot edge and interior info text
-    InfoPadding = sys::ImPlotStyleVar__ImPlotStyleVar_InfoPadding,
+    MousePosPadding = sys::ImPlotStyleVar__ImPlotStyleVar_MousePosPadding,
+    /// ImVec2, text padding around annotation labels
+    AnnotationPadding = sys::ImPlotStyleVar__ImPlotStyleVar_AnnotationPadding,
+    /// ImVec2, default size used when ImVec2(0,0) is passed to BeginPlot
+    PlotDefaultSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotDefaultSize,
     /// ImVec2, minimum size plot frame can be when shrunk
     PlotMinSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotMinSize,
 }

@@ -17,7 +17,7 @@ bitflags! {
     /// convenience. ImPlot itself also has a "CanvasOnly" flag, which can be emulated here with
     /// the combination of `NO_LEGEND`, `NO_MENUS`, `NO_BOX_SELECT` and `NO_MOUSE_POSITION`.
     #[repr(transparent)]
-    pub struct PlotFlags: i32 {
+    pub struct PlotFlags: u32 {
         /// "Default" according to original docs
         const NONE = sys::ImPlotFlags__ImPlotFlags_None;
         /// Plot items will not be highlighted when their legend entry is hovered
@@ -51,7 +51,7 @@ bitflags! {
     /// has `Lock`, which combines `LOCK_MIN` and `LOCK_MAX`, and `NoDecorations`, which combines
     /// `NO_GRID_LINES`, `NO_TICK_MARKS` and `NO_TICK_LABELS`.
     #[repr(transparent)]
-    pub struct AxisFlags: i32 {
+    pub struct AxisFlags: u32 {
         /// "Default" according to original docs
         const NONE = sys::ImPlotAxisFlags__ImPlotAxisFlags_None;
         /// Grid lines will not be displayed

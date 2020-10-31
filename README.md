@@ -74,13 +74,13 @@ created for 64-bit floats.
   - [ ] Annotations
   - [ ] Dragline
   - [ ] Dragpoint
-- [ ] Plot customization
+- [x] Plot customization
   - [x] Axis flags
   - [x] Styling colors
   - [x] Styling variables
   - [x] Colormaps
-  - [ ] Legend locations
-- [x] Plot querying 
+  - [x] Legend locations
+- [ ] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot
   - [x] plot limits
@@ -88,6 +88,7 @@ created for 64-bit floats.
   - [x] get plot query
   - [x] are axes hovered
   - [x] Choice of y axis
+  - [ ] Are legend entries hovered
 - [ ] Utils
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks

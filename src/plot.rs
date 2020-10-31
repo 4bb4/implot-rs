@@ -2,7 +2,7 @@
 //!
 //! This module defines the `Plot` struct, which is used to create a 2D plot that will
 //! contain all other objects that can be created using this library.
-use crate::{Context, PlotUi, YAxisChoice, NUMBER_OF_Y_AXES};
+use crate::{Context, PlotLocation, PlotOrientation, PlotUi, YAxisChoice, NUMBER_OF_Y_AXES};
 use bitflags::bitflags;
 pub use imgui::Condition;
 use imgui::{im_str, ImString};
@@ -133,6 +133,12 @@ pub struct Plot {
     y_tick_labels: [Option<Vec<ImString>>; NUMBER_OF_Y_AXES],
     /// Whether to also show the default Y ticks when showing custom ticks or not
     show_y_default_ticks: [bool; NUMBER_OF_Y_AXES],
+    /// Orientation of the legend
+    legend_orientation: PlotOrientation,
+    /// Location of the legend
+    legend_location: PlotLocation,
+    /// Whether the legend is shown outside the plot
+    legend_outside_plot: bool,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
     /// Flags relating to the X axis of the plot TODO(4bb4) make those into bitflags
@@ -166,6 +172,9 @@ impl Plot {
             y_tick_positions: [POS_NONE; NUMBER_OF_Y_AXES],
             y_tick_labels: [TICK_NONE; NUMBER_OF_Y_AXES],
             show_y_default_ticks: [false; NUMBER_OF_Y_AXES],
+            legend_location: PlotLocation::NorthWest,
+            legend_orientation: PlotOrientation::Vertical,
+            legend_outside_plot: false,
             plot_flags: PlotFlags::ANTIALIASED.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
             y_flags: [AxisFlags::NONE.bits() as sys::ImPlotAxisFlags; NUMBER_OF_Y_AXES],
@@ -299,6 +308,20 @@ impl Plot {
         self
     }
 
+    /// Set the legend location, orientation and whether it is to be drawn outside the plot
+    #[inline]
+    pub fn with_legend_location(
+        mut self,
+        location: &PlotLocation,
+        orientation: &PlotOrientation,
+        outside: bool,
+    ) -> Self {
+        self.legend_location = *location;
+        self.legend_orientation = *orientation;
+        self.legend_outside_plot = outside;
+        self
+    }
+
     /// Internal helper function to set axis limits in case they are specified.
     fn maybe_set_axis_limits(&self) {
         // Set X limits if specified
@@ -415,6 +438,19 @@ impl Plot {
         };
 
         if should_render {
+            // Configure legend location. This has to be called between begin() and end(),
+            // but since only the last call to it actually affects the outcome, I'm adding
+            // it here instead of as a freestanding function. If this is too restrictive
+            // (for example, if you want to set the location based on code running _during_
+            // the plotting for some reason), file an issue and we'll move it.
+            unsafe {
+                sys::ImPlot_SetLegendLocation(
+                    self.legend_location as i32,
+                    self.legend_orientation as i32,
+                    self.legend_outside_plot,
+                )
+            }
+
             Some(PlotToken {
                 context: plot_ui.context,
                 plot_title: self.title.clone(),

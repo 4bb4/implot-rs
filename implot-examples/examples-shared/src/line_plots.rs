@@ -6,8 +6,8 @@ use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
     push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
     set_colormap_from_vec, set_plot_y_axis, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint,
-    ImPlotRange, ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotUi, StyleVar,
-    YAxisChoice,
+    ImPlotRange, ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotLocation,
+    PlotOrientation, PlotUi, StyleVar, YAxisChoice,
 };
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -121,8 +121,9 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
         .with_plot_flags(&plot_flags)
         .with_x_axis_flags(&x_axis_flags)
         .with_y_axis_flags(YAxisChoice::First, &y_axis_flags)
+        .with_legend_location(&PlotLocation::West, &PlotOrientation::Horizontal, true)
         .build(plot_ui, || {
-            PlotLine::new("A line").plot(&vec![2.1, 2.9], &vec![1.1, 1.9]);
+            PlotLine::new("A line 2").plot(&vec![2.4, 2.9], &vec![1.1, 1.9]);
         });
 }
 

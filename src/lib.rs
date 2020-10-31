@@ -37,11 +37,11 @@ const NUMBER_OF_Y_AXES: usize = 3;
 // so we can store data about individual axes in arrays, so this pretty much should stay
 // just a mapping of words to numbers.
 #[derive(Clone)]
-#[repr(i32)]
+#[repr(u32)]
 pub enum YAxisChoice {
-    First = 0,
-    Second = 1,
-    Third = 2,
+    First = sys::ImPlotYAxis__ImPlotYAxis_1,
+    Second = sys::ImPlotYAxis__ImPlotYAxis_2,
+    Third = sys::ImPlotYAxis__ImPlotYAxis_3,
 }
 
 /// A temporary reference for building plots. This does not really do anything on its own at
@@ -51,7 +51,7 @@ pub struct PlotUi<'ui> {
     context: &'ui Context,
 }
 
-// --- Markers, color maps, style variables----------------------------------------------------
+// --- Markers, color maps, style variables, legend location ----------------------------------
 /// Markers, documentation copied from implot.h for convenience.
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
@@ -219,6 +219,38 @@ pub enum StyleVar {
     PlotDefaultSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotDefaultSize,
     /// ImVec2, minimum size plot frame can be when shrunk
     PlotMinSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotMinSize,
+}
+
+/// Used to position items on a plot (e.g. legends, labels, etc.)
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum PlotLocation {
+    /// Center-center
+    Center = sys::ImPlotLocation__ImPlotLocation_Center,
+    /// Top-center
+    North = sys::ImPlotLocation__ImPlotLocation_North,
+    /// Bottom-center
+    South = sys::ImPlotLocation__ImPlotLocation_South,
+    /// Center-left
+    West = sys::ImPlotLocation__ImPlotLocation_West,
+    /// Center-right
+    East = sys::ImPlotLocation__ImPlotLocation_East,
+    /// Top-left
+    NorthWest = sys::ImPlotLocation__ImPlotLocation_NorthWest,
+    /// Top-right
+    NorthEast = sys::ImPlotLocation__ImPlotLocation_NorthEast,
+    /// Bottom-left
+    SouthWest = sys::ImPlotLocation__ImPlotLocation_SouthWest,
+    /// Bottom-right
+    SouthEast = sys::ImPlotLocation__ImPlotLocation_SouthEast,
+}
+
+/// Used to orient items on a plot (e.g. legends, labels, etc.)
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum PlotOrientation {
+    Horizontal = sys::ImPlotOrientation__ImPlotOrientation_Horizontal,
+    Vertical = sys::ImPlotOrientation__ImPlotOrientation_Vertical,
 }
 
 /// Switch to one of the built-in preset colormaps. If samples is greater than 1, the map will be

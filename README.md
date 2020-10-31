@@ -5,7 +5,7 @@ Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
 
 The bindings are currently based on ImPlot version 0.8-WIP (see 
-[implot-sys/third_party](implot-sys/third_party) for the exact commit currently pointed to). 
+[implot-sys/third-party](implot-sys/third-party) for the exact commit currently pointed to). 
 The status section below provides detailed information on implementation status. 
 
 [![Docs.rs documentation](https://docs.rs/implot/badge.svg)](https://docs.rs/implot/)

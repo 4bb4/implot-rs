@@ -309,9 +309,9 @@ pub fn show_demo_window(ui: &Ui, plot_ui: &PlotUi) {
             ui.text(im_str!("Hello from implot-rs!"));
             ui.text_wrapped(im_str!(
                 "The headers here demo the line plotting features of the library. \
-                    Have a look at the example source code to see how they are implemented.\n\
-                    Check out the demo from ImPlot itself first \
-                    for instructions on how to interact with ImPlot plots."
+                 Have a look at the example source code to see how they are implemented.\n\
+                 Check out the demo from ImPlot itself first \
+                 for instructions on how to interact with ImPlot plots."
             ));
 
             // Show individual examples in collapsed headers

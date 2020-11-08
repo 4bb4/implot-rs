@@ -61,6 +61,7 @@ created for 64-bit floats.
   - [x] Bar plot
     - [x] Vertical
     - [x] Horizontal
+  - [x] Stairs plot
   - [ ] Shaded plot
   - [ ] Stem plots
   - [ ] Images
@@ -70,7 +71,6 @@ created for 64-bit floats.
   - [ ] Heatmap
   - [ ] Pie chart
   - [ ] Digital data
-  - [ ] Stairs plot
   - [ ] Annotations
   - [ ] Dragline
   - [ ] Dragpoint

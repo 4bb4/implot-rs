@@ -44,6 +44,14 @@ pub enum YAxisChoice {
     Third = sys::ImPlotYAxis__ImPlotYAxis_3,
 }
 
+/// Turn an Option<YAxisChoice> into an i32. Picks IMPLOT_AUTO for None.
+fn y_axis_choice_option_to_i32(y_axis_choice: Option<YAxisChoice>) -> i32 {
+    match y_axis_choice {
+        Some(choice) => choice as i32,
+        None => IMPLOT_AUTO,
+    }
+}
+
 /// A temporary reference for building plots. This does not really do anything on its own at
 /// this point, but it is used to enforce that a context is created and active for other features,
 /// such as creating plots.
@@ -395,10 +403,7 @@ pub fn is_plot_queried() -> bool {
 /// for the specified choice of Y axis. If `None` is the Y axis choice, that means the
 /// most recently selected Y axis is chosen.
 pub fn get_plot_mouse_position(y_axis_choice: Option<YAxisChoice>) -> ImPlotPoint {
-    let y_axis_choice_i32 = match y_axis_choice {
-        Some(choice) => choice as i32,
-        None => IMPLOT_AUTO,
-    };
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
     unsafe {
         sys::ImPlot_GetPlotMousePos(&mut point as *mut ImPlotPoint, y_axis_choice_i32);
@@ -406,13 +411,87 @@ pub fn get_plot_mouse_position(y_axis_choice: Option<YAxisChoice>) -> ImPlotPoin
     point
 }
 
+/// Convert pixels, given as an `ImVec2`, to a position in the current plot's coordinate system.
+/// Uses the specified Y axis, if any, otherwise whatever was previously chosen.
+pub fn pixels_to_plot_vec2(
+    pixel_position: &ImVec2,
+    y_axis_choice: Option<YAxisChoice>,
+) -> ImPlotPoint {
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
+    let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
+    unsafe {
+        sys::ImPlot_PixelsToPlotVec2(
+            &mut point as *mut ImPlotPoint,
+            *pixel_position,
+            y_axis_choice_i32,
+        );
+    }
+    point
+}
+
+/// Convert pixels, given as floats `x` and `y`, to a position in the current plot's coordinate
+/// system. Uses the specified Y axis, if any, otherwise whatever was previously chosen.
+pub fn pixels_to_plot_f32(
+    pixel_position_x: f32,
+    pixel_position_y: f32,
+    y_axis_choice: Option<YAxisChoice>,
+) -> ImPlotPoint {
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
+    let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
+    unsafe {
+        sys::ImPlot_PixelsToPlotFloat(
+            &mut point as *mut ImPlotPoint,
+            pixel_position_x,
+            pixel_position_y,
+            y_axis_choice_i32,
+        );
+    }
+    point
+}
+
+/// Convert a position in the current plot's coordinate system to pixels. Uses the specified Y
+/// axis, if any, otherwise whatever was previously chosen.
+///
+pub fn plot_to_pixels_vec2(
+    plot_position: &ImPlotPoint,
+    y_axis_choice: Option<YAxisChoice>,
+) -> ImVec2 {
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
+    let mut pixel_position = ImVec2 { x: 0.0, y: 0.0 }; // doesn't seem to have default()
+    unsafe {
+        sys::ImPlot_PlotToPixelsPlotPoInt(
+            &mut pixel_position as *mut ImVec2,
+            *plot_position,
+            y_axis_choice_i32,
+        );
+    }
+    pixel_position
+}
+
+/// Convert a position in the current plot's coordinate system to pixels. Uses the specified Y
+/// axis, if any, otherwise whatever was previously chosen.
+pub fn plot_to_pixels_f32(
+    plot_position_x: f64,
+    plot_position_y: f64,
+    y_axis_choice: Option<YAxisChoice>,
+) -> ImVec2 {
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
+    let mut pixel_position = ImVec2 { x: 0.0, y: 0.0 }; // doesn't seem to have default()
+    unsafe {
+        sys::ImPlot_PlotToPixelsdouble(
+            &mut pixel_position as *mut ImVec2,
+            plot_position_x,
+            plot_position_y,
+            y_axis_choice_i32,
+        );
+    }
+    pixel_position
+}
+
 /// Returns the current or most recent plot axis range for the specified choice of Y axis. If
 /// `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
 pub fn get_plot_limits(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
-    let y_axis_choice_i32 = match y_axis_choice {
-        Some(choice) => choice as i32,
-        None => IMPLOT_AUTO,
-    };
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     // ImPlotLimits doesn't seem to have default()
     let mut limits = ImPlotLimits {
         X: ImPlotRange { Min: 0.0, Max: 0.0 },
@@ -427,10 +506,7 @@ pub fn get_plot_limits(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
 /// Returns the query limits of the current or most recent plot, for the specified choice of Y
 /// axis. If `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
 pub fn get_plot_query(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
-    let y_axis_choice_i32 = match y_axis_choice {
-        Some(choice) => choice as i32,
-        None => IMPLOT_AUTO,
-    };
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     // ImPlotLimits doesn't seem to have default()
     let mut limits = ImPlotLimits {
         X: ImPlotRange { Min: 0.0, Max: 0.0 },
@@ -457,10 +533,7 @@ pub fn is_plot_x_axis_hovered() -> bool {
 /// Returns true if the YAxis[n] plot area in the current plot is hovered. If `None` is the Y axis
 /// choice, that means the most recently selected Y axis is chosen.
 pub fn is_plot_y_axis_hovered(y_axis_choice: Option<YAxisChoice>) -> bool {
-    let y_axis_choice_i32 = match y_axis_choice {
-        Some(choice) => choice as i32,
-        None => IMPLOT_AUTO,
-    };
+    let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     unsafe { sys::ImPlot_IsPlotYAxisHovered(y_axis_choice_i32) }
 }
 

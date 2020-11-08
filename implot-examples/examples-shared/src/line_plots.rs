@@ -4,10 +4,11 @@
 use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
-    push_style_color, push_style_var_f32, push_style_var_i32, set_colormap_from_preset,
-    set_colormap_from_vec, set_plot_y_axis, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint,
-    ImPlotRange, ImVec4, Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotLocation,
-    PlotOrientation, PlotUi, StyleVar, YAxisChoice,
+    pixels_to_plot_vec2, plot_to_pixels_vec2, push_style_color, push_style_var_f32,
+    push_style_var_i32, set_colormap_from_preset, set_colormap_from_vec, set_plot_y_axis,
+    AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4, Marker, Plot,
+    PlotColorElement, PlotFlags, PlotLine, PlotLocation, PlotOrientation, PlotUi, StyleVar,
+    YAxisChoice,
 };
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -134,7 +135,9 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     let content_width = ui.window_content_region_width();
 
     // Create some containers for exfiltrating data from the closure below
-    let mut hover_pos: Option<ImPlotPoint> = None;
+    let mut hover_pos_plot: Option<ImPlotPoint> = None;
+    let mut hover_pos_pixels: Option<ImVec2> = None;
+    let mut hover_pos_from_pixels: Option<ImPlotPoint> = None;
     let mut plot_limits: Option<ImPlotLimits> = None;
     let mut query_limits: Option<ImPlotLimits> = None;
 
@@ -150,8 +153,19 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::QUERY))
         .build(plot_ui, || {
             if is_plot_hovered() {
-                hover_pos = Some(get_plot_mouse_position(None));
+                hover_pos_plot = Some(get_plot_mouse_position(None));
+                hover_pos_pixels = Some(plot_to_pixels_vec2(&(hover_pos_plot.unwrap()), None));
             }
+
+            // Getting the plot position from pixels also works when the plot is not hovered,
+            // the coordinates are then simply outside the visible range.
+            hover_pos_from_pixels = Some(pixels_to_plot_vec2(
+                &ImVec2 {
+                    x: ui.io().mouse_pos[0],
+                    y: ui.io().mouse_pos[1],
+                },
+                None,
+            ));
 
             if is_plot_queried() {
                 query_limits = Some(get_plot_query(None));
@@ -162,14 +176,32 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     // Print some previously-exfiltrated info. This is because calling
     // things like is_plot_hovered or get_plot_mouse_position() outside
     // of an actual Plot is not allowed.
-    if let Some(pos) = hover_pos {
+    if let Some(pos) = hover_pos_plot {
         ui.text(im_str!("hovered at {}, {}", pos.x, pos.y));
+    }
+    if let Some(pixel_position) = hover_pos_pixels {
+        // Try out converting plot mouse position to pixel position
+        ui.text(im_str!(
+            "pixel pos from plot:  {}, {}",
+            pixel_position.x,
+            pixel_position.y
+        ));
+        ui.text(im_str!(
+            "pixel pos from imgui: {}, {}",
+            ui.io().mouse_pos[0],
+            ui.io().mouse_pos[1]
+        ));
     }
     if let Some(limits) = plot_limits {
         ui.text(im_str!("Plot limits are {:#?}", limits));
     }
     if let Some(query) = query_limits {
         ui.text(im_str!("Query limits are {:#?}", query));
+    }
+
+    // Try out converting pixel position to plot position
+    if let Some(pos) = hover_pos_from_pixels {
+        ui.text(im_str!("plot pos from imgui: {}, {}", pos.x, pos.y,));
     }
 }
 

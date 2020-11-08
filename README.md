@@ -93,12 +93,12 @@ created for 64-bit floats.
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks
   - [x] Plot tick setting
-  - [ ] Input remapping
+  - [x] Pixel to plot position
+  - [x] Plot to pixel position
   - [x] Set Y axis setting for subsequent elements
+  - [ ] Input remapping
   - [ ] Set non-default Y axis ticks and labels
   - [ ] Plot position and size reading
-  - [ ] Pixel to plot position
-  - [ ] Plot to pixel position
   - [ ] Push/pop plotclip rect (?)
 
 # Developer documentation

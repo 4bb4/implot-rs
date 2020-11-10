@@ -22,7 +22,7 @@ impl PlotLine {
     }
 
     /// Plot a line. Use this in closures passed to [`Plot::build()`](struct.Plot.html#method.build)
-    pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+    pub fn plot(&self, x: &[f64], y: &[f64]) {
         // If there is no data to plot, we stop here
         if x.len().min(y.len()) == 0 {
             return;
@@ -56,7 +56,7 @@ impl PlotStairs {
 
     /// Plot a stairs style line. Use this in closures passed to
     /// [`Plot::build()`](struct.Plot.html#method.build)
-    pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+    pub fn plot(&self, x: &[f64], y: &[f64]) {
         // If there is no data to plot, we stop here
         if x.len().min(y.len()) == 0 {
             return;
@@ -90,7 +90,7 @@ impl PlotScatter {
 
     /// Draw a previously-created scatter plot. Use this in closures passed to
     /// [`Plot::build()`](struct.Plot.html#method.build)
-    pub fn plot(&self, x: &Vec<f64>, y: &Vec<f64>) {
+    pub fn plot(&self, x: &[f64], y: &[f64]) {
         // If there is no data to plot, we stop here
         if x.len().min(y.len()) == 0 {
             return;
@@ -147,7 +147,7 @@ impl PlotBars {
     /// [`Plot::build()`](struct.Plot.html#method.build). The `axis_positions`
     /// specify where on the corersponding axis (X for vertical mode, Y for horizontal mode) the
     /// bar is drawn, and the `bar_values` specify what values the bars have.
-    pub fn plot(&self, axis_positions: &Vec<f64>, bar_values: &Vec<f64>) {
+    pub fn plot(&self, axis_positions: &[f64], bar_values: &[f64]) {
         let number_of_points = axis_positions.len().min(bar_values.len());
         // If there is no data to plot, we stop here
         if number_of_points == 0 {

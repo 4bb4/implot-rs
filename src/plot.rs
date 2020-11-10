@@ -231,8 +231,8 @@ impl Plot {
     /// the form of a tuple `(label_position, label_string)`. The `show_default` setting
     /// determines whether the default ticks are also shown.
     #[inline]
-    pub fn x_ticks(mut self, ticks: &Vec<f64>, show_default: bool) -> Self {
-        self.x_tick_positions = Some(ticks.clone());
+    pub fn x_ticks(mut self, ticks: &[f64], show_default: bool) -> Self {
+        self.x_tick_positions = Some(ticks.into());
         self.show_x_default_ticks = show_default;
         self
     }
@@ -244,11 +244,11 @@ impl Plot {
     pub fn y_ticks(
         mut self,
         y_axis_choice: YAxisChoice,
-        ticks: &Vec<f64>,
+        ticks: &[f64],
         show_default: bool,
     ) -> Self {
         let axis_index = y_axis_choice as usize;
-        self.y_tick_positions[axis_index] = Some(ticks.clone());
+        self.y_tick_positions[axis_index] = Some(ticks.into());
         self.show_y_default_ticks[axis_index] = show_default;
         self
     }
@@ -259,7 +259,7 @@ impl Plot {
     #[inline]
     pub fn x_ticks_with_labels(
         mut self,
-        tick_labels: &Vec<(f64, String)>,
+        tick_labels: &[(f64, String)],
         show_default: bool,
     ) -> Self {
         self.x_tick_positions = Some(tick_labels.iter().map(|x| x.0).collect());
@@ -275,7 +275,7 @@ impl Plot {
     pub fn y_ticks_with_labels(
         mut self,
         y_axis_choice: YAxisChoice,
-        tick_labels: &Vec<(f64, String)>,
+        tick_labels: &[(f64, String)],
         show_default: bool,
     ) -> Self {
         let axis_index = y_axis_choice as usize;

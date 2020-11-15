@@ -4,7 +4,9 @@
 //! as lines, bars, scatter plots and text in a plot. For the module to create plots themselves,
 //! see `plot`.
 use crate::sys;
-use imgui::im_str;
+use imgui::{im_str, ImString};
+
+pub use crate::sys::ImPlotPoint;
 
 // --- Actual plotting functionality -------------------------------------------------------------
 /// Struct to provide functionality for plotting a line in a plot.
@@ -234,6 +236,98 @@ impl PlotText {
                     x: self.pixel_offset_x,
                     y: self.pixel_offset_y,
                 },
+            );
+        }
+    }
+}
+
+/// Struct to provide functionality for creating headmaps.
+pub struct PlotHeatmap {
+    /// Label to show in plot
+    label: String,
+
+    /// Scale range of the values shown. If this is set to `None`, the scale
+    /// is computed based on the values given to the `plot` function. If there
+    /// is a value, the tuple is interpreted as `(minimum, maximum)`.
+    scale_range: Option<(f64, f64)>,
+
+    /// Label C style format string, this is shown when a a value point is hovered.
+    /// None means don't show a label. The label is stored directly as an ImString because
+    /// that is what's needed for the plot call anyway. Conversion is done in the setter.
+    label_format: Option<ImString>,
+
+    /// Lower left point for the bounding rectangle. This is called `bounds_min` in the C++ code.
+    drawarea_lower_left: ImPlotPoint,
+
+    /// Upper right point for the bounding rectangle. This is called `bounds_max` in the C++ code.
+    drawarea_upper_right: ImPlotPoint,
+}
+
+impl PlotHeatmap {
+    /// Create a new heatmap to be shown. Uses the same defaults as the C++ version (see code for
+    /// what those are), aside from the `scale_min` and `scale_max` values, which default to
+    /// `None`, which is interpreted as "automatically make the scale fit the data". Does not draw
+    /// anything yet.
+    pub fn new(label: &str) -> Self {
+        Self {
+            label: label.to_owned(),
+            scale_range: None,
+            label_format: Some(im_str!("%.1f").to_owned()),
+            drawarea_lower_left: ImPlotPoint { x: 0.0, y: 0.0 },
+            drawarea_upper_right: ImPlotPoint { x: 1.0, y: 1.0 },
+        }
+    }
+
+    /// Specify the scale for the shown colors by minimum and maximum value.
+    pub fn with_scale(mut self, scale_min: f64, scale_max: f64) -> Self {
+        self.scale_range = Some((scale_min, scale_max));
+        self
+    }
+
+    /// Specify the label format for hovered data points.. `None` means no label is shown.
+    pub fn with_label_format(mut self, label_format: Option<&str>) -> Self {
+        self.label_format = label_format.and_then(|x| Some(im_str!("{}", x)));
+        self
+    }
+
+    /// Specify the drawing area as the lower left and upper right point
+    pub fn with_drawing_area(mut self, lower_left: ImPlotPoint, upper_right: ImPlotPoint) -> Self {
+        self.drawarea_lower_left = lower_left;
+        self.drawarea_upper_right = upper_right;
+        self
+    }
+
+    /// Plot the heatmap, with the given values (assumed to be in row-major order),
+    /// number of rows and number of columns.
+    pub fn plot(&self, values: &[f64], number_of_rows: u32, number_of_cols: u32) {
+        // If no range was given, determine that range
+        let scale_range = self.scale_range.unwrap_or_else(|| {
+            let mut min_seen = values[0];
+            let mut max_seen = values[0];
+            values.iter().for_each(|value| {
+                min_seen = min_seen.min(*value);
+                max_seen = max_seen.max(*value);
+            });
+            (min_seen, max_seen)
+        });
+
+        unsafe {
+            sys::ImPlot_PlotHeatmapdoublePtr(
+                im_str!("{}", self.label).as_ptr() as *const i8,
+                values.as_ptr(),
+                number_of_rows as i32, // Not sure why C++ code uses a signed value here
+                number_of_cols as i32, // Not sure why C++ code uses a signed value here
+                scale_range.0,
+                scale_range.1,
+                // "no label" is taken as null pointer in the C++ code, but we're using
+                // option types in the Rust bindings because they are more idiomatic.
+                if self.label_format.is_some() {
+                    self.label_format.as_ref().unwrap().as_ptr() as *const i8
+                } else {
+                    std::ptr::null()
+                },
+                self.drawarea_lower_left,
+                self.drawarea_upper_right,
             );
         }
     }

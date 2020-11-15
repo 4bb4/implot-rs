@@ -1,4 +1,5 @@
 pub mod bar_plots;
+pub mod heatmaps;
 pub mod line_plots;
 pub mod scatter_plots;
 pub mod stairs_plots;
@@ -13,4 +14,5 @@ pub fn show_demos(ui: &Ui, plot_ui: &PlotUi) {
     scatter_plots::show_demo_window(ui, plot_ui);
     text_plots::show_demo_window(ui, plot_ui);
     stairs_plots::show_demo_window(ui, plot_ui);
+    heatmaps::show_demo_window(ui, plot_ui);
 }

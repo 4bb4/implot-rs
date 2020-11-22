@@ -18,7 +18,11 @@ After 1.0, semver will be followed more properly.
 ![demo](demo.png)
 
 ## Requirements
-imgui-rs requires minimum Rust version 1.40, so this project does as well by extension.
+imgui-rs requires minimum Rust version 1.43, so this project requires at least that. In
+addition, doc aliases as released in 1.48 (https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
+were added, so currently the requirement is 1.48 - if that presents a problem, a workaround
+good be looked for though. Open an issue if you're in that situation.
+
 The sys crate compiles implot, so a C++ compiler will also be required.
 
 ## Examples 

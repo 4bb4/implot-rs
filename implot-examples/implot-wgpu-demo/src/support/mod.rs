@@ -63,7 +63,7 @@ pub fn init(title: &str) -> System {
     // Set up swap chain
     let sc_desc = wgpu::SwapChainDescriptor {
         usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-        format: wgpu::TextureFormat::Bgra8Unorm,
+        format: wgpu::TextureFormat::Bgra8UnormSrgb,
         width: size.width,
         height: size.height,
         present_mode: wgpu::PresentMode::Mailbox,
@@ -99,9 +99,12 @@ pub fn init(title: &str) -> System {
     //
     // Set up dear imgui wgpu renderer
     //
-    let renderer = RendererConfig::new()
-        .set_texture_format(sc_desc.format)
-        .build(&mut imgui, &device, &queue);
+    let renderer_config = RendererConfig {
+        texture_format: sc_desc.format,
+        ..Default::default()
+    };
+
+    let renderer = Renderer::new(&mut imgui, &device, &queue, renderer_config);
 
     System {
         event_loop,

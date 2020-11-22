@@ -35,14 +35,17 @@ clone the repo, change into the `implot-examples` directory and try for example
 ## Documentation
 For released versions, see 
 [![Docs.rs documentation](https://docs.rs/implot/badge.svg)](https://docs.rs/implot/). 
-Make sure you are looking at the right release, since the API is still changing. 
-For the master branch, can build it yourself however by cloning this repo and then doing 
+Make sure to look at the right release, since the API is still changing. 
+For the master branch, the docs can be built by cloning this repository and then running 
 ```
   cargo doc --open
 ```
 An effort is made to document everything as it is being added. Feel free to open an issue
-if documentation is unclear or lacking.
-
+if documentation is unclear or lacking. Note that doc aliases are being added now, which 
+means one should be able to look for things with the name they have in the C++ code and
+rustdoc should show the correspondingly-named item. Sometimes this is just a matter of 
+changing camelcase to snake case, other times the idiomatic bindings do things a bit 
+differently.
 
 ## Implementation status
 Currently a work in progress, coverage of the C++ API is increased steadily. The author 

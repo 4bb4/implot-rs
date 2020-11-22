@@ -286,7 +286,7 @@ impl PlotHeatmap {
 
     /// Specify the label format for hovered data points.. `None` means no label is shown.
     pub fn with_label_format(mut self, label_format: Option<&str>) -> Self {
-        self.label_format = label_format.and_then(|x| Some(im_str!("{}", x)));
+        self.label_format = label_format.map(|x| im_str!("{}", x));
         self
     }
 

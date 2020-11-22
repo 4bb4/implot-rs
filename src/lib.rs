@@ -36,7 +36,7 @@ const NUMBER_OF_Y_AXES: usize = 3;
 // Implementation note: This enum is converted straight to an usize index in a few places
 // so we can store data about individual axes in arrays, so this pretty much should stay
 // just a mapping of words to numbers.
-#[doc(alias = "ImPlotYAxis")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotYAxis"))]
 #[derive(Clone)]
 #[repr(u32)]
 pub enum YAxisChoice {
@@ -62,7 +62,7 @@ pub struct PlotUi<'ui> {
 
 // --- Markers, color maps, style variables, legend location ----------------------------------
 /// Markers, documentation copied from implot.h for convenience.
-#[doc(alias = "ImPlotMarker")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotMarker"))]
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum Marker {
@@ -93,7 +93,7 @@ pub enum Marker {
 /// Colorable plot elements. These are called "ImPlotCol" in ImPlot itself, but I found that
 /// name somewhat confusing because we are not referring to colors, but _which_ thing can
 /// be colored - hence I added the "Element".
-#[doc(alias = "ImPlotCol")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotCol"))]
 #[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum PlotColorElement {
@@ -148,7 +148,7 @@ pub enum PlotColorElement {
 }
 
 /// Colormap choice. Documentation copied from implot.h for convenience.
-#[doc(alias = "ImPlotColormap")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotColormap"))]
 #[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum Colormap {
@@ -177,7 +177,7 @@ pub enum Colormap {
 }
 
 /// Style variable choice, as in "which thing will be affected by a style setting".
-#[doc(alias = "ImPlotStyleVar")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotStyleVar"))]
 #[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum StyleVar {
@@ -236,7 +236,7 @@ pub enum StyleVar {
 }
 
 /// Used to position items on a plot (e.g. legends, labels, etc.)
-#[doc(alias = "ImPlotLocation")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotLocation"))]
 #[repr(u32)]
 #[derive(Copy, Clone, Debug)]
 pub enum PlotLocation {
@@ -260,7 +260,7 @@ pub enum PlotLocation {
     SouthEast = sys::ImPlotLocation__ImPlotLocation_SouthEast,
 }
 
-#[doc(alias = "ImPlotOrientation")]
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotOrientation"))]
 /// Used to orient items on a plot (e.g. legends, labels, etc.)
 #[repr(u32)]
 #[derive(Copy, Clone, Debug)]
@@ -271,7 +271,7 @@ pub enum PlotOrientation {
 
 /// Switch to one of the built-in preset colormaps. If samples is greater than 1, the map will be
 /// linearly resampled.
-#[doc(alias = "SetColormap")]
+#[rustversion::attr(since(1.48), doc(alias = "SetColormap"))]
 pub fn set_colormap_from_preset(preset: Colormap, samples: u32) {
     unsafe {
         // "as" casts saturate as of Rust 1.45. This is safe here, and at least the enum
@@ -282,7 +282,7 @@ pub fn set_colormap_from_preset(preset: Colormap, samples: u32) {
 }
 
 /// Set a custom colormap in the form of a vector of colors.
-#[doc(alias = "SetColormap")]
+#[rustversion::attr(since(1.48), doc(alias = "SetColormap"))]
 pub fn set_colormap_from_vec(colors: Vec<ImVec4>) {
     unsafe {
         sys::ImPlot_SetColormapVec4Ptr(colors.as_ptr(), colors.len() as i32);
@@ -301,7 +301,7 @@ pub fn set_colormap_from_vec(colors: Vec<ImVec4>) {
 /// // Plot some things
 /// pushed_var.pop();
 /// ```
-#[doc(alias = "PushStyleColor")]
+#[rustversion::attr(since(1.48), doc(alias = "PushStyleColor"))]
 pub fn push_style_color(
     element: &PlotColorElement,
     red: f32,
@@ -349,7 +349,7 @@ impl StyleColorToken {
 /// // Plot some things
 /// pushed_var.pop();
 /// ```
-#[doc(alias = "PushStyleVar")]
+#[rustversion::attr(since(1.48), doc(alias = "PushStyleVar"))]
 pub fn push_style_var_f32(element: &StyleVar, value: f32) -> StyleVarToken {
     unsafe {
         sys::ImPlot_PushStyleVarFloat(*element as sys::ImPlotStyleVar, value);
@@ -365,7 +365,7 @@ pub fn push_style_var_f32(element: &StyleVar, value: f32) -> StyleVarToken {
 /// // plot things
 /// markerchoice.pop()
 /// ```
-#[doc(alias = "PushStyleVar")]
+#[rustversion::attr(since(1.48), doc(alias = "PushStyleVar"))]
 pub fn push_style_var_i32(element: &StyleVar, value: i32) -> StyleVarToken {
     unsafe {
         sys::ImPlot_PushStyleVarInt(*element as sys::ImPlotStyleVar, value);
@@ -403,13 +403,13 @@ impl StyleVarToken {
 
 // --- Miscellaneous -----------------------------------------------------------------------------
 /// Returns true if the plot area in the current or most recent plot is hovered.
-#[doc(alias = "IsPlotHovered")]
+#[rustversion::attr(since(1.48), doc(alias = "IsPlotHovered"))]
 pub fn is_plot_hovered() -> bool {
     unsafe { sys::ImPlot_IsPlotHovered() }
 }
 
 /// Returns true if the current or most recent plot is queried
-#[doc(alias = "IsPlotQueried")]
+#[rustversion::attr(since(1.48), doc(alias = "IsPlotQueried"))]
 pub fn is_plot_queried() -> bool {
     unsafe { sys::ImPlot_IsPlotQueried() }
 }
@@ -417,7 +417,7 @@ pub fn is_plot_queried() -> bool {
 /// Returns the mouse position in x,y coordinates of the current or most recent plot,
 /// for the specified choice of Y axis. If `None` is the Y axis choice, that means the
 /// most recently selected Y axis is chosen.
-#[doc(alias = "GetPlotMousePos")]
+#[rustversion::attr(since(1.48), doc(alias = "GetPlotMousePos"))]
 pub fn get_plot_mouse_position(y_axis_choice: Option<YAxisChoice>) -> ImPlotPoint {
     let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     let mut point = ImPlotPoint { x: 0.0, y: 0.0 }; // doesn't seem to have default()
@@ -429,7 +429,7 @@ pub fn get_plot_mouse_position(y_axis_choice: Option<YAxisChoice>) -> ImPlotPoin
 
 /// Convert pixels, given as an `ImVec2`, to a position in the current plot's coordinate system.
 /// Uses the specified Y axis, if any, otherwise whatever was previously chosen.
-#[doc(alias = "PixelsToPlot")]
+#[rustversion::attr(since(1.48), doc(alias = "PixelsToPlot"))]
 pub fn pixels_to_plot_vec2(
     pixel_position: &ImVec2,
     y_axis_choice: Option<YAxisChoice>,
@@ -448,7 +448,7 @@ pub fn pixels_to_plot_vec2(
 
 /// Convert pixels, given as floats `x` and `y`, to a position in the current plot's coordinate
 /// system. Uses the specified Y axis, if any, otherwise whatever was previously chosen.
-#[doc(alias = "PixelsToPlot")]
+#[rustversion::attr(since(1.48), doc(alias = "PixelsToPlot"))]
 pub fn pixels_to_plot_f32(
     pixel_position_x: f32,
     pixel_position_y: f32,
@@ -470,7 +470,7 @@ pub fn pixels_to_plot_f32(
 /// Convert a position in the current plot's coordinate system to pixels. Uses the specified Y
 /// axis, if any, otherwise whatever was previously chosen.
 ///
-#[doc(alias = "PlotToPixels")]
+#[rustversion::attr(since(1.48), doc(alias = "PlotToPixels"))]
 pub fn plot_to_pixels_vec2(
     plot_position: &ImPlotPoint,
     y_axis_choice: Option<YAxisChoice>,
@@ -489,7 +489,7 @@ pub fn plot_to_pixels_vec2(
 
 /// Convert a position in the current plot's coordinate system to pixels. Uses the specified Y
 /// axis, if any, otherwise whatever was previously chosen.
-#[doc(alias = "PlotToPixels")]
+#[rustversion::attr(since(1.48), doc(alias = "PlotToPixels"))]
 pub fn plot_to_pixels_f32(
     plot_position_x: f64,
     plot_position_y: f64,
@@ -510,7 +510,7 @@ pub fn plot_to_pixels_f32(
 
 /// Returns the current or most recent plot axis range for the specified choice of Y axis. If
 /// `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
-#[doc(alias = "GetPlotLimits")]
+#[rustversion::attr(since(1.48), doc(alias = "GetPlotLimits"))]
 pub fn get_plot_limits(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
     let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     // ImPlotLimits doesn't seem to have default()
@@ -526,7 +526,7 @@ pub fn get_plot_limits(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
 
 /// Returns the query limits of the current or most recent plot, for the specified choice of Y
 /// axis. If `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
-#[doc(alias = "GetPlotQuery")]
+#[rustversion::attr(since(1.48), doc(alias = "GetPlotQuery"))]
 pub fn get_plot_query(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
     let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     // ImPlotLimits doesn't seem to have default()
@@ -541,7 +541,7 @@ pub fn get_plot_query(y_axis_choice: Option<YAxisChoice>) -> ImPlotLimits {
 }
 
 /// Set the Y axis to be used for any upcoming plot elements
-#[doc(alias = "SetPlotYAxis")]
+#[rustversion::attr(since(1.48), doc(alias = "SetPlotYAxis"))]
 pub fn set_plot_y_axis(y_axis_choice: YAxisChoice) {
     unsafe {
         sys::ImPlot_SetPlotYAxis(y_axis_choice as i32);
@@ -549,14 +549,14 @@ pub fn set_plot_y_axis(y_axis_choice: YAxisChoice) {
 }
 
 /// Returns true if the XAxis plot area in the current plot is hovered.
-#[doc(alias = "IsPlotXAxisHovered")]
+#[rustversion::attr(since(1.48), doc(alias = "IsPlotXAxisHovered"))]
 pub fn is_plot_x_axis_hovered() -> bool {
     unsafe { sys::ImPlot_IsPlotXAxisHovered() }
 }
 
 /// Returns true if the Y axis area of the given Y axis choice in the current plot is hovered. If
 /// `None` is the Y axis choice, that means the most recently selected Y axis is chosen.
-#[doc(alias = "IsPlotYAxisHovered")]
+#[rustversion::attr(since(1.48), doc(alias = "IsPlotYAxisHovered"))]
 pub fn is_plot_y_axis_hovered(y_axis_choice: Option<YAxisChoice>) -> bool {
     let y_axis_choice_i32 = y_axis_choice_option_to_i32(y_axis_choice);
     unsafe { sys::ImPlot_IsPlotYAxisHovered(y_axis_choice_i32) }
@@ -567,7 +567,7 @@ pub fn is_plot_y_axis_hovered(y_axis_choice: Option<YAxisChoice>) -> bool {
 /// offer. Note that not all of this is necessarily implemented in implot-rs
 /// already - if you find something missing you'd really like, raise an issue.
 // This requires implot_demo.cpp to be in the list of sources in implot-sys.
-#[doc(alias = "ShowDemoWindow")]
+#[rustversion::attr(since(1.48), doc(alias = "ShowDemoWindow"))]
 pub fn show_demo_window(show: &mut bool) {
     unsafe {
         implot_sys::ImPlot_ShowDemoWindow(show);

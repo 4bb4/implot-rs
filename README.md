@@ -18,11 +18,7 @@ After 1.0, semver will be followed more properly.
 ![demo](demo.png)
 
 ## Requirements
-imgui-rs requires minimum Rust version 1.43, so this project requires at least that. In
-addition, doc aliases as released in 1.48 (https://blog.rust-lang.org/2020/11/19/Rust-1.48.html)
-were added, so currently the requirement is 1.48 - if that presents a problem, a workaround
-good be looked for though. Open an issue if you're in that situation.
-
+imgui-rs requires minimum Rust version 1.40, so this project requires at least that. 
 The sys crate compiles implot, so a C++ compiler will also be required.
 
 ## Examples 
@@ -45,7 +41,7 @@ if documentation is unclear or lacking. Note that doc aliases are being added no
 means one should be able to look for things with the name they have in the C++ code and
 rustdoc should show the correspondingly-named item. Sometimes this is just a matter of 
 changing camelcase to snake case, other times the idiomatic bindings do things a bit 
-differently.
+differently. These aliases only work with Rust 1.48 or newer.
 
 ## Implementation status
 Currently a work in progress, coverage of the C++ API is increased steadily. The author 

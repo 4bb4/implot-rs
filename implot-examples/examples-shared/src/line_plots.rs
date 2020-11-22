@@ -1,7 +1,7 @@
 //! This example demonstrates how line plots are to be used, along with some querying features
 //! that will be applicable to all kinds of plots.
 
-use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
+use imgui::{im_str, CollapsingHeader, Condition, Ui};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
     pixels_to_plot_vec2, plot_to_pixels_vec2, push_style_color, push_style_var_f32,
@@ -302,36 +302,23 @@ pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     set_colormap_from_preset(Colormap::Standard, 0);
 }
 
-pub fn show_demo_window(ui: &Ui, plot_ui: &PlotUi) {
-    Window::new(im_str!("Line plots example"))
-        .size([430.0, 450.0], Condition::FirstUseEver)
-        .build(ui, || {
-            ui.text(im_str!("Hello from implot-rs!"));
-            ui.text_wrapped(im_str!(
-                "The headers here demo the line plotting features of the library. \
-                 Have a look at the example source code to see how they are implemented.\n\
-                 Check out the demo from ImPlot itself first \
-                 for instructions on how to interact with ImPlot plots."
-            ));
-
-            // Show individual examples in collapsed headers
-            if CollapsingHeader::new(im_str!("Basic lineplot")).build(&ui) {
-                show_basic_plot(&ui, &plot_ui);
-            }
-            if CollapsingHeader::new(im_str!("Configurable lineplot")).build(&ui) {
-                show_configurable_plot(&ui, &plot_ui);
-            }
-            if CollapsingHeader::new(im_str!("Querying a plot")).build(&ui) {
-                show_query_features_plot(&ui, &plot_ui);
-            }
-            if CollapsingHeader::new(im_str!("Styling a plot")).build(&ui) {
-                show_style_plot(&ui, &plot_ui);
-            }
-            if CollapsingHeader::new(im_str!("Colormap selection")).build(&ui) {
-                show_colormaps_plot(&ui, &plot_ui);
-            }
-            if CollapsingHeader::new(im_str!("Multiple Y Axes")).build(&ui) {
-                show_two_yaxis_plot(&ui, &plot_ui);
-            }
-        });
+pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
+    if CollapsingHeader::new(im_str!("Line plot: Basic")).build(&ui) {
+        show_basic_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Configured")).build(&ui) {
+        show_configurable_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line Plot: Plot queries")).build(&ui) {
+        show_query_features_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Plot styling")).build(&ui) {
+        show_style_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Colormaps")).build(&ui) {
+        show_colormaps_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Multiple Y Axes")).build(&ui) {
+        show_two_yaxis_plot(&ui, &plot_ui);
+    }
 }

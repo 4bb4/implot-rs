@@ -2,7 +2,7 @@ use examples_shared;
 use imgui::{im_str, Condition, Window};
 use implot::Context;
 
-// the actual implot samples are in there TODO(4bb4) move to using examples-shared instead
+// The actual backend-specific code is in this.
 mod support;
 
 fn main() {
@@ -33,7 +33,11 @@ fn main() {
                 // TODO(4bb4) ... move windows by default so this is less confusing
                 ui.text_wrapped(im_str!(
                     "Note that the windows are stacked, so move this one out of the way to see\
-                     the ones beneath it."
+                     the ones beneath it. If you see something in the C++ demo window, but not\
+                     in the Rust ImPlot demo window, that means the bindings are likely not   \
+                     implemented yet. Feel free to open an issue if you are missing something \
+                     in particular.
+                    "
                 ));
             });
     });

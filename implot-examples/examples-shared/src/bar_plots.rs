@@ -1,7 +1,7 @@
 //! This example demonstrates how bar plots are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
+use imgui::{im_str, CollapsingHeader, Ui};
 use implot::{Plot, PlotBars, PlotUi};
 
 pub fn show_basic_vertical_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -39,25 +39,11 @@ pub fn show_basic_horizontal_plot(ui: &Ui, plot_ui: &PlotUi) {
         });
 }
 
-pub fn show_demo_window(ui: &Ui, plot_ui: &PlotUi) {
-    Window::new(im_str!("Bar plots example"))
-        .size([430.0, 450.0], Condition::FirstUseEver)
-        .build(ui, || {
-            ui.text(im_str!("Hello from implot-rs!"));
-            ui.text_wrapped(im_str!(
-                "The headers here demo the bar plotting features of the library. \
-                    Have a look at the example source code to see how they are implemented.\n\
-                    Check out the demo from ImPlot itself first \
-                    for instructions on how to interact with ImPlot plots."
-            ));
-
-            // Show individual examples in collapsed headers
-            if CollapsingHeader::new(im_str!("Basic vertical plot")).build(&ui) {
-                show_basic_vertical_plot(&ui, &plot_ui);
-            }
-
-            if CollapsingHeader::new(im_str!("Basic horizontal plot")).build(&ui) {
-                show_basic_horizontal_plot(&ui, &plot_ui);
-            }
-        });
+pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
+    if CollapsingHeader::new(im_str!("Bar plots: Basic vertical")).build(&ui) {
+        show_basic_vertical_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Bar plots: Basic horizontal")).build(&ui) {
+        show_basic_horizontal_plot(&ui, &plot_ui);
+    }
 }

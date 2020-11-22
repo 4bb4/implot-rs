@@ -1,7 +1,7 @@
 //! This example demonstrates how stairs plots are to be used. They are almost the same as line
 //! plots, so head over to the line plots example for more info.
 //!
-use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
+use imgui::{im_str, CollapsingHeader, Ui};
 use implot::{Plot, PlotStairs, PlotUi};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -21,20 +21,8 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
         });
 }
 
-pub fn show_demo_window(ui: &Ui, plot_ui: &PlotUi) {
-    Window::new(im_str!("Stairs plots example"))
-        .size([430.0, 450.0], Condition::FirstUseEver)
-        .build(ui, || {
-            ui.text(im_str!("Hello from implot-rs!"));
-            ui.text_wrapped(im_str!(
-                "The headers here demo the stairs plotting features of the library. \
-                 Have a look at the example source code to see how they are implemented.\n\
-                 Check out the demo from ImPlot itself first \
-                 for instructions on how to interact with ImPlot plots."
-            ));
-
-            if CollapsingHeader::new(im_str!("Basic stairs plot")).build(&ui) {
-                show_basic_plot(&ui, &plot_ui);
-            }
-        });
+pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
+    if CollapsingHeader::new(im_str!("Stairs plot: Basic")).build(&ui) {
+        show_basic_plot(&ui, &plot_ui);
+    }
 }

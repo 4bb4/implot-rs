@@ -1,7 +1,7 @@
 //! This example demonstrates how the text plotting features are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Condition, Ui, Window};
+use imgui::{im_str, CollapsingHeader, Ui};
 use implot::{Plot, PlotText, PlotUi};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -28,21 +28,8 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
         });
 }
 
-pub fn show_demo_window(ui: &Ui, plot_ui: &PlotUi) {
-    Window::new(im_str!("Text plots example"))
-        .size([430.0, 450.0], Condition::FirstUseEver)
-        .build(ui, || {
-            ui.text(im_str!("Hello from implot-rs!"));
-            ui.text_wrapped(im_str!(
-                "The headers here demo the text plotting features of the library. \
-                    Have a look at the example source code to see how they are implemented.\n\
-                    Check out the demo from ImPlot itself first \
-                    for instructions on how to interact with ImPlot plots."
-            ));
-
-            // Show individual examples in collapsed headers
-            if CollapsingHeader::new(im_str!("Basic text plot")).build(&ui) {
-                show_basic_plot(&ui, &plot_ui);
-            }
-        });
+pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
+    if CollapsingHeader::new(im_str!("Text plot: Basic")).build(&ui) {
+        show_basic_plot(&ui, &plot_ui);
+    }
 }

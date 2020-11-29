@@ -1,6 +1,6 @@
 [package]
 name = "implot"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 authors = ["Sandro Merkli", "implot-rs contributors"]
 description = "Rust bindings to https://github.com/epezent/implot"
@@ -11,7 +11,7 @@ categories = ["gui", "api-bindings"]
 readme = "README.md"
 
 [dependencies]
-implot-sys = { version = "0.2.0", path = "implot-sys" }
+implot-sys = { version = "0.3.0", path = "implot-sys" }
 imgui = { version = "0.6.0" }
 bitflags = "1.0"
 parking_lot = "0.11"

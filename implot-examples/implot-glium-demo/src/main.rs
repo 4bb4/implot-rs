@@ -1,4 +1,3 @@
-
 use imgui::{im_str, Condition, Window};
 use implot::Context;
 

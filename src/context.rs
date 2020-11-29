@@ -48,6 +48,42 @@ impl Context {
     pub fn get_plot_ui(&self) -> PlotUi {
         PlotUi { context: self }
     }
+
+    /// Use light colors for the implot style.
+    ///
+    /// This will eventually be exposed more thoroughly in the form of ImPlotStyle,
+    /// but for now this allows one to at least easily set the color preset.
+    pub fn use_light_colors(&self) {
+        unsafe {
+            let style = sys::ImPlot_GetStyle();
+            assert_ne!(style, std::ptr::null_mut());
+            sys::ImPlot_StyleColorsLight(style);
+        }
+    }
+
+    /// Use dark colors for the implot style.
+    ///
+    /// This will eventually be exposed more thoroughly in the form of ImPlotStyle,
+    /// but for now this allows one to at least easily set the color preset.
+    pub fn use_dark_colors(&self) {
+        unsafe {
+            let style = sys::ImPlot_GetStyle();
+            assert_ne!(style, std::ptr::null_mut());
+            sys::ImPlot_StyleColorsDark(style);
+        }
+    }
+
+    /// Use classic colors for the implot style.
+    ///
+    /// This will eventually be exposed more thoroughly in the form of ImPlotStyle,
+    /// but for now this allows one to at least easily set the color preset.
+    pub fn use_classic_colors(&self) {
+        unsafe {
+            let style = sys::ImPlot_GetStyle();
+            assert_ne!(style, std::ptr::null_mut());
+            sys::ImPlot_StyleColorsClassic(style);
+        }
+    }
 }
 
 impl Drop for Context {

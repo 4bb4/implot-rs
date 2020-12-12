@@ -22,8 +22,10 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y libxcb-shape0-dev libxcb-xfixes0-dev
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
+    - name: Run idiomatic bindings tests 
       run: cargo test --verbose
+    - name: Run FFI tests 
+      run: cd implot-sys/ && cargo test --verbose
     - name: Build glium demo
       run: cd implot-examples/implot-glium-demo && cargo build
     - name: Build wgpu demo

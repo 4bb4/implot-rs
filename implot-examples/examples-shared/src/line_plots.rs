@@ -62,6 +62,22 @@ pub fn show_two_yaxis_plot(ui: &Ui, plot_ui: &PlotUi) {
         });
 }
 
+pub fn show_axis_equal_plot(ui: &Ui, plot_ui: &PlotUi) {
+    ui.text(im_str!("This plot has axis equal set (1:1 aspect ratio)."));
+    let content_width = ui.window_content_region_width();
+    Plot::new("Axis equal line plot")
+        // The size call could also be omitted, though the defaults don't consider window
+        // width, which is why we're not doing so here.
+        .size(content_width, 300.0)
+        .with_plot_flags(&(PlotFlags::NONE | PlotFlags::AXIS_EQUAL))
+        .build(plot_ui, || {
+            // If this is called outside a plot build callback, the program will panic.
+            let x_positions = vec![0.1, 0.9];
+            let y_positions = vec![0.1, 0.9];
+            PlotLine::new("legend label").plot(&x_positions, &y_positions);
+        });
+}
+
 pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
     ui.text(im_str!(
         "This header demos what we can configure about plots."
@@ -320,5 +336,8 @@ pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
     }
     if CollapsingHeader::new(im_str!("Line plot: Multiple Y Axes")).build(&ui) {
         show_two_yaxis_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: \"Axis equal\"")).build(&ui) {
+        show_axis_equal_plot(&ui, &plot_ui);
     }
 }

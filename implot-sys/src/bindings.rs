@@ -33,56 +33,6 @@ pub type ImDrawCallback = ::std::option::Option<
 pub type ImDrawIdx = ::std::os::raw::c_ushort;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ImVector_ImDrawVert {
-    pub Size: ::std::os::raw::c_int,
-    pub Capacity: ::std::os::raw::c_int,
-    pub Data: *mut ImDrawVert,
-}
-#[test]
-fn bindgen_test_layout_ImVector_ImDrawVert() {
-    assert_eq!(
-        ::std::mem::size_of::<ImVector_ImDrawVert>(),
-        16usize,
-        concat!("Size of: ", stringify!(ImVector_ImDrawVert))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ImVector_ImDrawVert>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ImVector_ImDrawVert))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Size as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImDrawVert),
-            "::",
-            stringify!(Size)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Capacity as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImDrawVert),
-            "::",
-            stringify!(Capacity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Data as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImDrawVert),
-            "::",
-            stringify!(Data)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct ImVector_ImDrawChannel {
     pub Size: ::std::os::raw::c_int,
     pub Capacity: ::std::os::raw::c_int,
@@ -126,56 +76,6 @@ fn bindgen_test_layout_ImVector_ImDrawChannel() {
         concat!(
             "Offset of field: ",
             stringify!(ImVector_ImDrawChannel),
-            "::",
-            stringify!(Data)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ImVector_ImTextureID {
-    pub Size: ::std::os::raw::c_int,
-    pub Capacity: ::std::os::raw::c_int,
-    pub Data: *mut ImTextureID,
-}
-#[test]
-fn bindgen_test_layout_ImVector_ImTextureID() {
-    assert_eq!(
-        ::std::mem::size_of::<ImVector_ImTextureID>(),
-        16usize,
-        concat!("Size of: ", stringify!(ImVector_ImTextureID))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ImVector_ImTextureID>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ImVector_ImTextureID))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Size as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImTextureID),
-            "::",
-            stringify!(Size)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Capacity as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImTextureID),
-            "::",
-            stringify!(Capacity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Data as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImTextureID),
             "::",
             stringify!(Data)
         )
@@ -233,56 +133,6 @@ fn bindgen_test_layout_ImVector_ImDrawCmd() {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ImVector_ImVec4 {
-    pub Size: ::std::os::raw::c_int,
-    pub Capacity: ::std::os::raw::c_int,
-    pub Data: *mut ImVec4,
-}
-#[test]
-fn bindgen_test_layout_ImVector_ImVec4() {
-    assert_eq!(
-        ::std::mem::size_of::<ImVector_ImVec4>(),
-        16usize,
-        concat!("Size of: ", stringify!(ImVector_ImVec4))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ImVector_ImVec4>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ImVector_ImVec4))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Size as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImVec4),
-            "::",
-            stringify!(Size)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Capacity as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImVec4),
-            "::",
-            stringify!(Capacity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Data as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ImVector_ImVec4),
-            "::",
-            stringify!(Data)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct ImVector_ImDrawIdx {
     pub Size: ::std::os::raw::c_int,
     pub Capacity: ::std::os::raw::c_int,
@@ -333,6 +183,106 @@ fn bindgen_test_layout_ImVector_ImDrawIdx() {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct ImVector_ImDrawVert {
+    pub Size: ::std::os::raw::c_int,
+    pub Capacity: ::std::os::raw::c_int,
+    pub Data: *mut ImDrawVert,
+}
+#[test]
+fn bindgen_test_layout_ImVector_ImDrawVert() {
+    assert_eq!(
+        ::std::mem::size_of::<ImVector_ImDrawVert>(),
+        16usize,
+        concat!("Size of: ", stringify!(ImVector_ImDrawVert))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ImVector_ImDrawVert>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ImVector_ImDrawVert))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Size as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImDrawVert),
+            "::",
+            stringify!(Size)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Capacity as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImDrawVert),
+            "::",
+            stringify!(Capacity)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImDrawVert>())).Data as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImDrawVert),
+            "::",
+            stringify!(Data)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ImVector_ImTextureID {
+    pub Size: ::std::os::raw::c_int,
+    pub Capacity: ::std::os::raw::c_int,
+    pub Data: *mut ImTextureID,
+}
+#[test]
+fn bindgen_test_layout_ImVector_ImTextureID() {
+    assert_eq!(
+        ::std::mem::size_of::<ImVector_ImTextureID>(),
+        16usize,
+        concat!("Size of: ", stringify!(ImVector_ImTextureID))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ImVector_ImTextureID>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ImVector_ImTextureID))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Size as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImTextureID),
+            "::",
+            stringify!(Size)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Capacity as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImTextureID),
+            "::",
+            stringify!(Capacity)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImTextureID>())).Data as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImTextureID),
+            "::",
+            stringify!(Data)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImVector_ImVec2 {
     pub Size: ::std::os::raw::c_int,
     pub Capacity: ::std::os::raw::c_int,
@@ -376,6 +326,56 @@ fn bindgen_test_layout_ImVector_ImVec2() {
         concat!(
             "Offset of field: ",
             stringify!(ImVector_ImVec2),
+            "::",
+            stringify!(Data)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ImVector_ImVec4 {
+    pub Size: ::std::os::raw::c_int,
+    pub Capacity: ::std::os::raw::c_int,
+    pub Data: *mut ImVec4,
+}
+#[test]
+fn bindgen_test_layout_ImVector_ImVec4() {
+    assert_eq!(
+        ::std::mem::size_of::<ImVector_ImVec4>(),
+        16usize,
+        concat!("Size of: ", stringify!(ImVector_ImVec4))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ImVector_ImVec4>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ImVector_ImVec4))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Size as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImVec4),
+            "::",
+            stringify!(Size)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Capacity as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImVec4),
+            "::",
+            stringify!(Capacity)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImVector_ImVec4>())).Data as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImVector_ImVec4),
             "::",
             stringify!(Data)
         )
@@ -870,18 +870,20 @@ pub type ImPlotLocation = ::std::os::raw::c_int;
 pub type ImPlotOrientation = ::std::os::raw::c_int;
 pub type ImPlotYAxis = ::std::os::raw::c_int;
 pub const ImPlotFlags__ImPlotFlags_None: ImPlotFlags_ = 0;
-pub const ImPlotFlags__ImPlotFlags_NoLegend: ImPlotFlags_ = 1;
-pub const ImPlotFlags__ImPlotFlags_NoMenus: ImPlotFlags_ = 2;
-pub const ImPlotFlags__ImPlotFlags_NoBoxSelect: ImPlotFlags_ = 4;
-pub const ImPlotFlags__ImPlotFlags_NoMousePos: ImPlotFlags_ = 8;
-pub const ImPlotFlags__ImPlotFlags_NoHighlight: ImPlotFlags_ = 16;
-pub const ImPlotFlags__ImPlotFlags_NoChild: ImPlotFlags_ = 32;
-pub const ImPlotFlags__ImPlotFlags_YAxis2: ImPlotFlags_ = 64;
-pub const ImPlotFlags__ImPlotFlags_YAxis3: ImPlotFlags_ = 128;
-pub const ImPlotFlags__ImPlotFlags_Query: ImPlotFlags_ = 256;
-pub const ImPlotFlags__ImPlotFlags_Crosshairs: ImPlotFlags_ = 512;
-pub const ImPlotFlags__ImPlotFlags_AntiAliased: ImPlotFlags_ = 1024;
-pub const ImPlotFlags__ImPlotFlags_CanvasOnly: ImPlotFlags_ = 15;
+pub const ImPlotFlags__ImPlotFlags_NoTitle: ImPlotFlags_ = 1;
+pub const ImPlotFlags__ImPlotFlags_NoLegend: ImPlotFlags_ = 2;
+pub const ImPlotFlags__ImPlotFlags_NoMenus: ImPlotFlags_ = 4;
+pub const ImPlotFlags__ImPlotFlags_NoBoxSelect: ImPlotFlags_ = 8;
+pub const ImPlotFlags__ImPlotFlags_NoMousePos: ImPlotFlags_ = 16;
+pub const ImPlotFlags__ImPlotFlags_NoHighlight: ImPlotFlags_ = 32;
+pub const ImPlotFlags__ImPlotFlags_NoChild: ImPlotFlags_ = 64;
+pub const ImPlotFlags__ImPlotFlags_Equal: ImPlotFlags_ = 128;
+pub const ImPlotFlags__ImPlotFlags_YAxis2: ImPlotFlags_ = 256;
+pub const ImPlotFlags__ImPlotFlags_YAxis3: ImPlotFlags_ = 512;
+pub const ImPlotFlags__ImPlotFlags_Query: ImPlotFlags_ = 1024;
+pub const ImPlotFlags__ImPlotFlags_Crosshairs: ImPlotFlags_ = 2048;
+pub const ImPlotFlags__ImPlotFlags_AntiAliased: ImPlotFlags_ = 4096;
+pub const ImPlotFlags__ImPlotFlags_CanvasOnly: ImPlotFlags_ = 31;
 pub type ImPlotFlags_ = ::std::os::raw::c_uint;
 pub const ImPlotAxisFlags__ImPlotAxisFlags_None: ImPlotAxisFlags_ = 0;
 pub const ImPlotAxisFlags__ImPlotAxisFlags_NoGridLines: ImPlotAxisFlags_ = 1;
@@ -945,9 +947,10 @@ pub const ImPlotStyleVar__ImPlotStyleVar_LegendInnerPadding: ImPlotStyleVar_ = 2
 pub const ImPlotStyleVar__ImPlotStyleVar_LegendSpacing: ImPlotStyleVar_ = 21;
 pub const ImPlotStyleVar__ImPlotStyleVar_MousePosPadding: ImPlotStyleVar_ = 22;
 pub const ImPlotStyleVar__ImPlotStyleVar_AnnotationPadding: ImPlotStyleVar_ = 23;
-pub const ImPlotStyleVar__ImPlotStyleVar_PlotDefaultSize: ImPlotStyleVar_ = 24;
-pub const ImPlotStyleVar__ImPlotStyleVar_PlotMinSize: ImPlotStyleVar_ = 25;
-pub const ImPlotStyleVar__ImPlotStyleVar_COUNT: ImPlotStyleVar_ = 26;
+pub const ImPlotStyleVar__ImPlotStyleVar_FitPadding: ImPlotStyleVar_ = 24;
+pub const ImPlotStyleVar__ImPlotStyleVar_PlotDefaultSize: ImPlotStyleVar_ = 25;
+pub const ImPlotStyleVar__ImPlotStyleVar_PlotMinSize: ImPlotStyleVar_ = 26;
+pub const ImPlotStyleVar__ImPlotStyleVar_COUNT: ImPlotStyleVar_ = 27;
 pub type ImPlotStyleVar_ = ::std::os::raw::c_uint;
 pub const ImPlotMarker__ImPlotMarker_None: ImPlotMarker_ = -1;
 pub const ImPlotMarker__ImPlotMarker_Circle: ImPlotMarker_ = 0;
@@ -1136,6 +1139,7 @@ pub struct ImPlotStyle {
     pub LegendSpacing: ImVec2,
     pub MousePosPadding: ImVec2,
     pub AnnotationPadding: ImVec2,
+    pub FitPadding: ImVec2,
     pub PlotDefaultSize: ImVec2,
     pub PlotMinSize: ImVec2,
     pub Colors: [ImVec4; 24usize],
@@ -1148,7 +1152,7 @@ pub struct ImPlotStyle {
 fn bindgen_test_layout_ImPlotStyle() {
     assert_eq!(
         ::std::mem::size_of::<ImPlotStyle>(),
-        552usize,
+        560usize,
         concat!("Size of: ", stringify!(ImPlotStyle))
     );
     assert_eq!(
@@ -1397,8 +1401,18 @@ fn bindgen_test_layout_ImPlotStyle() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotDefaultSize as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).FitPadding as *const _ as usize },
         148usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ImPlotStyle),
+            "::",
+            stringify!(FitPadding)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotDefaultSize as *const _ as usize },
+        156usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1408,7 +1422,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).PlotMinSize as *const _ as usize },
-        156usize,
+        164usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1418,7 +1432,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).Colors as *const _ as usize },
-        164usize,
+        172usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1428,7 +1442,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).AntiAliasedLines as *const _ as usize },
-        548usize,
+        556usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1438,7 +1452,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).UseLocalTime as *const _ as usize },
-        549usize,
+        557usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1448,7 +1462,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).UseISO8601 as *const _ as usize },
-        550usize,
+        558usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),
@@ -1458,7 +1472,7 @@ fn bindgen_test_layout_ImPlotStyle() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ImPlotStyle>())).Use24HourClock as *const _ as usize },
-        551usize,
+        559usize,
         concat!(
             "Offset of field: ",
             stringify!(ImPlotStyle),

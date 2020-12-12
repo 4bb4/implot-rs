@@ -33,6 +33,8 @@ bitflags! {
         /// A child window region will not be used to capture mouse scroll (can boost performance
         /// for single ImGui window applications)
         const NO_CHILD = sys::ImPlotFlags__ImPlotFlags_NoChild;
+        /// Use an aspect ratio of 1:1 for the plot
+        const AXIS_EQUAL = sys::ImPlotFlags__ImPlotFlags_Equal;
         /// Enable a 2nd y axis
         const Y_AXIS_2 = sys::ImPlotFlags__ImPlotFlags_YAxis2;
         /// Enable a 3nd y axis
@@ -133,12 +135,12 @@ pub struct Plot {
     y_tick_labels: [Option<Vec<ImString>>; NUMBER_OF_Y_AXES],
     /// Whether to also show the default Y ticks when showing custom ticks or not
     show_y_default_ticks: [bool; NUMBER_OF_Y_AXES],
-    /// Orientation of the legend
-    legend_orientation: PlotOrientation,
-    /// Location of the legend
-    legend_location: PlotLocation,
-    /// Whether the legend is shown outside the plot
-    legend_outside_plot: bool,
+    /// Configuration for the legend, if specified. The tuple contains location, orientation
+    /// and a boolean (true means legend is outside of plot, false means within). If nothing
+    /// is set, implot's defaults are used. Note also  that if these are set, then implot's
+    /// interactive legend configuration does not work because it is overridden by the settings
+    /// here.
+    legend_configuration: Option<(PlotLocation, PlotOrientation, bool)>,
     /// Flags relating to the plot TODO(4bb4) make those into bitflags
     plot_flags: sys::ImPlotFlags,
     /// Flags relating to the X axis of the plot TODO(4bb4) make those into bitflags
@@ -172,9 +174,7 @@ impl Plot {
             y_tick_positions: [POS_NONE; NUMBER_OF_Y_AXES],
             y_tick_labels: [TICK_NONE; NUMBER_OF_Y_AXES],
             show_y_default_ticks: [false; NUMBER_OF_Y_AXES],
-            legend_location: PlotLocation::NorthWest,
-            legend_orientation: PlotOrientation::Vertical,
-            legend_outside_plot: false,
+            legend_configuration: None,
             plot_flags: PlotFlags::ANTIALIASED.bits() as sys::ImPlotFlags,
             x_flags: AxisFlags::NONE.bits() as sys::ImPlotAxisFlags,
             y_flags: [AxisFlags::NONE.bits() as sys::ImPlotAxisFlags; NUMBER_OF_Y_AXES],
@@ -316,9 +316,7 @@ impl Plot {
         orientation: &PlotOrientation,
         outside: bool,
     ) -> Self {
-        self.legend_location = *location;
-        self.legend_orientation = *orientation;
-        self.legend_outside_plot = outside;
+        self.legend_configuration = Some((*location, *orientation, outside));
         self
     }
 
@@ -438,17 +436,20 @@ impl Plot {
         };
 
         if should_render {
-            // Configure legend location. This has to be called between begin() and end(),
-            // but since only the last call to it actually affects the outcome, I'm adding
-            // it here instead of as a freestanding function. If this is too restrictive
-            // (for example, if you want to set the location based on code running _during_
-            // the plotting for some reason), file an issue and we'll move it.
-            unsafe {
-                sys::ImPlot_SetLegendLocation(
-                    self.legend_location as i32,
-                    self.legend_orientation as i32,
-                    self.legend_outside_plot,
-                )
+            // Configure legend location, if one was set. This has to be called between begin() and
+            // end(), but since only the last call to it actually affects the outcome, I'm adding
+            // it here instead of as a freestanding function. If this is too restrictive (for
+            // example, if you want to set the location based on code running _during_ the plotting
+            // for some reason), file an issue and we'll move it.
+            if let Some(legend_config) = &self.legend_configuration {
+                // We introduce variables with typechecks here to safeguard against accidental
+                // changes in order in the config tuple
+                let location: PlotLocation = legend_config.0;
+                let orientation: PlotOrientation = legend_config.1;
+                let outside_plot: bool = legend_config.2;
+                unsafe {
+                    sys::ImPlot_SetLegendLocation(location as i32, orientation as i32, outside_plot)
+                }
             }
 
             Some(PlotToken {

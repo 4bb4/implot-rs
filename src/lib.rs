@@ -229,6 +229,9 @@ pub enum StyleVar {
     MousePosPadding = sys::ImPlotStyleVar__ImPlotStyleVar_MousePosPadding,
     /// ImVec2, text padding around annotation labels
     AnnotationPadding = sys::ImPlotStyleVar__ImPlotStyleVar_AnnotationPadding,
+    /// ImVec2, additional fit padding as a percentage of the fit extents
+    /// (e.g. ImVec2(0.1f,0.1f) adds 10% to the fit extents of X and Y)
+    FitPadding = sys::ImPlotStyleVar__ImPlotStyleVar_FitPadding,
     /// ImVec2, default size used when ImVec2(0,0) is passed to BeginPlot
     PlotDefaultSize = sys::ImPlotStyleVar__ImPlotStyleVar_PlotDefaultSize,
     /// ImVec2, minimum size plot frame can be when shrunk

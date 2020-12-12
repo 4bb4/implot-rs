@@ -4,7 +4,7 @@
 Rust bindings for [ImPlot](https://github.com/epezent/implot), built by running
 [bindgen](https://github.com/rust-lang/rust-bindgen) on [cimplot](https://github.com/cimgui/cimplot).
 
-The bindings are currently based on ImPlot version 0.8-WIP (see 
+The bindings are currently based on ImPlot version 0.9-WIP (see 
 [implot-sys/third-party](implot-sys/third-party) for the exact commit currently pointed to). 
 The status section below provides detailed information on implementation status. 
 
@@ -65,13 +65,13 @@ created for 64-bit floats.
     - [x] Vertical
     - [x] Horizontal
   - [x] Stairs plot
+  - [x] Heatmap
   - [ ] Shaded plot
   - [ ] Stem plots
   - [ ] Images
   - [ ] Error bar plot
     - [ ] Vertical
     - [ ] Horizontal
-  - [ ] Heatmap
   - [ ] Pie chart
   - [ ] Digital data
   - [ ] Annotations

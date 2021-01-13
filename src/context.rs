@@ -12,6 +12,7 @@ use crate::PlotUi;
 /// implicitly in earlier versions of the library, it is now created explicitly. These contexts
 /// cannot currently be disabled through the high level API. This could be implemented though,
 /// if you need multiple contexts that you can switch around between, file an issue.
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotContext"))]
 pub struct Context {
     raw: *mut sys::ImPlotContext,
 }

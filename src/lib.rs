@@ -12,6 +12,10 @@
 //! you'd really like a particular feature, file an issue and it'll be given priority for wrapping,
 //! or directly contribute a PR, or use the low-level bindings directly for the time being.
 //!
+//! If you've seen a construct or feature in C++ implot and can't find it here, try searching for
+//! the C++ name - some doc aliases are defined to increase the chances of that working. If this
+//! does not yield any results, you can also try cloning the source and doing a full-text search to
+//! see if the feature is used somewhere internally the code.
 use implot_sys as sys;
 
 // TODO(4bb4) facade-wrap these?
@@ -46,6 +50,7 @@ pub enum YAxisChoice {
 }
 
 /// Turn an Option<YAxisChoice> into an i32. Picks IMPLOT_AUTO for None.
+#[rustversion::attr(since(1.48), doc(alias = "IMPLOT_AUTO"))]
 fn y_axis_choice_option_to_i32(y_axis_choice: Option<YAxisChoice>) -> i32 {
     match y_axis_choice {
         Some(choice) => choice as i32,
@@ -333,6 +338,7 @@ pub struct StyleColorToken {
 }
 
 impl StyleColorToken {
+    #[rustversion::attr(since(1.48), doc(alias = "PopStyleColor"))]
     pub fn pop(mut self) {
         if self.was_popped {
             panic!("Attempted to pop a style color token twice.")
@@ -393,6 +399,7 @@ pub struct StyleVarToken {
 
 impl StyleVarToken {
     /// Pop this token from the stack.
+    #[rustversion::attr(since(1.48), doc(alias = "PopStyleVar"))]
     pub fn pop(mut self) {
         if self.was_popped {
             panic!("Attempted to pop a style var token twice.")

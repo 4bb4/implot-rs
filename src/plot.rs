@@ -12,6 +12,7 @@ pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
 const DEFAULT_PLOT_SIZE_Y: f32 = 400.0;
 
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotFlags"))]
 bitflags! {
     /// Flags for customizing plot behavior and interaction. Documentation copied from implot.h for
     /// convenience. ImPlot itself also has a "CanvasOnly" flag, which can be emulated here with
@@ -48,6 +49,7 @@ bitflags! {
     }
 }
 
+#[rustversion::attr(since(1.48), doc(alias = "ImPlotAxisFlags"))]
 bitflags! {
     /// Axis flags. Documentation copied from implot.h for convenience. ImPlot itself also
     /// has `Lock`, which combines `LOCK_MIN` and `LOCK_MAX`, and `NoDecorations`, which combines
@@ -309,6 +311,7 @@ impl Plot {
     }
 
     /// Set the legend location, orientation and whether it is to be drawn outside the plot
+    #[rustversion::attr(since(1.48), doc(alias = "SetLegendLocation"))]
     #[inline]
     pub fn with_legend_location(
         mut self,
@@ -414,6 +417,7 @@ impl Plot {
     ///
     /// For a convenient implementation of all this, use [`build()`](struct.Plot.html#method.build)
     /// instead.
+    #[rustversion::attr(since(1.48), doc(alias = "BeginPlot"))]
     pub fn begin(&self, plot_ui: &PlotUi) -> Option<PlotToken> {
         self.maybe_set_axis_limits();
         self.maybe_set_tick_labels();
@@ -463,10 +467,13 @@ impl Plot {
         }
     }
 
-    /// Creates a window and runs a closure to construct the contents.
+    /// Creates a window and runs a closure to construct the contents. This internally
+    /// calls `begin` and `end`.
     ///
     /// Note: the closure is not called if ImPlot::BeginPlot() returned
     /// false - TODO(4bb4) figure out if this is if things are not rendered
+    #[rustversion::attr(since(1.48), doc(alias = "BeginPlot"))]
+    #[rustversion::attr(since(1.48), doc(alias = "EndPlot"))]
     pub fn build<F: FnOnce()>(self, plot_ui: &PlotUi, f: F) {
         if let Some(token) = self.begin(plot_ui) {
             f();
@@ -484,6 +491,7 @@ pub struct PlotToken {
 
 impl PlotToken {
     /// End a previously begin()'ed plot.
+    #[rustversion::attr(since(1.48), doc(alias = "EndPlot"))]
     pub fn end(mut self) {
         self.context = std::ptr::null();
         unsafe { sys::ImPlot_EndPlot() };

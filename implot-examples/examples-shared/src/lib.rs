@@ -3,6 +3,7 @@ pub mod heatmaps;
 pub mod line_plots;
 pub mod scatter_plots;
 pub mod stairs_plots;
+mod stem_plots;
 pub mod text_plots;
 
 use imgui::{im_str, Condition, Ui, Window};
@@ -43,5 +44,9 @@ pub fn show_demos(ui: &Ui, plot_ui: &PlotUi) {
             ui.separator();
             ui.text(im_str!("Heatmaps:"));
             heatmaps::show_demo_headers(ui, plot_ui);
+
+            ui.separator();
+            ui.text(im_str!("Stem plots:"));
+            stem_plots::show_demo_headers(ui, plot_ui);
         });
 }

@@ -83,7 +83,7 @@ created for 64-bit floats.
   - [x] Styling variables
   - [x] Colormaps
   - [x] Legend locations
-- [ ] Plot querying 
+- [x] Plot querying 
   - [x] is hovered
   - [x] mouse position in plot
   - [x] plot limits
@@ -91,7 +91,7 @@ created for 64-bit floats.
   - [x] get plot query
   - [x] are axes hovered
   - [x] Choice of y axis
-  - [ ] Are legend entries hovered
+  - [x] Are legend entries hovered
 - [ ] Utils
   - [x] Plot limit setting
   - [x] imgui-rs style safe push/pop stacks

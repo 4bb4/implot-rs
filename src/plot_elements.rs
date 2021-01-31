@@ -147,7 +147,7 @@ impl PlotBars {
 
     /// Draw a previously-created bar plot. Use this in closures passed to
     /// [`Plot::build()`](struct.Plot.html#method.build). The `axis_positions`
-    /// specify where on the corersponding axis (X for vertical mode, Y for horizontal mode) the
+    /// specify where on the corresponding axis (X for vertical mode, Y for horizontal mode) the
     /// bar is drawn, and the `bar_values` specify what values the bars have.
     pub fn plot(&self, axis_positions: &[f64], bar_values: &[f64]) {
         let number_of_points = axis_positions.len().min(bar_values.len());
@@ -328,6 +328,54 @@ impl PlotHeatmap {
                 },
                 self.drawarea_lower_left,
                 self.drawarea_upper_right,
+            );
+        }
+    }
+}
+
+/// Struct to provide stem plotting functionality.
+pub struct PlotStems {
+    /// Label to show in the legend for this line
+    label: String,
+
+    /// Reference value for the y value, which the stems are "with respect to"
+    reference_y: f64,
+}
+
+impl PlotStems {
+    /// Create a new stem plot to be shown. Does not draw anything by itself, call
+    /// [`PlotStems::plot`] on the struct for that.
+    pub fn new(label: &str) -> Self {
+        Self {
+            label: label.to_owned(),
+            reference_y: 0.0, // Default value taken from C++ implot
+        }
+    }
+
+    /// Set the reference y value for the stems
+    pub fn with_reference_y(mut self, reference_y: f64) -> Self {
+        self.reference_y = reference_y;
+        self
+    }
+
+    /// Draw a previously-created stem plot. Use this in closures passed to
+    /// [`Plot::build()`](struct.Plot.html#method.build). The `axis_positions` specify where on the
+    /// X axis the stems are drawn, and the `stem_values` specify what values the stems have.
+    pub fn plot(&self, axis_positions: &[f64], stem_values: &[f64]) {
+        let number_of_points = axis_positions.len().min(stem_values.len());
+        // If there is no data to plot, we stop here
+        if number_of_points == 0 {
+            return;
+        }
+        unsafe {
+            sys::ImPlot_PlotStemsdoublePtrdoublePtr(
+                im_str!("{}", self.label).as_ptr() as *const i8,
+                axis_positions.as_ptr(),
+                stem_values.as_ptr(),
+                number_of_points as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
+                self.reference_y,
+                0,                                 // No offset
+                std::mem::size_of::<f64>() as i32, // Stride, set to one f64 for the standard use case
             );
         }
     }

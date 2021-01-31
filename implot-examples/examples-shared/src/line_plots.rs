@@ -3,12 +3,12 @@
 
 use imgui::{im_str, CollapsingHeader, Condition, Ui};
 use implot::{
-    get_plot_limits, get_plot_mouse_position, get_plot_query, is_plot_hovered, is_plot_queried,
-    pixels_to_plot_vec2, plot_to_pixels_vec2, push_style_color, push_style_var_f32,
-    push_style_var_i32, set_colormap_from_preset, set_colormap_from_vec, set_plot_y_axis,
-    AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4, Marker, Plot,
-    PlotColorElement, PlotFlags, PlotLine, PlotLocation, PlotOrientation, PlotUi, StyleVar,
-    YAxisChoice,
+    get_plot_limits, get_plot_mouse_position, get_plot_query, is_legend_entry_hovered,
+    is_plot_hovered, is_plot_queried, pixels_to_plot_vec2, plot_to_pixels_vec2, push_style_color,
+    push_style_var_f32, push_style_var_i32, set_colormap_from_preset, set_colormap_from_vec,
+    set_plot_y_axis, AxisFlags, Colormap, ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4,
+    Marker, Plot, PlotColorElement, PlotFlags, PlotLine, PlotLocation, PlotOrientation, PlotUi,
+    StyleVar, YAxisChoice,
 };
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
@@ -156,6 +156,8 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     let mut hover_pos_from_pixels: Option<ImPlotPoint> = None;
     let mut plot_limits: Option<ImPlotLimits> = None;
     let mut query_limits: Option<ImPlotLimits> = None;
+    let mut legend1_hovered = false;
+    let mut legend2_hovered = false;
 
     // Draw a plot
     Plot::new("Plot querying")
@@ -182,6 +184,12 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
                 },
                 None,
             ));
+
+            // Plot a line so we have a legend entry
+            PlotLine::new("Legend1").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
+            PlotLine::new("Legend2").plot(&vec![0.0, 0.0], &vec![1.0, 1.0]);
+            legend1_hovered = is_legend_entry_hovered("Legend1");
+            legend2_hovered = is_legend_entry_hovered("Legend2");
 
             if is_plot_queried() {
                 query_limits = Some(get_plot_query(None));
@@ -214,6 +222,11 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     if let Some(query) = query_limits {
         ui.text(im_str!("Query limits are {:#?}", query));
     }
+    ui.text(im_str!(
+        "Legend hovering - 1: {}, 2: {}",
+        legend1_hovered,
+        legend2_hovered
+    ));
 
     // Try out converting pixel position to plot position
     if let Some(pos) = hover_pos_from_pixels {

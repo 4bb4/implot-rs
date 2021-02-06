@@ -54,7 +54,7 @@ pub fn init(title: &str) -> System {
         &wgpu::DeviceDescriptor {
             features: wgpu::Features::empty(),
             limits: wgpu::Limits::default(),
-            shader_validation: false,
+            label: None,
         },
         None,
     ))
@@ -62,7 +62,7 @@ pub fn init(title: &str) -> System {
 
     // Set up swap chain
     let sc_desc = wgpu::SwapChainDescriptor {
-        usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+        usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
         format: wgpu::TextureFormat::Bgra8UnormSrgb,
         width: size.width,
         height: size.height,
@@ -217,6 +217,7 @@ impl System {
                             },
                         }],
                         depth_stencil_attachment: None,
+                        label: None,
                     });
 
                     renderer

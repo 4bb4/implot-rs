@@ -2352,7 +2352,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedFloatPtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedFloatPtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const f32,
         count: ::std::os::raw::c_int,
@@ -2364,7 +2364,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadeddoublePtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadeddoublePtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const f64,
         count: ::std::os::raw::c_int,
@@ -2376,7 +2376,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS8PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedS8PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImS8,
         count: ::std::os::raw::c_int,
@@ -2388,7 +2388,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU8PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedU8PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImU8,
         count: ::std::os::raw::c_int,
@@ -2400,7 +2400,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS16PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedS16PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImS16,
         count: ::std::os::raw::c_int,
@@ -2412,7 +2412,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU16PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedU16PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImU16,
         count: ::std::os::raw::c_int,
@@ -2424,7 +2424,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS32PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedS32PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImS32,
         count: ::std::os::raw::c_int,
@@ -2436,7 +2436,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU32PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedU32PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImU32,
         count: ::std::os::raw::c_int,
@@ -2448,7 +2448,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS64PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedS64PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImS64,
         count: ::std::os::raw::c_int,
@@ -2460,7 +2460,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU64PtrIntdoubledoubleInt(
+    pub fn ImPlot_PlotShadedU64PtrInt(
         label_id: *const ::std::os::raw::c_char,
         values: *const ImU64,
         count: ::std::os::raw::c_int,
@@ -2472,7 +2472,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedFloatPtrFloatPtrIntInt(
+    pub fn ImPlot_PlotShadedFloatPtrFloatPtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const f32,
         ys: *const f32,
@@ -2483,7 +2483,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadeddoublePtrdoublePtrIntInt(
+    pub fn ImPlot_PlotShadeddoublePtrdoublePtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const f64,
         ys: *const f64,
@@ -2494,7 +2494,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS8PtrS8PtrIntInt(
+    pub fn ImPlot_PlotShadedS8PtrS8PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImS8,
         ys: *const ImS8,
@@ -2505,7 +2505,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU8PtrU8PtrIntInt(
+    pub fn ImPlot_PlotShadedU8PtrU8PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImU8,
         ys: *const ImU8,
@@ -2516,7 +2516,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS16PtrS16PtrIntInt(
+    pub fn ImPlot_PlotShadedS16PtrS16PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImS16,
         ys: *const ImS16,
@@ -2527,7 +2527,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU16PtrU16PtrIntInt(
+    pub fn ImPlot_PlotShadedU16PtrU16PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImU16,
         ys: *const ImU16,
@@ -2538,7 +2538,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS32PtrS32PtrIntInt(
+    pub fn ImPlot_PlotShadedS32PtrS32PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImS32,
         ys: *const ImS32,
@@ -2549,7 +2549,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU32PtrU32PtrIntInt(
+    pub fn ImPlot_PlotShadedU32PtrU32PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImU32,
         ys: *const ImU32,
@@ -2560,7 +2560,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedS64PtrS64PtrIntInt(
+    pub fn ImPlot_PlotShadedS64PtrS64PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImS64,
         ys: *const ImS64,
@@ -2571,7 +2571,7 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_PlotShadedU64PtrU64PtrIntInt(
+    pub fn ImPlot_PlotShadedU64PtrU64PtrInt(
         label_id: *const ::std::os::raw::c_char,
         xs: *const ImU64,
         ys: *const ImU64,

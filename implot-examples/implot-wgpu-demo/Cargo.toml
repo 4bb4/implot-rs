@@ -7,10 +7,10 @@ edition = "2018"
 [dependencies]
 implot = { path = "../../" }
 
-wgpu = "^0.6.0"
-winit = "0.24" # opening windows and handling input
+wgpu = "=0.6.0"
+winit = "0.23" # opening windows and handling input
 futures = "^0.3.5" # executing async functions using blocking executor
-imgui = "^0.6.0"
-imgui-winit-support = "^0.6.0" # connection of input (keys) to imgui
-imgui-wgpu = "^0.12.0" # imgui backend for drawing using wgpu
+imgui = "=0.6.0"
+imgui-winit-support = "=0.6.0" # connection of input (keys) to imgui
+imgui-wgpu = "=0.12.0" # imgui backend for drawing using wgpu
 examples-shared = { path = "../examples-shared" }

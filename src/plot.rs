@@ -97,10 +97,8 @@ pub struct Plot {
     /// Title of the plot, shown on top. Stored as ImString because that's what we'll use
     /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
     title: ImString,
-    /// Size of the plot in x direction, in the same units imgui uses.
-    size_x: f32,
-    /// Size of the plot in y direction, in the same units imgui uses.
-    size_y: f32,
+    /// Size of the plot in [x, y] direction, in the same units imgui uses.
+    size: [f32; 2],
     /// Label of the x axis, shown on the bottom. Stored as ImString because that's what we'll use
     /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
     x_label: ImString,
@@ -162,8 +160,7 @@ impl Plot {
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
             title: im_str!("{}", title),
-            size_x: DEFAULT_PLOT_SIZE_X,
-            size_y: DEFAULT_PLOT_SIZE_Y,
+            size: [DEFAULT_PLOT_SIZE_X, DEFAULT_PLOT_SIZE_Y],
             x_label: im_str!("").into(),
             y_label: im_str!("").into(),
             x_limits: None,
@@ -186,9 +183,8 @@ impl Plot {
     /// Sets the plot size, given as [size_x, size_y]. Units are the same as
     /// what imgui uses. TODO(4b4) ... which is? I'm not sure it's pixels
     #[inline]
-    pub fn size(mut self, size_x: f32, size_y: f32) -> Self {
-        self.size_x = size_x;
-        self.size_y = size_y;
+    pub fn size(mut self, size: [f32; 2]) -> Self {
+        self.size = size;
         self
     }
 
@@ -427,10 +423,7 @@ impl Plot {
                 self.title.as_ptr(),
                 self.x_label.as_ptr(),
                 self.y_label.as_ptr(),
-                sys::ImVec2 {
-                    x: self.size_x as f32,
-                    y: self.size_y as f32,
-                },
+                self.size.into(),
                 self.plot_flags,
                 self.x_flags,
                 self.y_flags[0],

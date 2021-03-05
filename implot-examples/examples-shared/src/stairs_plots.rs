@@ -12,7 +12,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Simple stairs plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let x_positions = vec![0.1, 0.2, 0.5];

@@ -5,5 +5,5 @@ authors = ["Sandro Merkli"]
 edition = "2018"
 
 [dependencies]
-bindgen = "0.55.1"
+bindgen = "0.57"
 imgui-sys = { version = "=0.6.0" }

@@ -34,8 +34,11 @@ fn main() {
         )
         .parse_callbacks(Box::new(CargoCallbacks))
         .clang_arg("-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS=1")
+        .raw_line("pub use imgui_sys::*;")
+        .whitelist_recursively(false)
         .whitelist_function("ImPlot.*")
         .whitelist_type("ImPlot.*")
+        .whitelist_type("Im[U|S][0-9]{1,2}")
         .generate()
         .expect("Unable to generate bindings");
 

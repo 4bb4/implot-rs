@@ -15,7 +15,6 @@ implot-sys = { version = "0.4.0", path = "implot-sys" }
 imgui = { version = "=0.6.0" }
 bitflags = "1.0"
 parking_lot = "0.11"
-lazy_static = "1.1"
 rustversion = "1.0.4"
 
 

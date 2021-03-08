@@ -3485,25 +3485,6 @@ extern "C" {
     );
 }
 extern "C" {
-    pub fn ImPlot_AnnotateVStr(
-        x: f64,
-        y: f64,
-        pix_offset: ImVec2,
-        fmt: *const ::std::os::raw::c_char,
-        args: *mut __va_list_tag,
-    );
-}
-extern "C" {
-    pub fn ImPlot_AnnotateVVec4(
-        x: f64,
-        y: f64,
-        pix_offset: ImVec2,
-        color: ImVec4,
-        fmt: *const ::std::os::raw::c_char,
-        args: *mut __va_list_tag,
-    );
-}
-extern "C" {
     pub fn ImPlot_AnnotateClampedStr(
         x: f64,
         y: f64,
@@ -3520,25 +3501,6 @@ extern "C" {
         color: ImVec4,
         fmt: *const ::std::os::raw::c_char,
         ...
-    );
-}
-extern "C" {
-    pub fn ImPlot_AnnotateClampedVStr(
-        x: f64,
-        y: f64,
-        pix_offset: ImVec2,
-        fmt: *const ::std::os::raw::c_char,
-        args: *mut __va_list_tag,
-    );
-}
-extern "C" {
-    pub fn ImPlot_AnnotateClampedVVec4(
-        x: f64,
-        y: f64,
-        pix_offset: ImVec2,
-        color: ImVec4,
-        fmt: *const ::std::os::raw::c_char,
-        args: *mut __va_list_tag,
     );
 }
 extern "C" {
@@ -3821,13 +3783,4 @@ extern "C" {
         count: ::std::os::raw::c_int,
         offset: ::std::os::raw::c_int,
     );
-}
-pub type __builtin_va_list = [__va_list_tag; 1usize];
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct __va_list_tag {
-    pub gp_offset: ::std::os::raw::c_uint,
-    pub fp_offset: ::std::os::raw::c_uint,
-    pub overflow_arg_area: *mut ::std::os::raw::c_void,
-    pub reg_save_area: *mut ::std::os::raw::c_void,
 }

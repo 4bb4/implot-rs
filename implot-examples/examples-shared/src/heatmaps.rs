@@ -10,7 +10,7 @@ pub fn show_basic_heatmap(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Heatmap plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             let values = (0..100).map(|x| 0.1 * x as f64).collect::<Vec<_>>();
             PlotHeatmap::new("my favourite heatmap")

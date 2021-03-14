@@ -10,7 +10,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Stem plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let axis_positions = vec![0.2, 0.4, 0.6, 0.8, 0.9, 0.93];

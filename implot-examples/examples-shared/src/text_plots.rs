@@ -12,7 +12,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Simple text plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             // The text passed to "new" is what gets displayed.
             let x_position: f64 = 0.5;

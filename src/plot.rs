@@ -85,7 +85,7 @@ bitflags! {
 /// let plotting_context = implot::Context::create();
 /// let plot_ui = plotting_context.get_plot_ui();
 /// implot::Plot::new("my title")
-///     .size(300.0, 200.0) // other things such as .x_label("some_label") can be added too
+///     .size([300.0, 200.0]) // other things such as .x_label("some_label") can be added too
 ///     .build(&plot_ui, || {
 ///         // Do things such as plotting lines
 ///     });
@@ -419,11 +419,15 @@ impl Plot {
         self.maybe_set_tick_labels();
 
         let should_render = unsafe {
+            let size_vec: ImVec2 = ImVec2 {
+                x: self.size[0],
+                y: self.size[1],
+            };
             sys::ImPlot_BeginPlot(
                 self.title.as_ptr(),
                 self.x_label.as_ptr(),
                 self.y_label.as_ptr(),
-                self.size.into(),
+                size_vec,
                 self.plot_flags,
                 self.x_flags,
                 self.y_flags[0],

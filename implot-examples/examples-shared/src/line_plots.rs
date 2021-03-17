@@ -331,6 +331,23 @@ pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     set_colormap_from_preset(Colormap::Standard, 0);
 }
 
+pub fn show_conversions_plot(ui: &Ui, plot_ui: &PlotUi) {
+    ui.text(im_str!(
+        "This header demonstrates (in code) how to convert various ranges into ImRange"
+    ));
+    let content_width = ui.window_content_region_width();
+    Plot::new("Simple line plot, conversion 1")
+        .size([content_width, 300.0])
+        .x_limits(&ImVec2 { x: 0.0, y: 1.0 }.into(), Condition::Always)
+        .y_limits(&[0.0, 1.0].into(), YAxisChoice::First, Condition::Always)
+        .build(plot_ui, || {
+            // If this is called outside a plot build callback, the program will panic.
+            let x_positions = vec![0.1, 0.9];
+            let y_positions = vec![0.1, 0.9];
+            PlotLine::new("legend label").plot(&x_positions, &y_positions);
+        });
+}
+
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
     if CollapsingHeader::new(im_str!("Line plot: Basic")).build(&ui) {
         show_basic_plot(&ui, &plot_ui);
@@ -352,5 +369,8 @@ pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
     }
     if CollapsingHeader::new(im_str!("Line plot: \"Axis equal\"")).build(&ui) {
         show_axis_equal_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Range conversions")).build(&ui) {
+        show_conversions_plot(&ui, &plot_ui);
     }
 }

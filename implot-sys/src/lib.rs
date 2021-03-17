@@ -36,6 +36,15 @@ impl From<(f64, f64)> for ImPlotRange {
     }
 }
 
+impl From<ImVec2> for ImPlotRange {
+    fn from(from: ImVec2) -> Self {
+        ImPlotRange {
+            Min: from.x as f64,
+            Max: from.y as f64,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

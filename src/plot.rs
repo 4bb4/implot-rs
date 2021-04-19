@@ -204,25 +204,47 @@ impl Plot {
 
     /// Set the x limits of the plot
     #[inline]
-    pub fn x_limits(mut self, limits: &ImPlotRange, condition: Condition) -> Self {
-        self.x_limits = Some(*limits);
+    pub fn x_limits<L: Into<ImPlotRange>>(mut self, limits: L, condition: Condition) -> Self {
+        self.x_limits = Some(limits.into());
         self.x_limit_condition = Some(condition);
         self
     }
 
-    /// Set the Y limits of the plot for the given Y axis. Call multiple times
-    /// to set for multiple axes.
+    /// Set the Y limits of the plot for the given Y axis. Call multiple times with different
+    /// `y_axis_choice` values to set for multiple axes, or use the convenience methods such as
+    /// [`Plot::y1_limits`].
     #[inline]
-    pub fn y_limits(
+    pub fn y_limits<L: Into<ImPlotRange>>(
         mut self,
-        limits: &ImPlotRange,
+        limits: L,
         y_axis_choice: YAxisChoice,
         condition: Condition,
     ) -> Self {
         let axis_index = y_axis_choice as usize;
-        self.y_limits[axis_index] = Some(*limits);
+        self.y_limits[axis_index] = Some(limits.into());
         self.y_limit_condition[axis_index] = Some(condition);
         self
+    }
+
+    /// Convenience function to directly set the Y limits for the first Y axis. To programmatically
+    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y1_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::First, condition)
+    }
+
+    /// Convenience function to directly set the Y limits for the second Y axis. To
+    /// programmatically (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y2_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::Second, condition)
+    }
+
+    /// Convenience function to directly set the Y limits for the third Y axis. To programmatically
+    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y3_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::Third, condition)
     }
 
     /// Set X ticks without labels for the plot. The vector contains one label each in
@@ -352,7 +374,7 @@ impl Plot {
     /// "set next plot ticks" wrapper functions for both X and Y.
     fn maybe_set_tick_labels(&self) {
         // Show x ticks if they are available
-        if self.x_tick_positions.is_some() && self.x_tick_positions.as_ref().unwrap().len() > 0 {
+        if self.x_tick_positions.is_some() && !self.x_tick_positions.as_ref().unwrap().is_empty() {
             let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
             let labels_pointer = if let Some(labels_value) = &self.x_tick_labels {
                 pointer_vec = labels_value
@@ -380,7 +402,7 @@ impl Plot {
             .zip(self.show_y_default_ticks.iter())
             .enumerate()
             .for_each(|(k, ((positions, labels), show_defaults))| {
-                if positions.is_some() && positions.as_ref().unwrap().len() > 0 {
+                if positions.is_some() && !positions.as_ref().unwrap().is_empty() {
                     // The vector of pointers we create has to have a longer lifetime
                     let mut pointer_vec;
                     let labels_pointer = if let Some(labels_value) = &labels {

@@ -39,12 +39,13 @@ pub fn show_two_yaxis_plot(ui: &Ui, plot_ui: &PlotUi) {
         .size([content_width, 300.0])
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::Y_AXIS_2))
         .y_limits(
-            &ImPlotRange { Min: 0.0, Max: 1.0 },
+            ImPlotRange { Min: 0.0, Max: 1.0 },
             YAxisChoice::First,
             Condition::Always,
         )
         .y_limits(
-            &ImPlotRange { Min: 1.0, Max: 3.5 },
+            // One can also use [f32; 2], (f32, f32) and ImVec2 for limit setting
+            [1.0, 3.5],
             YAxisChoice::Second,
             Condition::Always,
         )
@@ -114,7 +115,7 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
         .x_label(&x_label)
         .y_label(&y_label)
         .x_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: x_min,
                 Max: x_max,
             },
@@ -125,7 +126,7 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
             Condition::Always,
         )
         .y_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: y_min,
                 Max: y_max,
             },
@@ -162,9 +163,9 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
     // Draw a plot
     Plot::new("Plot querying")
         .size([content_width, 300.0])
-        .x_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
+        .x_limits(ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
         .y_limits(
-            &ImPlotRange { Min: 0.0, Max: 5.0 },
+            ImPlotRange { Min: 0.0, Max: 5.0 },
             YAxisChoice::First,
             Condition::FirstUseEver,
         )
@@ -247,9 +248,9 @@ pub fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
     let style = push_style_color(&PlotColorElement::PlotBg, 1.0, 1.0, 1.0, 0.2);
     Plot::new("Style demo plot")
         .size([content_width, 300.0])
-        .x_limits(&ImPlotRange { Min: 0.0, Max: 6.0 }, Condition::Always)
+        .x_limits(ImPlotRange { Min: 0.0, Max: 6.0 }, Condition::Always)
         .y_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: -1.0,
                 Max: 3.0,
             },
@@ -338,8 +339,8 @@ pub fn show_conversions_plot(ui: &Ui, plot_ui: &PlotUi) {
     let content_width = ui.window_content_region_width();
     Plot::new("Simple line plot, conversion 1")
         .size([content_width, 300.0])
-        .x_limits(&ImVec2 { x: 0.0, y: 1.0 }.into(), Condition::Always)
-        .y_limits(&[0.0, 1.0].into(), YAxisChoice::First, Condition::Always)
+        .x_limits(ImVec2 { x: 0.0, y: 1.0 }, Condition::Always)
+        .y_limits([0.0, 1.0], YAxisChoice::First, Condition::Always)
         .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let x_positions = vec![0.1, 0.9];

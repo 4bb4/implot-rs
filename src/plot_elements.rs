@@ -222,7 +222,7 @@ impl PlotText {
     /// closures passed to [`Plot::build()`](struct.Plot.html#method.build)
     pub fn plot(&self, x: f64, y: f64, vertical: bool) {
         // If there is nothing to show, don't do anything
-        if self.label == "" {
+        if self.label.is_empty() {
             return;
         }
 

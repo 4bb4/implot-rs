@@ -4,7 +4,7 @@
 
 // just for linking for tests
 #[cfg(test)]
-use imgui_sys as _;
+use imgui_sys;
 
 use std::ops::Range;
 include!("bindings.rs");
@@ -65,5 +65,10 @@ mod tests {
         let im_range: ImPlotRange = tuple.clone().into();
         assert_eq!(im_range.Min, tuple.0);
         assert_eq!(im_range.Max, tuple.1);
+
+        let imvec = imgui_sys::ImVec2::new(33.0, 55.0);
+        let im_range: ImPlotRange = imvec.clone().into();
+        assert_eq!(im_range.Min, imvec.x as f64);
+        assert_eq!(im_range.Max, imvec.y as f64);
     }
 }

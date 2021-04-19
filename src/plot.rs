@@ -181,7 +181,7 @@ impl Plot {
     }
 
     /// Sets the plot size, given as [size_x, size_y]. Units are the same as
-    /// what imgui uses. TODO(4b4) ... which is? I'm not sure it's pixels
+    /// what imgui uses. TODO(4bb4) ... which is? I'm not sure it's pixels
     #[inline]
     pub fn size(mut self, size: [f32; 2]) -> Self {
         self.size = size;

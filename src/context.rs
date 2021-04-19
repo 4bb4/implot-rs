@@ -20,6 +20,7 @@ pub struct Context {
 // This mutex is used to guard any accesses to the context
 static CTX_MUTEX: ReentrantMutex<()> = parking_lot::const_reentrant_mutex(());
 
+/// Check if there is no current context defined by calling into the C++ API
 fn no_current_context() -> bool {
     let ctx = unsafe { sys::ImPlot_GetCurrentContext() };
     ctx.is_null()

@@ -50,22 +50,15 @@ pub fn init(title: &str) -> System {
     }))
     .unwrap();
 
-    let (device, queue) = block_on(adapter.request_device(
-        &wgpu::DeviceDescriptor {
-            features: wgpu::Features::empty(),
-            limits: wgpu::Limits::default(),
-            label: None,
-        },
-        None,
-    ))
-    .unwrap();
+    let (device, queue) =
+        block_on(adapter.request_device(&wgpu::DeviceDescriptor::default(), None)).unwrap();
 
     // Set up swap chain
     let sc_desc = wgpu::SwapChainDescriptor {
         usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
         format: wgpu::TextureFormat::Bgra8UnormSrgb,
-        width: size.width,
-        height: size.height,
+        width: size.width as u32,
+        height: size.height as u32,
         present_mode: wgpu::PresentMode::Mailbox,
     };
 
@@ -154,12 +147,14 @@ impl System {
                     let _hidpi_factor = scale_factor;
                 }
                 Event::WindowEvent {
-                    event: WindowEvent::Resized(size),
+                    event: WindowEvent::Resized(_),
                     ..
                 } => {
+                    let size = window.inner_size();
+
                     // Recreate the swap chain with the new size
-                    sc_desc.width = size.width;
-                    sc_desc.height = size.height;
+                    sc_desc.width = size.width as u32;
+                    sc_desc.height = size.height as u32;
                     swap_chain = device.create_swap_chain(&surface, &sc_desc);
                 }
                 Event::WindowEvent {
@@ -202,6 +197,7 @@ impl System {
                     }
 
                     let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                        label: None,
                         color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                             attachment: &frame.output.view,
                             resolve_target: None,
@@ -217,14 +213,13 @@ impl System {
                             },
                         }],
                         depth_stencil_attachment: None,
-                        label: None,
                     });
 
                     renderer
                         .render(ui.render(), &queue, &device, &mut rpass)
                         .expect("Rendering failed");
 
-                    drop(rpass); // renders to screen on drop, will probaly be changed in wgpu 0.7 or later
+                    drop(rpass);
 
                     queue.submit(Some(encoder.finish()));
                 }

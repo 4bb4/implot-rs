@@ -85,7 +85,7 @@ bitflags! {
 /// let plotting_context = implot::Context::create();
 /// let plot_ui = plotting_context.get_plot_ui();
 /// implot::Plot::new("my title")
-///     .size(300.0, 200.0) // other things such as .x_label("some_label") can be added too
+///     .size([300.0, 200.0]) // other things such as .x_label("some_label") can be added too
 ///     .build(&plot_ui, || {
 ///         // Do things such as plotting lines
 ///     });
@@ -97,10 +97,8 @@ pub struct Plot {
     /// Title of the plot, shown on top. Stored as ImString because that's what we'll use
     /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
     title: ImString,
-    /// Size of the plot in x direction, in the same units imgui uses.
-    size_x: f32,
-    /// Size of the plot in y direction, in the same units imgui uses.
-    size_y: f32,
+    /// Size of the plot in [x, y] direction, in the same units imgui uses.
+    size: [f32; 2],
     /// Label of the x axis, shown on the bottom. Stored as ImString because that's what we'll use
     /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
     x_label: ImString,
@@ -162,8 +160,7 @@ impl Plot {
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
             title: im_str!("{}", title),
-            size_x: DEFAULT_PLOT_SIZE_X,
-            size_y: DEFAULT_PLOT_SIZE_Y,
+            size: [DEFAULT_PLOT_SIZE_X, DEFAULT_PLOT_SIZE_Y],
             x_label: im_str!("").into(),
             y_label: im_str!("").into(),
             x_limits: None,
@@ -184,11 +181,10 @@ impl Plot {
     }
 
     /// Sets the plot size, given as [size_x, size_y]. Units are the same as
-    /// what imgui uses. TODO(4b4) ... which is? I'm not sure it's pixels
+    /// what imgui uses. TODO(4bb4) ... which is? I'm not sure it's pixels
     #[inline]
-    pub fn size(mut self, size_x: f32, size_y: f32) -> Self {
-        self.size_x = size_x;
-        self.size_y = size_y;
+    pub fn size(mut self, size: [f32; 2]) -> Self {
+        self.size = size;
         self
     }
 
@@ -208,25 +204,47 @@ impl Plot {
 
     /// Set the x limits of the plot
     #[inline]
-    pub fn x_limits(mut self, limits: &ImPlotRange, condition: Condition) -> Self {
-        self.x_limits = Some(*limits);
+    pub fn x_limits<L: Into<ImPlotRange>>(mut self, limits: L, condition: Condition) -> Self {
+        self.x_limits = Some(limits.into());
         self.x_limit_condition = Some(condition);
         self
     }
 
-    /// Set the Y limits of the plot for the given Y axis. Call multiple times
-    /// to set for multiple axes.
+    /// Set the Y limits of the plot for the given Y axis. Call multiple times with different
+    /// `y_axis_choice` values to set for multiple axes, or use the convenience methods such as
+    /// [`Plot::y1_limits`].
     #[inline]
-    pub fn y_limits(
+    pub fn y_limits<L: Into<ImPlotRange>>(
         mut self,
-        limits: &ImPlotRange,
+        limits: L,
         y_axis_choice: YAxisChoice,
         condition: Condition,
     ) -> Self {
         let axis_index = y_axis_choice as usize;
-        self.y_limits[axis_index] = Some(*limits);
+        self.y_limits[axis_index] = Some(limits.into());
         self.y_limit_condition[axis_index] = Some(condition);
         self
+    }
+
+    /// Convenience function to directly set the Y limits for the first Y axis. To programmatically
+    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y1_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::First, condition)
+    }
+
+    /// Convenience function to directly set the Y limits for the second Y axis. To
+    /// programmatically (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y2_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::Second, condition)
+    }
+
+    /// Convenience function to directly set the Y limits for the third Y axis. To programmatically
+    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    #[inline]
+    pub fn y3_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
+        self.y_limits(limits, YAxisChoice::Third, condition)
     }
 
     /// Set X ticks without labels for the plot. The vector contains one label each in
@@ -356,7 +374,7 @@ impl Plot {
     /// "set next plot ticks" wrapper functions for both X and Y.
     fn maybe_set_tick_labels(&self) {
         // Show x ticks if they are available
-        if self.x_tick_positions.is_some() && self.x_tick_positions.as_ref().unwrap().len() > 0 {
+        if self.x_tick_positions.is_some() && !self.x_tick_positions.as_ref().unwrap().is_empty() {
             let mut pointer_vec; // The vector of pointers we create has to have a longer lifetime
             let labels_pointer = if let Some(labels_value) = &self.x_tick_labels {
                 pointer_vec = labels_value
@@ -384,7 +402,7 @@ impl Plot {
             .zip(self.show_y_default_ticks.iter())
             .enumerate()
             .for_each(|(k, ((positions, labels), show_defaults))| {
-                if positions.is_some() && positions.as_ref().unwrap().len() > 0 {
+                if positions.is_some() && !positions.as_ref().unwrap().is_empty() {
                     // The vector of pointers we create has to have a longer lifetime
                     let mut pointer_vec;
                     let labels_pointer = if let Some(labels_value) = &labels {
@@ -423,14 +441,15 @@ impl Plot {
         self.maybe_set_tick_labels();
 
         let should_render = unsafe {
+            let size_vec: ImVec2 = ImVec2 {
+                x: self.size[0],
+                y: self.size[1],
+            };
             sys::ImPlot_BeginPlot(
                 self.title.as_ptr(),
                 self.x_label.as_ptr(),
                 self.y_label.as_ptr(),
-                sys::ImVec2 {
-                    x: self.size_x as f32,
-                    y: self.size_y as f32,
-                },
+                size_vec,
                 self.plot_flags,
                 self.x_flags,
                 self.y_flags[0],

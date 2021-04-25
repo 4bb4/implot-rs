@@ -671,12 +671,11 @@ dependencies = [
 
 [[package]]
 name = "implot"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "bitflags",
  "imgui",
  "implot-sys",
- "lazy_static",
  "parking_lot",
  "rustversion",
 ]
@@ -699,7 +698,7 @@ dependencies = [
 
 [[package]]
 name = "implot-sys"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "cc",
  "imgui-sys",

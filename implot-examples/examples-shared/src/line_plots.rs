@@ -19,7 +19,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Simple line plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
             let x_positions = vec![0.1, 0.9];
@@ -36,15 +36,16 @@ pub fn show_two_yaxis_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Multiple Y axis plots")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::Y_AXIS_2))
         .y_limits(
-            &ImPlotRange { Min: 0.0, Max: 1.0 },
+            ImPlotRange { Min: 0.0, Max: 1.0 },
             YAxisChoice::First,
             Condition::Always,
         )
         .y_limits(
-            &ImPlotRange { Min: 1.0, Max: 3.5 },
+            // One can also use [f32; 2], (f32, f32) and ImVec2 for limit setting
+            [1.0, 3.5],
             YAxisChoice::Second,
             Condition::Always,
         )
@@ -68,7 +69,7 @@ pub fn show_axis_equal_plot(ui: &Ui, plot_ui: &PlotUi) {
     Plot::new("Axis equal line plot")
         // The size call could also be omitted, though the defaults don't consider window
         // width, which is why we're not doing so here.
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .with_plot_flags(&(PlotFlags::NONE | PlotFlags::AXIS_EQUAL))
         .build(plot_ui, || {
             // If this is called outside a plot build callback, the program will panic.
@@ -110,11 +111,11 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
 
     // Axis labels
     Plot::new("Configured line plot")
-        .size(x_size, y_size)
+        .size([x_size, y_size])
         .x_label(&x_label)
         .y_label(&y_label)
         .x_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: x_min,
                 Max: x_max,
             },
@@ -125,7 +126,7 @@ pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
             Condition::Always,
         )
         .y_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: y_min,
                 Max: y_max,
             },
@@ -161,10 +162,10 @@ pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
 
     // Draw a plot
     Plot::new("Plot querying")
-        .size(content_width, 300.0)
-        .x_limits(&ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
+        .size([content_width, 300.0])
+        .x_limits(ImPlotRange { Min: 0.0, Max: 5.0 }, Condition::FirstUseEver)
         .y_limits(
-            &ImPlotRange { Min: 0.0, Max: 5.0 },
+            ImPlotRange { Min: 0.0, Max: 5.0 },
             YAxisChoice::First,
             Condition::FirstUseEver,
         )
@@ -246,10 +247,10 @@ pub fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
     // variables can be done outside of plot calls as well.
     let style = push_style_color(&PlotColorElement::PlotBg, 1.0, 1.0, 1.0, 0.2);
     Plot::new("Style demo plot")
-        .size(content_width, 300.0)
-        .x_limits(&ImPlotRange { Min: 0.0, Max: 6.0 }, Condition::Always)
+        .size([content_width, 300.0])
+        .x_limits(ImPlotRange { Min: 0.0, Max: 6.0 }, Condition::Always)
         .y_limits(
-            &ImPlotRange {
+            ImPlotRange {
                 Min: -1.0,
                 Max: 3.0,
             },
@@ -291,7 +292,7 @@ pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     set_colormap_from_preset(Colormap::Plasma, 1);
 
     Plot::new("Colormap demo plot")
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             (1..10)
                 .map(|x| x as f64 * 0.1)
@@ -318,7 +319,7 @@ pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     ]);
 
     Plot::new("Colormap demo plot #2")
-        .size(content_width, 300.0)
+        .size([content_width, 300.0])
         .build(plot_ui, || {
             (1..10)
                 .map(|x| x as f64 * 0.1)
@@ -329,6 +330,23 @@ pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
     // Colormaps are not pushed, they are simply set, because they don't stack or anything.
     // We can reset to the default by just setting the "Standard" preset.
     set_colormap_from_preset(Colormap::Standard, 0);
+}
+
+pub fn show_conversions_plot(ui: &Ui, plot_ui: &PlotUi) {
+    ui.text(im_str!(
+        "This header demonstrates (in code) how to convert various ranges into ImRange"
+    ));
+    let content_width = ui.window_content_region_width();
+    Plot::new("Simple line plot, conversion 1")
+        .size([content_width, 300.0])
+        .x_limits(ImVec2 { x: 0.0, y: 1.0 }, Condition::Always)
+        .y_limits([0.0, 1.0], YAxisChoice::First, Condition::Always)
+        .build(plot_ui, || {
+            // If this is called outside a plot build callback, the program will panic.
+            let x_positions = vec![0.1, 0.9];
+            let y_positions = vec![0.1, 0.9];
+            PlotLine::new("legend label").plot(&x_positions, &y_positions);
+        });
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
@@ -352,5 +370,8 @@ pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
     }
     if CollapsingHeader::new(im_str!("Line plot: \"Axis equal\"")).build(&ui) {
         show_axis_equal_plot(&ui, &plot_ui);
+    }
+    if CollapsingHeader::new(im_str!("Line plot: Range conversions")).build(&ui) {
+        show_conversions_plot(&ui, &plot_ui);
     }
 }

@@ -1,4 +1,3 @@
-
 use imgui::{im_str, Condition, Window};
 use implot::Context;
 
@@ -9,6 +8,7 @@ fn main() {
     let system = support::init(file!());
     let mut showing_demo = false;
     let mut showing_rust_demo = true;
+    let mut demo_state = examples_shared::DemoState::new();
     let plotcontext = Context::create();
     system.main_loop(move |_, ui| {
         // The context is moved into the closure after creation so plot_ui is valid.
@@ -19,7 +19,7 @@ fn main() {
         }
 
         if showing_rust_demo {
-            examples_shared::show_demos(ui, &plot_ui);
+            demo_state.show_demos(ui, &plot_ui);
         }
 
         Window::new(im_str!("Welcome to the ImPlot-rs demo!"))

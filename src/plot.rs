@@ -7,6 +7,7 @@ use bitflags::bitflags;
 pub use imgui::Condition;
 use imgui::{im_str, ImString};
 use implot_sys as sys;
+use std::{cell::RefCell, rc::Rc};
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
@@ -77,6 +78,15 @@ bitflags! {
     }
 }
 
+/// Internally-used struct for storing axis limits
+#[derive(Clone)]
+enum AxisLimitSpecification {
+    /// Direct limits, specified as values
+    Single(ImPlotRange, Condition),
+    /// Limits that are linked to limits of other plots (via clones of the same Rc)
+    Linked(Rc<RefCell<ImPlotRange>>),
+}
+
 /// Struct to represent an ImPlot. This is the main construct used to contain all kinds of plots in ImPlot.
 ///
 /// `Plot` is to be used (within an imgui window) with the following pattern:
@@ -106,13 +116,9 @@ pub struct Plot {
     /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
     y_label: ImString,
     /// X axis limits, if present
-    x_limits: Option<ImPlotRange>,
+    x_limits: Option<AxisLimitSpecification>,
     /// Y axis limits, if present
-    y_limits: [Option<ImPlotRange>; NUMBER_OF_Y_AXES],
-    /// Condition on which the x limits are set
-    x_limit_condition: Option<Condition>,
-    /// Condition on which the y limits are set for each of the axes
-    y_limit_condition: [Option<Condition>; NUMBER_OF_Y_AXES],
+    y_limits: [Option<AxisLimitSpecification>; NUMBER_OF_Y_AXES],
     /// Positions for custom X axis ticks, if any
     x_tick_positions: Option<Vec<f64>>,
     /// Labels for custom X axis ticks, if any. I'd prefer to store these together
@@ -164,9 +170,7 @@ impl Plot {
             x_label: im_str!("").into(),
             y_label: im_str!("").into(),
             x_limits: None,
-            y_limits: [None; NUMBER_OF_Y_AXES],
-            x_limit_condition: None,
-            y_limit_condition: [None; NUMBER_OF_Y_AXES],
+            y_limits: Default::default(),
             x_tick_positions: None,
             x_tick_labels: None,
             show_x_default_ticks: false,
@@ -202,17 +206,33 @@ impl Plot {
         self
     }
 
-    /// Set the x limits of the plot
+    /// Set the x limits of the plot.
+    ///
+    /// Note: This conflicts with `linked_x_limits`, whichever is called last on plot construction
+    /// takes effect.
     #[inline]
     pub fn x_limits<L: Into<ImPlotRange>>(mut self, limits: L, condition: Condition) -> Self {
-        self.x_limits = Some(limits.into());
-        self.x_limit_condition = Some(condition);
+        self.x_limits = Some(AxisLimitSpecification::Single(limits.into(), condition));
+        self
+    }
+
+    /// Set linked x limits for this plot. Pass clones of the same `Rc` into other plots
+    /// to link their limits with the same values.
+    ///
+    /// Note: This conflicts with `x_limits`, whichever is called last on plot construction takes
+    /// effect.
+    #[inline]
+    pub fn linked_x_limits(mut self, limits: Rc<RefCell<ImPlotRange>>) -> Self {
+        self.x_limits = Some(AxisLimitSpecification::Linked(limits));
         self
     }
 
     /// Set the Y limits of the plot for the given Y axis. Call multiple times with different
     /// `y_axis_choice` values to set for multiple axes, or use the convenience methods such as
     /// [`Plot::y1_limits`].
+    ///
+    /// Note: This conflicts with `linked_y_limits`, whichever is called last on plot construction
+    /// takes effect for a given axis.
     #[inline]
     pub fn y_limits<L: Into<ImPlotRange>>(
         mut self,
@@ -221,30 +241,71 @@ impl Plot {
         condition: Condition,
     ) -> Self {
         let axis_index = y_axis_choice as usize;
-        self.y_limits[axis_index] = Some(limits.into());
-        self.y_limit_condition[axis_index] = Some(condition);
+        self.y_limits[axis_index] = Some(AxisLimitSpecification::Single(limits.into(), condition));
         self
     }
 
     /// Convenience function to directly set the Y limits for the first Y axis. To programmatically
-    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    /// (or on demand) decide which axis to set limits for, use [`Plot::y_limits`]
     #[inline]
     pub fn y1_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
         self.y_limits(limits, YAxisChoice::First, condition)
     }
 
     /// Convenience function to directly set the Y limits for the second Y axis. To
-    /// programmatically (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    /// programmatically (or on demand) decide which axis to set limits for, use [`Plot::y_limits`]
     #[inline]
     pub fn y2_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
         self.y_limits(limits, YAxisChoice::Second, condition)
     }
 
     /// Convenience function to directly set the Y limits for the third Y axis. To programmatically
-    /// (or on demand) decide which axie to set limits for, use [`Plot::y_limits`]
+    /// (or on demand) decide which axis to set limits for, use [`Plot::y_limits`]
     #[inline]
     pub fn y3_limits<L: Into<ImPlotRange>>(self, limits: L, condition: Condition) -> Self {
         self.y_limits(limits, YAxisChoice::Third, condition)
+    }
+
+    /// Set linked Y limits of the plot for the given Y axis. Pass clones of the same `Rc` into
+    /// other plots to link their limits with the same values. Call multiple times with different
+    /// `y_axis_choice` values to set for multiple axes, or use the convenience methods such as
+    /// [`Plot::y1_limits`].
+    ///
+    /// Note: This conflicts with `y_limits`, whichever is called last on plot construction takes
+    /// effect for a given axis.
+    #[inline]
+    pub fn linked_y_limits(
+        mut self,
+        limits: Rc<RefCell<ImPlotRange>>,
+        y_axis_choice: YAxisChoice,
+    ) -> Self {
+        let axis_index = y_axis_choice as usize;
+        self.y_limits[axis_index] = Some(AxisLimitSpecification::Linked(limits));
+        self
+    }
+
+    /// Convenience function to directly set linked Y limits for the first Y axis. To
+    /// programmatically (or on demand) decide which axis to set limits for, use
+    /// [`Plot::linked_y_limits`].
+    #[inline]
+    pub fn linked_y1_limits(self, limits: Rc<RefCell<ImPlotRange>>) -> Self {
+        self.linked_y_limits(limits, YAxisChoice::First)
+    }
+
+    /// Convenience function to directly set linked Y limits for the second Y axis. To
+    /// programmatically (or on demand) decide which axis to set limits for, use
+    /// [`Plot::linked_y_limits`].
+    #[inline]
+    pub fn linked_y2_limits(self, limits: Rc<RefCell<ImPlotRange>>) -> Self {
+        self.linked_y_limits(limits, YAxisChoice::Second)
+    }
+
+    /// Convenience function to directly set linked Y limits for the third Y axis. To
+    /// programmatically (or on demand) decide which axis to set limits for, use
+    /// [`Plot::linked_y_limits`].
+    #[inline]
+    pub fn linked_y3_limits(self, limits: Rc<RefCell<ImPlotRange>>) -> Self {
+        self.linked_y_limits(limits, YAxisChoice::Third)
     }
 
     /// Set X ticks without labels for the plot. The vector contains one label each in
@@ -343,20 +404,27 @@ impl Plot {
 
     /// Internal helper function to set axis limits in case they are specified.
     fn maybe_set_axis_limits(&self) {
-        // Set X limits if specified
-        if let (Some(limits), Some(condition)) = (self.x_limits, self.x_limit_condition) {
+        // Limit-setting can either happen via direct limits or through linked limits. The version
+        // of implot we link to here has different APIs for the two (separate per-axis calls for
+        // direct, and one call for everything together for linked), hence the code here is a bit
+        // clunky and takes the two approaches separately instead of a unified "match".
+
+        // --- Direct limit-setting ---
+        if let Some(AxisLimitSpecification::Single(limits, condition)) = &self.x_limits {
             unsafe {
-                sys::ImPlot_SetNextPlotLimitsX(limits.Min, limits.Max, condition as sys::ImGuiCond);
+                sys::ImPlot_SetNextPlotLimitsX(
+                    limits.Min,
+                    limits.Max,
+                    *condition as sys::ImGuiCond,
+                );
             }
         }
 
-        // Set Y limits if specified
         self.y_limits
             .iter()
-            .zip(self.y_limit_condition.iter())
             .enumerate()
-            .for_each(|(k, (limits, condition))| {
-                if let (Some(limits), Some(condition)) = (limits, condition) {
+            .for_each(|(k, limit_spec)| {
+                if let Some(AxisLimitSpecification::Single(limits, condition)) = limit_spec {
                     unsafe {
                         sys::ImPlot_SetNextPlotLimitsY(
                             limits.Min,
@@ -367,6 +435,50 @@ impl Plot {
                     }
                 }
             });
+
+        // --- Linked limit-setting ---
+        let (xmin_pointer, xmax_pointer) =
+            if let Some(AxisLimitSpecification::Linked(value)) = &self.x_limits {
+                let mut borrowed = value.borrow_mut();
+                (
+                    &mut (*borrowed).Min as *mut _,
+                    &mut (*borrowed).Max as *mut _,
+                )
+            } else {
+                (std::ptr::null_mut(), std::ptr::null_mut())
+            };
+
+        let y_limit_pointers: Vec<(*mut f64, *mut f64)> = self
+            .y_limits
+            .iter()
+            .map(|limit_spec| {
+                if let Some(AxisLimitSpecification::Linked(value)) = limit_spec {
+                    let mut borrowed = value.borrow_mut();
+                    (
+                        &mut (*borrowed).Min as *mut _,
+                        &mut (*borrowed).Max as *mut _,
+                    )
+                } else {
+                    (std::ptr::null_mut(), std::ptr::null_mut())
+                }
+            })
+            .collect();
+
+        unsafe {
+            // Calling this unconditionally here as calling it with all NULL pointers should not
+            // affect anything. In terms of unsafety, the pointers should be OK as long as any plot
+            // struct that has an Rc to the same data is alive.
+            sys::ImPlot_LinkNextPlotLimits(
+                xmin_pointer,
+                xmax_pointer,
+                y_limit_pointers[0].0,
+                y_limit_pointers[0].1,
+                y_limit_pointers[1].0,
+                y_limit_pointers[1].1,
+                y_limit_pointers[2].0,
+                y_limit_pointers[2].1,
+            )
+        }
     }
 
     /// Internal helper function to set tick labels in case they are specified. This does the

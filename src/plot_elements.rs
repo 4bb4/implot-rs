@@ -5,6 +5,7 @@
 //! see `plot`.
 use crate::sys;
 use imgui::{im_str, ImString};
+use std::os::raw::c_char;
 
 pub use crate::sys::ImPlotPoint;
 
@@ -31,7 +32,7 @@ impl PlotLine {
         }
         unsafe {
             sys::ImPlot_PlotLinedoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -65,7 +66,7 @@ impl PlotStairs {
         }
         unsafe {
             sys::ImPlot_PlotStairsdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -99,7 +100,7 @@ impl PlotScatter {
         }
         unsafe {
             sys::ImPlot_PlotScatterdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -163,18 +164,18 @@ impl PlotBars {
             let (plot_function, x, y);
             if self.horizontal_bars {
                 plot_function = sys::ImPlot_PlotBarsHdoublePtrdoublePtr
-                    as unsafe extern "C" fn(*const i8, *const f64, *const f64, i32, f64, i32, i32);
+                    as unsafe extern "C" fn(*const c_char, *const f64, *const f64, i32, f64, i32, i32);
                 x = bar_values;
                 y = axis_positions;
             } else {
                 plot_function = sys::ImPlot_PlotBarsdoublePtrdoublePtr
-                    as unsafe extern "C" fn(*const i8, *const f64, *const f64, i32, f64, i32, i32);
+                    as unsafe extern "C" fn(*const c_char, *const f64, *const f64, i32, f64, i32, i32);
                 x = axis_positions;
                 y = bar_values;
             };
 
             plot_function(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 number_of_points as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -228,7 +229,7 @@ impl PlotText {
 
         unsafe {
             sys::ImPlot_PlotText(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 x,
                 y,
                 vertical,
@@ -313,7 +314,7 @@ impl PlotHeatmap {
 
         unsafe {
             sys::ImPlot_PlotHeatmapdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 values.as_ptr(),
                 number_of_rows as i32, // Not sure why C++ code uses a signed value here
                 number_of_cols as i32, // Not sure why C++ code uses a signed value here
@@ -322,7 +323,7 @@ impl PlotHeatmap {
                 // "no label" is taken as null pointer in the C++ code, but we're using
                 // option types in the Rust bindings because they are more idiomatic.
                 if self.label_format.is_some() {
-                    self.label_format.as_ref().unwrap().as_ptr() as *const i8
+                    self.label_format.as_ref().unwrap().as_ptr() as *const c_char
                 } else {
                     std::ptr::null()
                 },
@@ -369,7 +370,7 @@ impl PlotStems {
         }
         unsafe {
             sys::ImPlot_PlotStemsdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const i8,
+                im_str!("{}", self.label).as_ptr() as *const c_char,
                 axis_positions.as_ptr(),
                 stem_values.as_ptr(),
                 number_of_points as i32, // "as" casts saturate as of Rust 1.45. This is safe here.

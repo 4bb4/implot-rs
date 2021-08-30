@@ -8,6 +8,7 @@ pub use imgui::Condition;
 use imgui::{im_str, ImString};
 use implot_sys as sys;
 use std::{cell::RefCell, rc::Rc};
+use std::os::raw::c_char;
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
@@ -491,8 +492,8 @@ impl Plot {
             let labels_pointer = if let Some(labels_value) = &self.x_tick_labels {
                 pointer_vec = labels_value
                     .iter()
-                    .map(|x| x.as_ptr() as *const i8)
-                    .collect::<Vec<*const i8>>();
+                    .map(|x| x.as_ptr() as *const c_char)
+                    .collect::<Vec<*const c_char>>();
                 pointer_vec.as_mut_ptr()
             } else {
                 std::ptr::null_mut()
@@ -520,8 +521,8 @@ impl Plot {
                     let labels_pointer = if let Some(labels_value) = &labels {
                         pointer_vec = labels_value
                             .iter()
-                            .map(|x| x.as_ptr() as *const i8)
-                            .collect::<Vec<*const i8>>();
+                            .map(|x| x.as_ptr() as *const c_char)
+                            .collect::<Vec<*const c_char>>();
                         pointer_vec.as_mut_ptr()
                     } else {
                         std::ptr::null_mut()

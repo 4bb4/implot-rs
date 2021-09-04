@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased 
+### General notes
+* Updated imgui-rs dependency to 0.7
+* Examples: updated wgpu dependency to 0.10 and imgui-wgpu to 0.17
 
 ## v0.5.0
 ### General notes

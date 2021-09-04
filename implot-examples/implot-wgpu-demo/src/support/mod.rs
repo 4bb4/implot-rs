@@ -17,8 +17,7 @@ pub struct System {
     pub platform: WinitPlatform,
     pub font_size: f32,
     pub hidpi_factor: f64,
-    pub sc_desc: wgpu::SwapChainDescriptor,
-    pub swap_chain: wgpu::SwapChain,
+    pub surface_conf: wgpu::SurfaceConfiguration,
     pub window: Window,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
@@ -28,7 +27,7 @@ pub struct System {
 pub fn init(title: &str) -> System {
     // Set up window and GPU
     let event_loop = EventLoop::new();
-    let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
+    let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
 
     let (window, size, surface) = {
         let window = Window::new(&event_loop).unwrap();
@@ -54,15 +53,15 @@ pub fn init(title: &str) -> System {
         block_on(adapter.request_device(&wgpu::DeviceDescriptor::default(), None)).unwrap();
 
     // Set up swap chain
-    let sc_desc = wgpu::SwapChainDescriptor {
-        usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
+    let surface_conf = wgpu::SurfaceConfiguration {
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
         format: wgpu::TextureFormat::Bgra8UnormSrgb,
         width: size.width as u32,
         height: size.height as u32,
         present_mode: wgpu::PresentMode::Mailbox,
     };
 
-    let swap_chain = device.create_swap_chain(&surface, &sc_desc);
+    surface.configure(&device, &surface_conf);
 
     // Set up dear imgui
     let mut imgui = imgui::Context::create();
@@ -93,7 +92,7 @@ pub fn init(title: &str) -> System {
     // Set up dear imgui wgpu renderer
     //
     let renderer_config = RendererConfig {
-        texture_format: sc_desc.format,
+        texture_format: surface_conf.format,
         ..Default::default()
     };
 
@@ -106,8 +105,7 @@ pub fn init(title: &str) -> System {
         platform,
         font_size,
         hidpi_factor,
-        sc_desc,
-        swap_chain,
+        surface_conf,
         window,
         device,
         queue,
@@ -123,10 +121,9 @@ impl System {
             mut renderer,
             // Currently not used, but was used pre-refactor
             // mut hidpi_factor,
-            mut sc_desc,
+            mut surface_conf,
             mut platform,
             window,
-            mut swap_chain,
             device,
             queue,
             surface,
@@ -153,9 +150,9 @@ impl System {
                     let size = window.inner_size();
 
                     // Recreate the swap chain with the new size
-                    sc_desc.width = size.width as u32;
-                    sc_desc.height = size.height as u32;
-                    swap_chain = device.create_swap_chain(&surface, &sc_desc);
+                    surface_conf.width = size.width as u32;
+                    surface_conf.height = size.height as u32;
+                    surface.configure(&device, &surface_conf);
                 }
                 Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
@@ -167,13 +164,16 @@ impl System {
                     imgui.io_mut().update_delta_time(now - last_frame);
                     last_frame = now;
 
-                    let frame = match swap_chain.get_current_frame() {
-                        Ok(frame) => frame,
+                    let frame = match surface.get_current_frame() {
+                        Ok(frame) => frame.output,
                         Err(e) => {
                             eprintln!("dropped frame: {:?}", e);
                             return;
                         }
                     };
+                    let view = frame
+                        .texture
+                        .create_view(&wgpu::TextureViewDescriptor::default());
 
                     platform
                         .prepare_frame(imgui.io_mut(), &window)
@@ -199,7 +199,7 @@ impl System {
                     let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                         label: None,
                         color_attachments: &[wgpu::RenderPassColorAttachment {
-                            view: &frame.output.view,
+                            view: &view,
                             resolve_target: None,
                             ops: wgpu::Operations {
                                 load: wgpu::LoadOp::Clear(wgpu::Color {

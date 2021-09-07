@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
+
+## v0.5.0
 ### General notes
 * Changed to using imgui types from `imgui-rs`. This improves compatibility
   with other code that uses `imgui-rs` directly (help by: @a1ien)

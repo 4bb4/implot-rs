@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 implot = { path = "../../" }
-imgui = "=0.7.0"
+imgui = "=0.8.0"

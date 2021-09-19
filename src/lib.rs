@@ -20,9 +20,8 @@ use implot_sys as sys;
 
 // TODO(4bb4) facade-wrap these?
 pub use self::{context::*, plot::*, plot_elements::*};
-use imgui::im_str;
-pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 use std::os::raw::c_char;
+pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 mod context;
 mod plot;
@@ -576,7 +575,7 @@ pub fn is_plot_y_axis_hovered(y_axis_choice: Option<YAxisChoice>) -> bool {
 
 /// Returns true if the given item in the legend of the current plot is hovered.
 pub fn is_legend_entry_hovered(legend_entry: &str) -> bool {
-    unsafe { sys::ImPlot_IsLegendEntryHovered(im_str!("{}", legend_entry).as_ptr() as *const c_char) }
+    unsafe { sys::ImPlot_IsLegendEntryHovered(legend_entry.as_ptr() as *const c_char) }
 }
 
 // --- Demo window -------------------------------------------------------------------------------

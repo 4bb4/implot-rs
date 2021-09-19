@@ -613,7 +613,7 @@ dependencies = [
 
 [[package]]
 name = "implot"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bitflags",
  "imgui",
@@ -624,7 +624,7 @@ dependencies = [
 
 [[package]]
 name = "implot-sys"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "cc",
  "imgui-sys",

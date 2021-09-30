@@ -9,9 +9,9 @@ resolver = "2"
 implot = { path = "../../" }
 
 wgpu = "0.10"
-winit = "0.24" # opening windows and handling input
+winit = "0.25" # opening windows and handling input
 futures = "^0.3.5" # executing async functions using blocking executor
 imgui = "=0.8.0"
 imgui-winit-support = "=0.8.0" # connection of input (keys) to imgui
-imgui-wgpu = "=0.17.0"
+imgui-wgpu = "=0.17.1"
 examples-shared = { path = "../examples-shared" }

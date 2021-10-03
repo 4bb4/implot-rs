@@ -1,11 +1,11 @@
 //! This example demonstrates how heatmaps are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Ui};
+use imgui::{CollapsingHeader, Ui};
 use implot::{ImPlotPoint, Plot, PlotHeatmap, PlotUi};
 
 pub fn show_basic_heatmap(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text(im_str!("This header shows a simple heatmap"));
+    ui.text("This header shows a simple heatmap");
     let content_width = ui.window_content_region_width();
     Plot::new("Heatmap plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -25,7 +25,7 @@ pub fn show_basic_heatmap(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
-    if CollapsingHeader::new(im_str!("Heatmap: Basic")).build(&ui) {
-        show_basic_heatmap(&ui, &plot_ui);
+    if CollapsingHeader::new("Heatmap: Basic").build(ui) {
+        show_basic_heatmap(ui, plot_ui);
     }
 }

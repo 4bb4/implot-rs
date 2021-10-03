@@ -5,10 +5,10 @@
 use crate::{Context, PlotLocation, PlotOrientation, PlotUi, YAxisChoice, NUMBER_OF_Y_AXES};
 use bitflags::bitflags;
 pub use imgui::Condition;
-use imgui::{im_str, ImString};
 use implot_sys as sys;
-use std::{cell::RefCell, rc::Rc};
+use std::ffi::CString;
 use std::os::raw::c_char;
+use std::{cell::RefCell, rc::Rc};
 pub use sys::{ImPlotLimits, ImPlotPoint, ImPlotRange, ImVec2, ImVec4};
 
 const DEFAULT_PLOT_SIZE_X: f32 = 400.0;
@@ -105,17 +105,17 @@ enum AxisLimitSpecification {
 /// (If you are coming from the C++ implementation or the C bindings: build() calls both
 /// begin() and end() internally)
 pub struct Plot {
-    /// Title of the plot, shown on top. Stored as ImString because that's what we'll use
-    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
-    title: ImString,
+    /// Title of the plot, shown on top. Stored as CString because that's what we'll use
+    /// afterwards, and this ensures the CString itself will stay alive long enough for the plot.
+    title: CString,
     /// Size of the plot in [x, y] direction, in the same units imgui uses.
     size: [f32; 2],
-    /// Label of the x axis, shown on the bottom. Stored as ImString because that's what we'll use
-    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
-    x_label: ImString,
-    /// Label of the y axis, shown on the left. Stored as ImString because that's what we'll use
-    /// afterwards, and this ensures the ImString itself will stay alive long enough for the plot.
-    y_label: ImString,
+    /// Label of the x axis, shown on the bottom. Stored as CString because that's what we'll use
+    /// afterwards, and this ensures the CString itself will stay alive long enough for the plot.
+    x_label: CString,
+    /// Label of the y axis, shown on the left. Stored as CString because that's what we'll use
+    /// afterwards, and this ensures the CString itself will stay alive long enough for the plot.
+    y_label: CString,
     /// X axis limits, if present
     x_limits: Option<AxisLimitSpecification>,
     /// Y axis limits, if present
@@ -125,10 +125,10 @@ pub struct Plot {
     /// Labels for custom X axis ticks, if any. I'd prefer to store these together
     /// with the positions in one vector of an algebraic data type, but this would mean extra
     /// copies when it comes time to draw the plot because the C++ library expects separate lists.
-    /// The data is stored as ImStrings because those are null-terminated, and since we have to
+    /// The data is stored as CStrings because those are null-terminated, and since we have to
     /// convert to null-terminated data anyway, we may as well do that directly instead of cloning
     /// Strings and converting them afterwards.
-    x_tick_labels: Option<Vec<ImString>>,
+    x_tick_labels: Option<Vec<CString>>,
     /// Whether to also show the default X ticks when showing custom ticks or not
     show_x_default_ticks: bool,
     /// Positions for custom Y axis ticks, if any
@@ -136,10 +136,10 @@ pub struct Plot {
     /// Labels for custom Y axis ticks, if any. I'd prefer to store these together
     /// with the positions in one vector of an algebraic data type, but this would mean extra
     /// copies when it comes time to draw the plot because the C++ library expects separate lists.
-    /// The data is stored as ImStrings because those are null-terminated, and since we have to
+    /// The data is stored as CStrings because those are null-terminated, and since we have to
     /// convert to null-terminated data anyway, we may as well do that directly instead of cloning
     /// Strings and converting them afterwards.
-    y_tick_labels: [Option<Vec<ImString>>; NUMBER_OF_Y_AXES],
+    y_tick_labels: [Option<Vec<CString>>; NUMBER_OF_Y_AXES],
     /// Whether to also show the default Y ticks when showing custom ticks or not
     show_y_default_ticks: [bool; NUMBER_OF_Y_AXES],
     /// Configuration for the legend, if specified. The tuple contains location, orientation
@@ -158,18 +158,23 @@ pub struct Plot {
 
 impl Plot {
     /// Create a new plot with some defaults set. Does not draw anything yet.
-    /// Note that this uses antialiasing by default, unlike the C++ API. If you are seeing artifacts or weird rendering, try disabling it.
+    /// Note that this uses antialiasing by default, unlike the C++ API. If you are seeing
+    /// artifacts or weird rendering, try disabling it.
+    ///
+    /// # Panics
+    /// Will panic if the title string contains internal null bytes.
     pub fn new(title: &str) -> Self {
         // Needed for initialization, see https://github.com/rust-lang/rust/issues/49147
         const POS_NONE: Option<Vec<f64>> = None;
-        const TICK_NONE: Option<Vec<ImString>> = None;
+        const TICK_NONE: Option<Vec<CString>> = None;
 
         // TODO(4bb4) question these defaults, maybe remove some of them
         Self {
-            title: im_str!("{}", title),
+            title: CString::new(title)
+                .unwrap_or_else(|_| panic!("String contains internal null bytes: {}", title)),
             size: [DEFAULT_PLOT_SIZE_X, DEFAULT_PLOT_SIZE_Y],
-            x_label: im_str!("").into(),
-            y_label: im_str!("").into(),
+            x_label: CString::new("").unwrap(),
+            y_label: CString::new("").unwrap(),
             x_limits: None,
             y_limits: Default::default(),
             x_tick_positions: None,
@@ -194,16 +199,24 @@ impl Plot {
     }
 
     /// Set the x label of the plot
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     #[inline]
     pub fn x_label(mut self, label: &str) -> Self {
-        self.x_label = im_str!("{}", label);
+        self.x_label = CString::new(label)
+            .unwrap_or_else(|_| panic!("String contains internal null bytes: {}", label));
         self
     }
 
     /// Set the y label of the plot
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     #[inline]
     pub fn y_label(mut self, label: &str) -> Self {
-        self.y_label = im_str!("{}", label);
+        self.y_label = CString::new(label)
+            .unwrap_or_else(|_| panic!("String contains internal null bytes: {}", label));
         self
     }
 
@@ -338,6 +351,9 @@ impl Plot {
     /// Set X ticks with labels for the plot. The vector contains one position and label
     /// each in the form of a tuple `(label_position, label_string)`. The `show_default`
     /// setting determines whether the default ticks are also shown.
+    ///
+    /// # Panics
+    /// Will panic if any of the tick label strings contain internal null bytes.
     #[inline]
     pub fn x_ticks_with_labels(
         mut self,
@@ -345,7 +361,15 @@ impl Plot {
         show_default: bool,
     ) -> Self {
         self.x_tick_positions = Some(tick_labels.iter().map(|x| x.0).collect());
-        self.x_tick_labels = Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
+        self.x_tick_labels = Some(
+            tick_labels
+                .iter()
+                .map(|x| {
+                    CString::new(x.1.as_str())
+                        .unwrap_or_else(|_| panic!("String contains internal null bytes: {}", x.1))
+                })
+                .collect(),
+        );
         self.show_x_default_ticks = show_default;
         self
     }
@@ -353,6 +377,9 @@ impl Plot {
     /// Set Y ticks with labels for the plot. The vector contains one position and label
     /// each in the form of a tuple `(label_position, label_string)`. The `show_default`
     /// setting determines whether the default ticks are also shown.
+    ///
+    /// # Panics
+    /// Will panic if any of the tick label strings contain internal null bytes.
     #[inline]
     pub fn y_ticks_with_labels(
         mut self,
@@ -362,8 +389,15 @@ impl Plot {
     ) -> Self {
         let axis_index = y_axis_choice as usize;
         self.y_tick_positions[axis_index] = Some(tick_labels.iter().map(|x| x.0).collect());
-        self.y_tick_labels[axis_index] =
-            Some(tick_labels.iter().map(|x| im_str!("{}", x.1)).collect());
+        self.y_tick_labels[axis_index] = Some(
+            tick_labels
+                .iter()
+                .map(|x| {
+                    CString::new(x.1.as_str())
+                        .unwrap_or_else(|_| panic!("String contains internal null bytes: {}", x.1))
+                })
+                .collect(),
+        );
         self.show_y_default_ticks[axis_index] = show_default;
         self
     }
@@ -618,7 +652,7 @@ impl Plot {
 pub struct PlotToken {
     context: *const Context,
     /// For better error messages
-    plot_title: ImString,
+    plot_title: CString,
 }
 
 impl PlotToken {
@@ -634,7 +668,7 @@ impl Drop for PlotToken {
     fn drop(&mut self) {
         if !self.context.is_null() && !std::thread::panicking() {
             panic!(
-                "Warning: A PlotToken for plot \"{}\" was not called end() on",
+                "Warning: A PlotToken for plot \"{:?}\" was not called end() on",
                 self.plot_title
             );
         }

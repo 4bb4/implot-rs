@@ -6,7 +6,7 @@ pub mod stairs_plots;
 mod stem_plots;
 pub mod text_plots;
 
-use imgui::{im_str, Condition, Ui, Window};
+use imgui::{Condition, Ui, Window};
 use implot::PlotUi;
 
 /// State of the demo code
@@ -28,45 +28,51 @@ impl DemoState {
         // Most of the demos are currently still stateless, so the code here mostly just calls into
         // the modules. The line plots demo is stateful though. Things will be refactored soon to
         // make all the individual demos stateful to unify things more.
-        Window::new(im_str!("implot-rs demo"))
+        Window::new("implot-rs demo")
             .size([430.0, 450.0], Condition::FirstUseEver)
             .build(ui, || {
-                ui.text(im_str!("Hello from implot-rs!"));
-                ui.text_wrapped(im_str!(
+                ui.text("Hello from implot-rs!");
+                ui.text_wrapped(
                     "The headers here demo the plotting features of the library.\
                  Have a look at the example source code to see how they are implemented.\n\
                  Check out the demo from ImPlot itself first for instructions on how to\
-                 interact with ImPlot plots."
-                ));
+                 interact with ImPlot plots.",
+                );
 
                 ui.separator();
-                ui.text(im_str!("Bar plots:"));
+                ui.text("Bar plots:");
                 bar_plots::show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Line plots:"));
+                ui.text("Line plots:");
                 // The line plots demo is stateful
                 self.line_plots.show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Scatter plots:"));
+                ui.text("Scatter plots:");
                 scatter_plots::show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Text plots:"));
+                ui.text("Text plots:");
                 text_plots::show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Stairs plots:"));
+                ui.text("Stairs plots:");
                 stairs_plots::show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Heatmaps:"));
+                ui.text("Heatmaps:");
                 heatmaps::show_demo_headers(ui, plot_ui);
 
                 ui.separator();
-                ui.text(im_str!("Stem plots:"));
+                ui.text("Stem plots:");
                 stem_plots::show_demo_headers(ui, plot_ui);
             });
+    }
+}
+
+impl Default for DemoState {
+    fn default() -> Self {
+        Self::new()
     }
 }

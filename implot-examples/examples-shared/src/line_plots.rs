@@ -1,7 +1,7 @@
 //! This example demonstrates how line plots are to be used, along with some querying features
 //! that will be applicable to all kinds of plots.
 
-use imgui::{im_str, CollapsingHeader, Condition, Ui};
+use imgui::{CollapsingHeader, Condition, Ui};
 use implot::{
     get_plot_limits, get_plot_mouse_position, get_plot_query, is_legend_entry_hovered,
     is_plot_hovered, is_plot_queried, pixels_to_plot_vec2, plot_to_pixels_vec2, push_style_color,
@@ -27,9 +27,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header just plots a line with as little code as possible."
-        ));
+        ui.text("This header just plots a line with as little code as possible.");
         let content_width = ui.window_content_region_width();
         Plot::new("Simple line plot")
             // The size call could also be omitted, though the defaults don't consider window
@@ -44,9 +42,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_two_yaxis_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header shows how to create a plot with multiple Y axes."
-        ));
+        ui.text("This header shows how to create a plot with multiple Y axes.");
         let content_width = ui.window_content_region_width();
         Plot::new("Multiple Y axis plots")
             // The size call could also be omitted, though the defaults don't consider window
@@ -79,7 +75,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_axis_equal_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!("This plot has axis equal set (1:1 aspect ratio)."));
+        ui.text("This plot has axis equal set (1:1 aspect ratio).");
         let content_width = ui.window_content_region_width();
         Plot::new("Axis equal line plot")
             // The size call could also be omitted, though the defaults don't consider window
@@ -95,9 +91,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_configurable_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header demos what we can configure about plots."
-        ));
+        ui.text("This header demos what we can configure about plots.");
 
         // Settings for the plot
         // - X and Y size in pixels
@@ -127,8 +121,8 @@ impl LinePlotDemoState {
         // Axis labels
         Plot::new("Configured line plot")
             .size([x_size, y_size])
-            .x_label(&x_label)
-            .y_label(&y_label)
+            .x_label(x_label)
+            .y_label(y_label)
             .x_limits(
                 ImPlotRange {
                     Min: x_min,
@@ -156,14 +150,12 @@ impl LinePlotDemoState {
             .with_y_axis_flags(YAxisChoice::First, &y_axis_flags)
             .with_legend_location(&PlotLocation::West, &PlotOrientation::Horizontal, true)
             .build(plot_ui, || {
-                PlotLine::new("A line 2").plot(&vec![2.4, 2.9], &vec![1.1, 1.9]);
+                PlotLine::new("A line 2").plot(&[2.4, 2.9], &[1.1, 1.9]);
             });
     }
 
     pub fn show_query_features_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header demos how to use the querying features."
-        ));
+        ui.text("This header demos how to use the querying features.");
         let content_width = ui.window_content_region_width();
 
         // Create some containers for exfiltrating data from the closure below
@@ -202,8 +194,8 @@ impl LinePlotDemoState {
                 ));
 
                 // Plot a line so we have a legend entry
-                PlotLine::new("Legend1").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
-                PlotLine::new("Legend2").plot(&vec![0.0, 0.0], &vec![1.0, 1.0]);
+                PlotLine::new("Legend1").plot(&[2.0, 2.0], &[2.0, 1.0]);
+                PlotLine::new("Legend2").plot(&[0.0, 0.0], &[1.0, 1.0]);
                 legend1_hovered = is_legend_entry_hovered("Legend1");
                 legend2_hovered = is_legend_entry_hovered("Legend2");
 
@@ -217,43 +209,39 @@ impl LinePlotDemoState {
         // things like is_plot_hovered or get_plot_mouse_position() outside
         // of an actual Plot is not allowed.
         if let Some(pos) = hover_pos_plot {
-            ui.text(im_str!("hovered at {}, {}", pos.x, pos.y));
+            ui.text(format!("hovered at {}, {}", pos.x, pos.y));
         }
         if let Some(pixel_position) = hover_pos_pixels {
             // Try out converting plot mouse position to pixel position
-            ui.text(im_str!(
+            ui.text(format!(
                 "pixel pos from plot:  {}, {}",
-                pixel_position.x,
-                pixel_position.y
+                pixel_position.x, pixel_position.y
             ));
-            ui.text(im_str!(
+            ui.text(format!(
                 "pixel pos from imgui: {}, {}",
                 ui.io().mouse_pos[0],
                 ui.io().mouse_pos[1]
             ));
         }
         if let Some(limits) = plot_limits {
-            ui.text(im_str!("Plot limits are {:#?}", limits));
+            ui.text(format!("Plot limits are {:#?}", limits));
         }
         if let Some(query) = query_limits {
-            ui.text(im_str!("Query limits are {:#?}", query));
+            ui.text(format!("Query limits are {:#?}", query));
         }
-        ui.text(im_str!(
+        ui.text(format!(
             "Legend hovering - 1: {}, 2: {}",
-            legend1_hovered,
-            legend2_hovered
+            legend1_hovered, legend2_hovered
         ));
 
         // Try out converting pixel position to plot position
         if let Some(pos) = hover_pos_from_pixels {
-            ui.text(im_str!("plot pos from imgui: {}, {}", pos.x, pos.y,));
+            ui.text(format!("plot pos from imgui: {}, {}", pos.x, pos.y,));
         }
     }
 
     pub fn show_style_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header demos how to use the styling features."
-        ));
+        ui.text("This header demos how to use the styling features.");
         let content_width = ui.window_content_region_width();
 
         // The style stack works the same as for other imgui things - we can push
@@ -278,14 +266,14 @@ impl LinePlotDemoState {
                 // Markers can be selected as shown here. The markers are internally represented
                 // as an u32, hence this calling style.
                 let markerchoice = push_style_var_i32(&StyleVar::Marker, Marker::Cross as i32);
-                PlotLine::new("Left eye").plot(&vec![2.0, 2.0], &vec![2.0, 1.0]);
+                PlotLine::new("Left eye").plot(&[2.0, 2.0], &[2.0, 1.0]);
                 // Calling pop() on the return value of the push above will undo the marker choice.
                 markerchoice.pop();
 
                 // Line weights can be set the same way, along with some other things - see
                 // the docs of StyleVar for more info.
                 let lineweight = push_style_var_f32(&StyleVar::LineWeight, 5.0);
-                PlotLine::new("Right eye").plot(&vec![4.0, 4.0], &vec![2.0, 1.0]);
+                PlotLine::new("Right eye").plot(&[4.0, 4.0], &[2.0, 1.0]);
                 lineweight.pop();
 
                 let x_values = vec![1.0, 2.0, 4.0, 5.0];
@@ -297,7 +285,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_colormaps_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!("This header demos how to select colormaps."));
+        ui.text("This header demos how to select colormaps.");
         let content_width = ui.window_content_region_width();
 
         // Select a colormap from the presets. The presets are listed in the Colormap enum
@@ -311,9 +299,7 @@ impl LinePlotDemoState {
             .build(plot_ui, || {
                 (1..10)
                     .map(|x| x as f64 * 0.1)
-                    .map(|x| {
-                        PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x])
-                    })
+                    .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&[0.1, 0.9], &[x, x]))
                     .count();
             });
 
@@ -340,9 +326,7 @@ impl LinePlotDemoState {
             .build(plot_ui, || {
                 (1..10)
                     .map(|x| x as f64 * 0.1)
-                    .map(|x| {
-                        PlotLine::new(&format!("{:3.3}", x)).plot(&vec![0.1, 0.9], &vec![x, x])
-                    })
+                    .map(|x| PlotLine::new(&format!("{:3.3}", x)).plot(&[0.1, 0.9], &[x, x]))
                     .count();
             });
 
@@ -352,9 +336,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_conversions_plot(ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "This header demonstrates (in code) how to convert various ranges into ImRange"
-        ));
+        ui.text("This header demonstrates (in code) how to convert various ranges into ImRange");
         let content_width = ui.window_content_region_width();
         Plot::new("Simple line plot, conversion 1")
             .size([content_width, 300.0])
@@ -369,9 +351,7 @@ impl LinePlotDemoState {
     }
 
     pub fn show_linked_x_axis_plots(&mut self, ui: &Ui, plot_ui: &PlotUi) {
-        ui.text(im_str!(
-            "These plots have their X axes linked, but not the Y axes"
-        ));
+        ui.text("These plots have their X axes linked, but not the Y axes");
         let content_width = ui.window_content_region_width();
         Plot::new("Linked plot 1")
             .size([content_width, 300.0])
@@ -392,32 +372,38 @@ impl LinePlotDemoState {
     }
 
     pub fn show_demo_headers(&mut self, ui: &Ui, plot_ui: &PlotUi) {
-        if CollapsingHeader::new(im_str!("Line plot: Basic")).build(&ui) {
-            Self::show_basic_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Basic").build(ui) {
+            Self::show_basic_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Configured")).build(&ui) {
-            Self::show_configurable_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Configured").build(ui) {
+            Self::show_configurable_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line Plot: Plot queries")).build(&ui) {
-            Self::show_query_features_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line Plot: Plot queries").build(ui) {
+            Self::show_query_features_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Plot styling")).build(&ui) {
-            Self::show_style_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Plot styling").build(ui) {
+            Self::show_style_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Colormaps")).build(&ui) {
-            Self::show_colormaps_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Colormaps").build(ui) {
+            Self::show_colormaps_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Multiple Y Axes")).build(&ui) {
-            Self::show_two_yaxis_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Multiple Y Axes").build(ui) {
+            Self::show_two_yaxis_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: \"Axis equal\"")).build(&ui) {
-            Self::show_axis_equal_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: \"Axis equal\"").build(ui) {
+            Self::show_axis_equal_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Range conversions")).build(&ui) {
-            Self::show_conversions_plot(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Range conversions").build(ui) {
+            Self::show_conversions_plot(ui, plot_ui);
         }
-        if CollapsingHeader::new(im_str!("Line plot: Linked plots")).build(&ui) {
-            self.show_linked_x_axis_plots(&ui, &plot_ui);
+        if CollapsingHeader::new("Line plot: Linked plots").build(ui) {
+            self.show_linked_x_axis_plots(ui, plot_ui);
         }
+    }
+}
+
+impl Default for LinePlotDemoState {
+    fn default() -> Self {
+        Self::new()
     }
 }

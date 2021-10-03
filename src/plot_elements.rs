@@ -4,7 +4,7 @@
 //! as lines, bars, scatter plots and text in a plot. For the module to create plots themselves,
 //! see `plot`.
 use crate::sys;
-use imgui::{im_str, ImString};
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 pub use crate::sys::ImPlotPoint;
@@ -13,14 +13,18 @@ pub use crate::sys::ImPlotPoint;
 /// Struct to provide functionality for plotting a line in a plot.
 pub struct PlotLine {
     /// Label to show in the legend for this line
-    label: String,
+    label: CString,
 }
 
 impl PlotLine {
     /// Create a new line to be plotted. Does not draw anything yet.
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
         }
     }
 
@@ -32,7 +36,7 @@ impl PlotLine {
         }
         unsafe {
             sys::ImPlot_PlotLinedoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -46,14 +50,18 @@ impl PlotLine {
 /// Struct to provide functionality for plotting a line in a plot with stairs style.
 pub struct PlotStairs {
     /// Label to show in the legend for this line
-    label: String,
+    label: CString,
 }
 
 impl PlotStairs {
     /// Create a new line to be plotted. Does not draw anything yet.
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
         }
     }
 
@@ -66,7 +74,7 @@ impl PlotStairs {
         }
         unsafe {
             sys::ImPlot_PlotStairsdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -80,14 +88,18 @@ impl PlotStairs {
 /// Struct to provide functionality for creating a scatter plot
 pub struct PlotScatter {
     /// Label to show in the legend for this scatter plot
-    label: String,
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
+    label: CString,
 }
 
 impl PlotScatter {
     /// Create a new scatter plot to be shown. Does not draw anything yet.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
         }
     }
 
@@ -100,7 +112,7 @@ impl PlotScatter {
         }
         unsafe {
             sys::ImPlot_PlotScatterdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 x.len().min(y.len()) as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -114,7 +126,7 @@ impl PlotScatter {
 /// Struct to provide bar plotting functionality.
 pub struct PlotBars {
     /// Label to show in the legend for this line
-    label: String,
+    label: CString,
 
     /// Width of the bars, in plot coordinate terms
     bar_width: f64,
@@ -126,9 +138,13 @@ pub struct PlotBars {
 impl PlotBars {
     /// Create a new bar plot to be shown. Defaults to drawing vertical bars.
     /// Does not draw anything yet.
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
             bar_width: 0.67, // Default value taken from C++ implot
             horizontal_bars: false,
         }
@@ -164,18 +180,34 @@ impl PlotBars {
             let (plot_function, x, y);
             if self.horizontal_bars {
                 plot_function = sys::ImPlot_PlotBarsHdoublePtrdoublePtr
-                    as unsafe extern "C" fn(*const c_char, *const f64, *const f64, i32, f64, i32, i32);
+                    as unsafe extern "C" fn(
+                        *const c_char,
+                        *const f64,
+                        *const f64,
+                        i32,
+                        f64,
+                        i32,
+                        i32,
+                    );
                 x = bar_values;
                 y = axis_positions;
             } else {
                 plot_function = sys::ImPlot_PlotBarsdoublePtrdoublePtr
-                    as unsafe extern "C" fn(*const c_char, *const f64, *const f64, i32, f64, i32, i32);
+                    as unsafe extern "C" fn(
+                        *const c_char,
+                        *const f64,
+                        *const f64,
+                        i32,
+                        f64,
+                        i32,
+                        i32,
+                    );
                 x = axis_positions;
                 y = bar_values;
             };
 
             plot_function(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 x.as_ptr(),
                 y.as_ptr(),
                 number_of_points as i32, // "as" casts saturate as of Rust 1.45. This is safe here.
@@ -190,7 +222,7 @@ impl PlotBars {
 /// Struct to provide functionality for adding text within a plot
 pub struct PlotText {
     /// Label to show in plot
-    label: String,
+    label: CString,
 
     /// X component of the pixel offset to be used. Will be used independently of the actual plot
     /// scaling. Defaults to 0.
@@ -203,9 +235,13 @@ pub struct PlotText {
 
 impl PlotText {
     /// Create a new text label to be shown. Does not draw anything yet.
+    ///
+    /// # Panics
+    /// Will panic if the label string contains internal null bytes.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.into(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
             pixel_offset_x: 0.0,
             pixel_offset_y: 0.0,
         }
@@ -223,13 +259,13 @@ impl PlotText {
     /// closures passed to [`Plot::build()`](struct.Plot.html#method.build)
     pub fn plot(&self, x: f64, y: f64, vertical: bool) {
         // If there is nothing to show, don't do anything
-        if self.label.is_empty() {
+        if self.label.as_bytes().is_empty() {
             return;
         }
 
         unsafe {
             sys::ImPlot_PlotText(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 x,
                 y,
                 vertical,
@@ -245,7 +281,7 @@ impl PlotText {
 /// Struct to provide functionality for creating headmaps.
 pub struct PlotHeatmap {
     /// Label to show in plot
-    label: String,
+    label: CString,
 
     /// Scale range of the values shown. If this is set to `None`, the scale
     /// is computed based on the values given to the `plot` function. If there
@@ -255,7 +291,7 @@ pub struct PlotHeatmap {
     /// Label C style format string, this is shown when a a value point is hovered.
     /// None means don't show a label. The label is stored directly as an ImString because
     /// that is what's needed for the plot call anyway. Conversion is done in the setter.
-    label_format: Option<ImString>,
+    label_format: Option<CString>,
 
     /// Lower left point for the bounding rectangle. This is called `bounds_min` in the C++ code.
     drawarea_lower_left: ImPlotPoint,
@@ -271,9 +307,10 @@ impl PlotHeatmap {
     /// anything yet.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
             scale_range: None,
-            label_format: Some(im_str!("%.1f").to_owned()),
+            label_format: Some(CString::new("%.1f").unwrap()),
             drawarea_lower_left: ImPlotPoint { x: 0.0, y: 0.0 },
             drawarea_upper_right: ImPlotPoint { x: 1.0, y: 1.0 },
         }
@@ -286,8 +323,14 @@ impl PlotHeatmap {
     }
 
     /// Specify the label format for hovered data points.. `None` means no label is shown.
+    ///
+    /// # Panics
+    /// Will panic if the label format string contains internal null bytes.
     pub fn with_label_format(mut self, label_format: Option<&str>) -> Self {
-        self.label_format = label_format.map(|x| im_str!("{}", x));
+        self.label_format = label_format.map(|x| {
+            CString::new(x)
+                .unwrap_or_else(|_| panic!("Format label string has internal null bytes: {}", x))
+        });
         self
     }
 
@@ -314,7 +357,7 @@ impl PlotHeatmap {
 
         unsafe {
             sys::ImPlot_PlotHeatmapdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 values.as_ptr(),
                 number_of_rows as i32, // Not sure why C++ code uses a signed value here
                 number_of_cols as i32, // Not sure why C++ code uses a signed value here
@@ -337,7 +380,7 @@ impl PlotHeatmap {
 /// Struct to provide stem plotting functionality.
 pub struct PlotStems {
     /// Label to show in the legend for this line
-    label: String,
+    label: CString,
 
     /// Reference value for the y value, which the stems are "with respect to"
     reference_y: f64,
@@ -348,7 +391,8 @@ impl PlotStems {
     /// [`PlotStems::plot`] on the struct for that.
     pub fn new(label: &str) -> Self {
         Self {
-            label: label.to_owned(),
+            label: CString::new(label)
+                .unwrap_or_else(|_| panic!("Label string has internal null bytes: {}", label)),
             reference_y: 0.0, // Default value taken from C++ implot
         }
     }
@@ -370,7 +414,7 @@ impl PlotStems {
         }
         unsafe {
             sys::ImPlot_PlotStemsdoublePtrdoublePtr(
-                im_str!("{}", self.label).as_ptr() as *const c_char,
+                self.label.as_ptr() as *const c_char,
                 axis_positions.as_ptr(),
                 stem_values.as_ptr(),
                 number_of_points as i32, // "as" casts saturate as of Rust 1.45. This is safe here.

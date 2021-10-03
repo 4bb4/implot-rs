@@ -1,11 +1,11 @@
 //! This example demonstrates how stem plots are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Ui};
+use imgui::{CollapsingHeader, Ui};
 use implot::{Plot, PlotStems, PlotUi};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text(im_str!("This header shows a simple stem plot."));
+    ui.text("This header shows a simple stem plot.");
     let content_width = ui.window_content_region_width();
     Plot::new("Stem plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -22,7 +22,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
-    if CollapsingHeader::new(im_str!("Stem plots")).build(&ui) {
-        show_basic_plot(&ui, &plot_ui);
+    if CollapsingHeader::new("Stem plots").build(ui) {
+        show_basic_plot(ui, plot_ui);
     }
 }

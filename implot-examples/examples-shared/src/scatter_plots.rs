@@ -1,13 +1,11 @@
 //! This example demonstrates how scatter plots are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Ui};
+use imgui::{CollapsingHeader, Ui};
 use implot::{push_style_var_f32, push_style_var_i32, Marker, Plot, PlotScatter, PlotUi, StyleVar};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text(im_str!(
-        "This header just draws a scatter plot with as little code as possible."
-    ));
+    ui.text("This header just draws a scatter plot with as little code as possible.");
     let content_width = ui.window_content_region_width();
     Plot::new("Simple scatter plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -22,9 +20,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_custom_markers_plot(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text(im_str!(
-        "This header shows how markers can be used in scatter plots."
-    ));
+    ui.text("This header shows how markers can be used in scatter plots.");
     let content_width = ui.window_content_region_width();
     Plot::new("Multi-marker scatter plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -53,11 +49,11 @@ pub fn show_custom_markers_plot(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
-    if CollapsingHeader::new(im_str!("Basic scatter plot")).build(&ui) {
-        show_basic_plot(&ui, &plot_ui);
+    if CollapsingHeader::new("Basic scatter plot").build(ui) {
+        show_basic_plot(ui, plot_ui);
     }
 
-    if CollapsingHeader::new(im_str!("Custom markers")).build(&ui) {
-        show_custom_markers_plot(&ui, &plot_ui);
+    if CollapsingHeader::new("Custom markers").build(ui) {
+        show_custom_markers_plot(ui, plot_ui);
     }
 }

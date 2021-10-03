@@ -1,13 +1,11 @@
 //! This example demonstrates how the text plotting features are to be used. For more general
 //! features of the libray, see the line_plots example.
 
-use imgui::{im_str, CollapsingHeader, Ui};
+use imgui::{CollapsingHeader, Ui};
 use implot::{Plot, PlotText, PlotUi};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text(im_str!(
-        "This header just plots some text with as little code as possible."
-    ));
+    ui.text("This header just plots some text with as little code as possible.");
     let content_width = ui.window_content_region_width();
     Plot::new("Simple text plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -29,7 +27,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
-    if CollapsingHeader::new(im_str!("Text plot: Basic")).build(&ui) {
-        show_basic_plot(&ui, &plot_ui);
+    if CollapsingHeader::new("Text plot: Basic").build(ui) {
+        show_basic_plot(ui, plot_ui);
     }
 }

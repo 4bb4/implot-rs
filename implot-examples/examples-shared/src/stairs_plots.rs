@@ -1,13 +1,11 @@
 //! This example demonstrates how stairs plots are to be used. They are almost the same as line
 //! plots, so head over to the line plots example for more info.
 //!
-use imgui::{im_str, CollapsingHeader, Ui};
+use imgui::{CollapsingHeader, Ui};
 use implot::{Plot, PlotStairs, PlotUi};
 
 pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
-    ui.text_wrapped(im_str!(
-        "This header just plots a stairs-style line with as little code as possible."
-    ));
+    ui.text_wrapped("This header just plots a stairs-style line with as little code as possible.");
     let content_width = ui.window_content_region_width();
     Plot::new("Simple stairs plot")
         // The size call could also be omitted, though the defaults don't consider window
@@ -22,7 +20,7 @@ pub fn show_basic_plot(ui: &Ui, plot_ui: &PlotUi) {
 }
 
 pub fn show_demo_headers(ui: &Ui, plot_ui: &PlotUi) {
-    if CollapsingHeader::new(im_str!("Stairs plot: Basic")).build(&ui) {
-        show_basic_plot(&ui, &plot_ui);
+    if CollapsingHeader::new("Stairs plot: Basic").build(ui) {
+        show_basic_plot(ui, plot_ui);
     }
 }

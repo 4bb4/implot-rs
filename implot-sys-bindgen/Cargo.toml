@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 bindgen = "0.57"
-imgui-sys = { version = "=0.8.0" }
+imgui-sys = { version = "0.8.0" }

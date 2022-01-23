@@ -322,11 +322,19 @@ impl PlotHeatmap {
         self
     }
 
-    /// Specify the label format for hovered data points.. `None` means no label is shown.
+    /// Specify the label format for hovered data points. `None` means no label is shown.
     ///
     /// # Panics
     /// Will panic if the label format string contains internal null bytes.
-    pub fn with_label_format(mut self, label_format: Option<&str>) -> Self {
+    ///
+    /// # Safety
+    /// This function directly sets the format string of a C formatting function (`sprintf`). As
+    /// such, one has to check oneself that the formatted numbers do not yield strings exceeding
+    /// the length of the buffer used in the C++ code (32 bytes right now, this might change in the
+    /// future, make sure to check in the vendored-in C++ code to be sure). While the string is
+    /// not used until later and hence the function here is strictly speaking safe, the effect
+    /// of this function can lead to unsoundness later, hence it is marked as unsafe.
+    pub unsafe fn with_label_format(mut self, label_format: Option<&str>) -> Self {
         self.label_format = label_format.map(|x| {
             CString::new(x)
                 .unwrap_or_else(|_| panic!("Format label string has internal null bytes: {}", x))

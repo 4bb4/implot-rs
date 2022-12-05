@@ -12,7 +12,7 @@ build = "build.rs"
 links = "implot"
 
 [dependencies]
-imgui-sys = "0.8.0"
+imgui-sys = "0.9.0"
 
 [build-dependencies]
 cc = "1.0"
